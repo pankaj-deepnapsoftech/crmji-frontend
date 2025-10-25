@@ -4,8 +4,15 @@ import {
   FormLabel,
   Input,
   Select,
+  Textarea,
+  Box,
+  VStack,
+  HStack,
+  Text,
+  IconButton,
 } from "@chakra-ui/react";
 import { BiX } from "react-icons/bi";
+import { MdAdd, MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
@@ -16,29 +23,60 @@ const CompaniesEditDrawer = ({
   closeDrawerHandler,
   fetchAllCompanies,
 }) => {
-  const [peoples, setPeoples] = useState([]);
-  const [name, setName] = useState("");
-  const [contact, setContact] = useState();
+  const [companyName, setCompanyName] = useState("");
+  const [address, setAddress] = useState("");
+  const [contactPersonName, setContactPersonName] = useState("");
   const [phone, setPhone] = useState("");
+  const [designation, setDesignation] = useState("");
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [gstNo, setGstNo] = useState("");
-  const [address, setAddress] = useState("");
-  const [secondPersonName, setSecondPersonName] = useState("");
-  const [secondPersonContact, setSecondPersonContact] = useState("");
-  const [secondPersonDesignation, setSecondPersonDesignation] = useState("");
   const [status, setStatus] = useState("");
-  const [statusOptions, setStatusOptions] = useState([
-    "Not Pick",
-    "Not Interested",
-    "Switch Off",
-  ]);
-  const [customStatus, setCustomStatus] = useState("");
+  const [comment, setComment] = useState("");
+  const [additionalContacts, setAdditionalContacts] = useState([]);
+  const [statusOptions, setStatusOptions] = useState([]);
   const [cookies] = useCookies();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Add only if none exists
+  const addAdditionalContact = () => {
+    if (additionalContacts.length === 0) {
+      setAdditionalContacts([
+        { name: "", phone: "", designation: "", email: "" }
+      ]);
+    }
+  };
+
+  const removeAdditionalContact = () => {
+    setAdditionalContacts([]);
+  };
+
+  const updateAdditionalContact = (field, value) => {
+    setAdditionalContacts(prev => {
+      const updated = [...prev];
+      updated[0][field] = value;
+      return updated;
+    });
+  };
+
   const editCompanyHandler = async (e) => {
     e.preventDefault();
+
+    // Validation
+    if (phone.length !== 10) {
+      toast.error("Phone number must be exactly 10 digits");
+      return;
+    }
+
+    if (gstNo && gstNo.length !== 15) {
+      toast.error("GST number must be exactly 15 characters");
+      return;
+    }
+
+    if (gstNo && !/^[A-Z0-9]{15}$/.test(gstNo)) {
+      toast.error("GST number must contain only capital letters and numbers");
+      return;
+    }
 
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
@@ -51,17 +89,22 @@ const CompaniesEditDrawer = ({
         },
         body: JSON.stringify({
           companyId: id,
-          companyname: name,
-          email: email,
-          contact: contact,
-          phone: phone,
-          website: website,
+          companyname: companyName.trim(),
+          address: address.trim(),
+          contactPersonName: contactPersonName.trim(),
+          phone,
+          designation: designation.trim(),
+          email: email.trim(),
+          website: website.trim(),
           gst_no: gstNo,
-          address,
-          secondPersonName,
-          secondPersonContact,
-          secondPersonDesignation,
-          ...(status ? { status } : {}),
+          status,
+          additionalContacts: additionalContacts.map(c => ({
+            name: c.name.trim(),
+            phone: c.phone,
+            designation: c.designation.trim(),
+            email: c.email.trim(),
+          })),
+          comment: comment.trim(),
         }),
       });
 
@@ -79,71 +122,93 @@ const CompaniesEditDrawer = ({
     }
   };
 
-  const getAllPeoples = async () => {
+  const fetchStatusOptions = async () => {
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
-
-      const response = await fetch(baseURL + "people/all-persons", {
-        method: "POST",
+      const response = await fetch(baseURL + "company-status/all", {
+        method: "GET",
         headers: {
           authorization: `Bearer ${cookies?.access_token}`,
         },
       });
 
       const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message);
+      if (data.success && data.data.length > 0) {
+        setStatusOptions(data.data.map(s => ({ value: s.name, label: s.name })));
+      } else {
+        setStatusOptions([
+          { value: "Active", label: "Active" },
+          { value: "Inactive", label: "Inactive" },
+          { value: "Prospect", label: "Prospect" },
+          { value: "Customer", label: "Customer" },
+          { value: "Not Interested", label: "Not Interested" },
+          { value: "On Hold", label: "On Hold" },
+        ]);
       }
-      setPeoples(data.people);
     } catch (err) {
-      toast(err.message);
+      console.error("Error fetching status options:", err);
+      setStatusOptions([
+        { value: "Active", label: "Active" },
+        { value: "Inactive", label: "Inactive" },
+        { value: "Prospect", label: "Prospect" },
+        { value: "Customer", label: "Customer" },
+        { value: "Not Interested", label: "Not Interested" },
+        { value: "On Hold", label: "On Hold" },
+      ]);
     }
   };
 
   const fetchCompanyDetails = async () => {
     setIsLoading(true);
     try {
-      const baseUrl = process.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(baseUrl + "company/company-details", {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(baseURL + "company/company-details", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${cookies?.access_token}`,
+          authorization: `Bearer ${cookies?.access_token}`,
         },
-        body: JSON.stringify({
-          companyId: id,
-        }),
+        body: JSON.stringify({ companyId: id }),
       });
 
       const data = await response.json();
+      if (!data.success) throw new Error(data.message);
 
-      if (!data.success) {
-        throw new Error(data.message);
+      const company = data.company;
+      setCompanyName(company.companyname || "");
+      setAddress(company.address || "");
+      setContactPersonName(company.contactPersonName || "");
+      setPhone(company.phone || "");
+      setDesignation(company.designation || "");
+      setEmail(company.email || "");
+      setWebsite(company.website || "");
+      setGstNo(company.gst_no || "");
+      setStatus(company.status || "");
+
+      // Additional Contact
+      if (company.additionalContacts && company.additionalContacts.length > 0) {
+        const contact = company.additionalContacts[0];
+        setAdditionalContacts([{
+          name: contact.name || "",
+          phone: contact.phone || "",
+          designation: contact.designation || "",
+          email: contact.email || "",
+        }]);
+      } else {
+        setAdditionalContacts([]);
       }
-
-      setName(data.company?.companyname);
-      setEmail(data.company?.email);
-      setContact(data.company?.contact);
-      setPhone(data.company?.phone);
-      setWebsite(data.company?.website);
-      setGstNo(data.company?.gst_no);
-      setAddress(data.company?.address || "");
-      setSecondPersonName(data.company?.secondPersonName || "");
-      setSecondPersonContact(data.company?.secondPersonContact || "");
-      setSecondPersonDesignation(data.company?.secondPersonDesignation || "");
-      setStatus(data.company?.status || "");
 
       setIsLoading(false);
     } catch (err) {
       toast.error(err.message);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCompanyDetails();
-    getAllPeoples();
-  }, []);
+    fetchStatusOptions();
+  }, [id]);
 
   return (
     <div
@@ -164,103 +229,82 @@ const CompaniesEditDrawer = ({
         </h2>
 
         {isLoading && <Loading />}
+
         {!isLoading && (
           <form onSubmit={editCompanyHandler} className="space-y-5">
-            <FormControl className="mt-3 mb-5" isRequired>
+
+            {/* Company Name */}
+            <FormControl isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                Name
+                Company Name
               </FormLabel>
               <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                type="text"
-                placeholder="Corporate Name"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="Enter Company Name"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
               />
             </FormControl>
 
             {/* Address */}
-            <FormControl className="mt-3 mb-5">
+            <FormControl isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
                 Address
               </FormLabel>
-              <Input
+              <Textarea
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Enter Company Address"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+                rows={3}
               />
             </FormControl>
 
-            <FormControl className="mt-3 mb-5">
+            {/* Contact Person Name */}
+            <FormControl isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                Contact Person
+                Contact Person Name
               </FormLabel>
               <Input
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                type="text"
-                placeholder="Contact Person"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={contactPersonName}
+                onChange={(e) => setContactPersonName(e.target.value)}
+                placeholder="Enter Contact Person Name"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
               />
             </FormControl>
 
-            {/* Second Person Name */}
-            <FormControl className="mt-3 mb-5">
+            {/* Phone */}
+            <FormControl isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                2nd Person Name
-              </FormLabel>
-              <Input
-                value={secondPersonName}
-                onChange={(e) => setSecondPersonName(e.target.value)}
-                type="text"
-                placeholder="Enter 2nd Person Name"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </FormControl>
-
-            {/* Second Person Contact */}
-            <FormControl className="mt-3 mb-5">
-              <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                2nd Person Contact
-              </FormLabel>
-              <Input
-                value={secondPersonContact}
-                onChange={(e) => setSecondPersonContact(e.target.value)}
-                type="text"
-                placeholder="Enter 2nd Person Contact"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </FormControl>
-
-            {/* Second Person Designation */}
-            <FormControl className="mt-3 mb-5">
-              <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                2nd Person Designation
-              </FormLabel>
-              <Input
-                value={secondPersonDesignation}
-                onChange={(e) => setSecondPersonDesignation(e.target.value)}
-                type="text"
-                placeholder="Enter 2nd Person Designation"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </FormControl>
-
-            <FormControl className="mt-3 mb-5" isRequired>
-              <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                Phone
+                Phone Number
               </FormLabel>
               <Input
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                type="number"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Phone"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setPhone(value);
+                }}
+                placeholder="Enter 10-digit Phone Number"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+                maxLength={10}
               />
             </FormControl>
 
-            <FormControl className="mt-3 mb-5">
+            {/* Designation */}
+            <FormControl isRequired>
+              <FormLabel fontWeight="bold" className="text-[#4B5563]">
+                Designation of Contact Person
+              </FormLabel>
+              <Input
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+                placeholder="Enter Designation"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+              />
+            </FormControl>
+
+            {/* Email */}
+            <FormControl isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
                 Email
               </FormLabel>
@@ -268,77 +312,165 @@ const CompaniesEditDrawer = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
-                placeholder="Email"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Enter Email Address"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
               />
             </FormControl>
 
-            <FormControl className="mt-3 mb-5">
+            {/* Additional Contact */}
+            <Box>
+              <HStack justify="space-between" mb={2}>
+                <Text fontWeight="bold" className="text-[#4B5563]">
+                  Additional Contact Information
+                </Text>
+                {additionalContacts.length === 0 && (
+                  <Button
+                    leftIcon={<MdAdd />}
+                    size="sm"
+                    colorScheme="blue"
+                    variant="outline"
+                    onClick={addAdditionalContact}
+                  >
+                    Add Contact
+                  </Button>
+                )}
+              </HStack>
+
+              {additionalContacts.length > 0 && (
+                <Box p={4} border="1px" borderColor="gray.200" borderRadius="md" mb={3}>
+                  <HStack justify="space-between" mb={3}>
+                    <Text fontWeight="semibold">Additional Contact</Text>
+                    <IconButton
+                      icon={<MdDelete />}
+                      size="sm"
+                      colorScheme="red"
+                      variant="ghost"
+                      onClick={removeAdditionalContact}
+                    />
+                  </HStack>
+
+                  <VStack spacing={3}>
+                    <HStack spacing={3} width="100%">
+                      <FormControl flex={1}>
+                        <FormLabel fontSize="sm">Name</FormLabel>
+                        <Input
+                          value={additionalContacts[0].name}
+                          onChange={(e) => updateAdditionalContact('name', e.target.value)}
+                          placeholder="Enter Name"
+                          size="sm"
+                        />
+                      </FormControl>
+                      <FormControl flex={1}>
+                        <FormLabel fontSize="sm">Phone</FormLabel>
+                        <Input
+                          value={additionalContacts[0].phone}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            updateAdditionalContact('phone', value);
+                          }}
+                          placeholder="10-digit Phone"
+                          size="sm"
+                          maxLength={10}
+                        />
+                      </FormControl>
+                    </HStack>
+
+                    <HStack spacing={3} width="100%">
+                      <FormControl flex={1}>
+                        <FormLabel fontSize="sm">Designation</FormLabel>
+                        <Input
+                          value={additionalContacts[0].designation}
+                          onChange={(e) => updateAdditionalContact('designation', e.target.value)}
+                          placeholder="Enter Designation"
+                          size="sm"
+                        />
+                      </FormControl>
+                      <FormControl flex={1}>
+                        <FormLabel fontSize="sm">Email</FormLabel>
+                        <Input
+                          value={additionalContacts[0].email}
+                          onChange={(e) => updateAdditionalContact('email', e.target.value)}
+                          placeholder="Enter Email"
+                          size="sm"
+                          type="email"
+                        />
+                      </FormControl>
+                    </HStack>
+                  </VStack>
+                </Box>
+              )}
+            </Box>
+
+            {/* GST Number */}
+            <FormControl>
+              <FormLabel fontWeight="bold" className="text-[#4B5563]">
+                GST Number
+              </FormLabel>
+              <Input
+                value={gstNo}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15);
+                  setGstNo(value);
+                }}
+                placeholder="Enter 15-character GST Number"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+                maxLength={15}
+              />
+            </FormControl>
+
+            {/* Status */}
+            <FormControl>
+              <FormLabel fontWeight="bold" className="text-[#4B5563]">
+                Status
+              </FormLabel>
+              <Select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                placeholder="Select Status"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+              >
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Website */}
+            <FormControl>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
                 Website
               </FormLabel>
               <Input
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                type="text"
-                placeholder="Website"
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Enter Website URL"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
               />
             </FormControl>
 
-            <FormControl className="mt-3 mb-5">
+            {/* Comment */}
+            <FormControl>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                GST No.
+                Comment
               </FormLabel>
-              <Input
-                value={gstNo}
-                onChange={(e) => setGstNo(e.target.value)}
-                placeholder="GST No."
-                className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              <Textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add any comments or remarks"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+                rows={3}
               />
             </FormControl>
 
-            {/* Status with Add More */}
-            <FormControl className="mt-3 mb-5">
-              <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                Status
-              </FormLabel>
-              <Select value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Select status">
-                {statusOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </Select>
-              <div className="flex gap-2 mt-2">
-                <Input
-                  value={customStatus}
-                  onChange={(e) => setCustomStatus(e.target.value)}
-                  placeholder="Add more status"
-                />
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const val = customStatus.trim();
-                    if (!val) return;
-                    if (!statusOptions.includes(val)) {
-                      setStatusOptions((prev) => [...prev, val]);
-                      setStatus(val);
-                    }
-                    setCustomStatus("");
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-            </FormControl>
-
+            {/* Submit */}
             <Button
               type="submit"
-              className="mt-1 w-full py-3 text-white font-bold rounded-lg"
+              className="mt-1 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
               colorScheme="blue"
             >
-              Submit
+              Update
             </Button>
           </form>
         )}

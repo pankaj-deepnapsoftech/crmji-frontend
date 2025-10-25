@@ -24,17 +24,40 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
   const [address, setAddress] = useState("");
   const [contactPersonName, setContactPersonName] = useState("");
   const [phone, setPhone] = useState("");
-  const [designation, setDesignation] = useState("");
+  const [designation, setDesignation] = useState(""); // Fixed typo: setDestination -> setDesignation
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [gstNo, setGstNo] = useState("");
   const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
-  const [additionalContacts, setAdditionalContacts] = useState([]);
+  const [additionalContacts, setAdditionalContacts] = useState([]); // Only 0 or 1 item
   const [statusOptions, setStatusOptions] = useState([]);
   const [cookies] = useCookies();
 
   const dispatch = useDispatch();
+
+  // Add only if no contact exists
+  const addAdditionalContact = () => {
+    if (additionalContacts.length === 0) {
+      setAdditionalContacts([
+        { name: "", phone: "", designation: "", email: "" }
+      ]);
+    }
+  };
+
+  // Remove the only contact
+  const removeAdditionalContact = () => {
+    setAdditionalContacts([]);
+  };
+
+  // Update the single contact
+  const updateAdditionalContact = (field, value) => {
+    setAdditionalContacts(prev => {
+      const updated = [...prev];
+      updated[0][field] = value;
+      return updated;
+    });
+  };
 
   const addCompanyHandler = async (e) => {
     e.preventDefault();
@@ -55,8 +78,40 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
       return;
     }
 
+    // Additional validation: Ensure required fields are filled
+    if (!companyName.trim()) {
+      toast.error("Company Name is required");
+      return;
+    }
+    if (!address.trim()) {
+      toast.error("Address is required");
+      return;
+    }
+    if (!contactPersonName.trim()) {
+      toast.error("Contact Person Name is required");
+      return;
+    }
+    if (!designation.trim()) {
+      toast.error("Designation is required");
+      return;
+    }
+    if (!email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+
+    // If additional contact exists, validate its fields
+    if (additionalContacts.length > 0) {
+      const contact = additionalContacts[0];
+      if (contact.phone && contact.phone.length !== 10) {
+        toast.error("Additional Contact Phone must be exactly 10 digits");
+        return;
+      }
+    }
+
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
+      console.log("this isthe baseurl :: ",process.env.REACT_APP_BACKEND_URL)
 
       const response = await fetch(baseURL + "company/create-company", {
         method: "POST",
@@ -65,17 +120,22 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
           authorization: `Bearer ${cookies?.access_token}`,
         },
         body: JSON.stringify({
-          companyname: companyName,
-          address: address,
-          contactPersonName: contactPersonName,
+          companyname: companyName.trim(),
+          address: address.trim(),
+          contactPersonName: contactPersonName.trim(),
           phone: phone,
-          designation: designation,
-          email: email,
-          website: website,
+          designation: designation.trim(),
+          email: email.trim(),
+          website: website.trim(),
           gst_no: gstNo,
           status: status,
-          additionalContacts: additionalContacts,
-          comment: comment,
+          additionalContacts: additionalContacts.map(contact => ({
+            name: contact.name.trim(),
+            phone: contact.phone,
+            designation: contact.designation.trim(),
+            email: contact.email.trim()
+          })),
+          comment: comment.trim(),
         }),
       });
 
@@ -107,7 +167,6 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
       if (data.success && data.data.length > 0) {
         setStatusOptions(data.data.map(status => ({ value: status.name, label: status.name })));
       } else {
-        // Fallback to default statuses if no custom statuses are available
         setStatusOptions([
           { value: "Active", label: "Active" },
           { value: "Inactive", label: "Inactive" },
@@ -119,7 +178,6 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
       }
     } catch (err) {
       console.error("Error fetching status options:", err);
-      // Fallback to default statuses on error
       setStatusOptions([
         { value: "Active", label: "Active" },
         { value: "Inactive", label: "Inactive" },
@@ -129,20 +187,6 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
         { value: "On Hold", label: "On Hold" },
       ]);
     }
-  };
-
-  const addAdditionalContact = () => {
-    setAdditionalContacts([...additionalContacts, { name: "", phone: "", designation: "", email: "" }]);
-  };
-
-  const removeAdditionalContact = (index) => {
-    setAdditionalContacts(additionalContacts.filter((_, i) => i !== index));
-  };
-
-  const updateAdditionalContact = (index, field, value) => {
-    const updated = [...additionalContacts];
-    updated[index][field] = value;
-    setAdditionalContacts(updated);
   };
 
   useEffect(() => {
@@ -252,33 +296,36 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
             />
           </FormControl>
 
-          {/* Add More Contact Information */}
+          {/* === Additional Contact (Only One) === */}
           <Box>
             <HStack justify="space-between" mb={2}>
               <Text fontWeight="bold" className="text-[#4B5563]">
                 Additional Contact Information
               </Text>
-              <Button
-                leftIcon={<MdAdd />}
-                size="sm"
-                colorScheme="blue"
-                variant="outline"
-                onClick={addAdditionalContact}
-              >
-                Add More Contact
-              </Button>
+              {additionalContacts.length === 0 && (
+                <Button
+                  leftIcon={<MdAdd />}
+                  size="sm"
+                  colorScheme="blue"
+                  variant="outline"
+                  onClick={addAdditionalContact}
+                >
+                  Add Contact
+                </Button>
+              )}
             </HStack>
 
-            {additionalContacts.map((contact, index) => (
-              <Box key={index} p={4} border="1px" borderColor="gray.200" borderRadius="md" mb={3}>
+            {/* Show only if one contact exists */}
+            {additionalContacts.length > 0 && (
+              <Box p={4} border="1px" borderColor="gray.200" borderRadius="md" mb={3}>
                 <HStack justify="space-between" mb={3}>
-                  <Text fontWeight="semibold">Contact {index + 1}</Text>
+                  <Text fontWeight="semibold">Additional Contact</Text>
                   <IconButton
                     icon={<MdDelete />}
                     size="sm"
                     colorScheme="red"
                     variant="ghost"
-                    onClick={() => removeAdditionalContact(index)}
+                    onClick={removeAdditionalContact}
                   />
                 </HStack>
 
@@ -287,8 +334,8 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
                     <FormControl flex={1}>
                       <FormLabel fontSize="sm">Name</FormLabel>
                       <Input
-                        value={contact.name}
-                        onChange={(e) => updateAdditionalContact(index, 'name', e.target.value)}
+                        value={additionalContacts[0].name}
+                        onChange={(e) => updateAdditionalContact('name', e.target.value)}
                         placeholder="Enter Name"
                         size="sm"
                       />
@@ -296,10 +343,10 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
                     <FormControl flex={1}>
                       <FormLabel fontSize="sm">Phone</FormLabel>
                       <Input
-                        value={contact.phone}
+                        value={additionalContacts[0].phone}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                          updateAdditionalContact(index, 'phone', value);
+                          updateAdditionalContact('phone', value);
                         }}
                         placeholder="10-digit Phone"
                         size="sm"
@@ -312,8 +359,8 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
                     <FormControl flex={1}>
                       <FormLabel fontSize="sm">Designation</FormLabel>
                       <Input
-                        value={contact.designation}
-                        onChange={(e) => updateAdditionalContact(index, 'designation', e.target.value)}
+                        value={additionalContacts[0].designation}
+                        onChange={(e) => updateAdditionalContact('designation', e.target.value)}
                         placeholder="Enter Designation"
                         size="sm"
                       />
@@ -321,8 +368,8 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
                     <FormControl flex={1}>
                       <FormLabel fontSize="sm">Email</FormLabel>
                       <Input
-                        value={contact.email}
-                        onChange={(e) => updateAdditionalContact(index, 'email', e.target.value)}
+                        value={additionalContacts[0].email}
+                        onChange={(e) => updateAdditionalContact('email', e.target.value)}
                         placeholder="Enter Email"
                         size="sm"
                         type="email"
@@ -331,7 +378,7 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
                   </HStack>
                 </VStack>
               </Box>
-            ))}
+            )}
           </Box>
 
           {/* GST Number */}
