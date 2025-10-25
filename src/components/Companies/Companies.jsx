@@ -1,4 +1,4 @@
-import { Button, Link, Select, useDisclosure, Input, Menu, MenuButton, MenuList, MenuItem, IconButton } from "@chakra-ui/react";
+import { Button, Link, Select, useDisclosure, Input, Menu, MenuButton, MenuList, MenuItem, IconButton, Portal } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
   MdArrowBack,
@@ -606,8 +606,8 @@ const Companies = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer maxHeight="600px" overflowY="auto">
-                    <Table variant="simple" {...getTableProps()}>
+                  <TableContainer maxHeight="600px" overflowY="auto" overflowX="auto">
+                    <Table variant="simple" {...getTableProps()} className="min-w-[1100px]">
                       <Thead className="bg-blue-400 text-white text-lg font-semibold">
                         {headerGroups.map((hg) => {
                           return (
@@ -624,6 +624,7 @@ const Companies = () => {
                         ? "sticky top-0 left-[-2px]"
                         : ""
                     }
+                    whitespace-nowrap
                     text-transform: capitalize
                     font-size: 15px
                     font-weight: 700
@@ -652,7 +653,7 @@ const Companies = () => {
                                   </Th>
                                 );
                               })}
-                              <Th className="text-center py-3 px-4 bg-blue-400">
+                              <Th className="text-center py-3 px-4 bg-blue-400 whitespace-nowrap">
                                 <p className="text-white">Actions</p>
                               </Th>
                             </Tr>
@@ -678,6 +679,7 @@ const Companies = () => {
                         ? "sticky top-0 left-[-2px]"
                         : ""
                     }
+                    whitespace-nowrap
                     text-center
                     border-b border-gray-200
                     p-3
@@ -706,7 +708,7 @@ const Companies = () => {
 
                               <Td className="flex justify-center items-center p-3">
                                 {/* Actions Dropdown */}
-                                <Menu>
+                                <Menu placement="bottom-end">
                                   <MenuButton
                                     as={IconButton}
                                     icon={<MdMoreVert />}
@@ -714,29 +716,31 @@ const Companies = () => {
                                     size="sm"
                                     className="hover:bg-gray-100"
                                   />
-                                  <MenuList>
-                                    <MenuItem
-                                      icon={<MdOutlineVisibility />}
-                                      onClick={() => showDetailsHandler(row.original?._id)}
-                                    >
-                                      View
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdEdit />}
-                                      onClick={() => editHandler(row.original?._id)}
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdDeleteOutline />}
-                                      onClick={() => {
-                                        setCompanyDeleteId(row.original?._id);
-                                        confirmDeleteHandler();
-                                      }}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </MenuList>
+                                  <Portal>
+                                    <MenuList zIndex={2000}>
+                                      <MenuItem
+                                        icon={<MdOutlineVisibility />}
+                                        onClick={() => showDetailsHandler(row.original?._id)}
+                                      >
+                                        View
+                                      </MenuItem>
+                                      <MenuItem
+                                        icon={<MdEdit />}
+                                        onClick={() => editHandler(row.original?._id)}
+                                      >
+                                        Edit
+                                      </MenuItem>
+                                      <MenuItem
+                                        icon={<MdDeleteOutline />}
+                                        onClick={() => {
+                                          setCompanyDeleteId(row.original?._id);
+                                          confirmDeleteHandler();
+                                        }}
+                                      >
+                                        Delete
+                                      </MenuItem>
+                                    </MenuList>
+                                  </Portal>
                                 </Menu>
                               </Td>
                             </Tr>

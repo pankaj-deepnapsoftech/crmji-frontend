@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 const ClickMenu = ({top,left,bottom,right,children,closeContextMenuHandler}) => {
 
   const containerRef = useRef();
 
   const styleObj = {
+    position: 'fixed',
     top: top !== undefined ? `${top}px` : undefined,
     left: left !== undefined ? `${left}px` : undefined,
     bottom: bottom !== undefined ? `${bottom}px` : undefined,
@@ -41,10 +43,11 @@ const ClickMenu = ({top,left,bottom,right,children,closeContextMenuHandler}) => 
 
   }, []);
     
-  return (
-    <div style={styleObj} ref={containerRef} className='absolute z-30 rounded-md'>
+  return createPortal(
+    <div style={styleObj} ref={containerRef} className='z-50 rounded-md'>
       {children}
-    </div>
+    </div>,
+    document.body
   )
 }
 
