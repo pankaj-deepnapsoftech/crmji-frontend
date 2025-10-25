@@ -1,4 +1,13 @@
-import { Button, Select, useDisclosure, Menu, MenuButton, MenuList, MenuItem, IconButton } from "@chakra-ui/react";
+import {
+  Button,
+  Select,
+  useDisclosure,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+} from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
   MdArrowBack,
@@ -72,6 +81,10 @@ const columns = [
   {
     Header: "Email",
     accessor: "email",
+  },
+  {
+    Header: "RI File",
+    accessor: "riFile",
   },
 ];
 
@@ -213,6 +226,36 @@ const Customer = () => {
       onClose();
     } catch (err) {
       toast.error(err.message);
+    }
+  };
+
+  const downloadRIFile = async (customerId, customerName) => {
+    try {
+      const customer = data.find((c) => c._id === customerId);
+      if (!customer || !customer.riFile) {
+        toast.error("No RI file found for this customer");
+        return;
+      }
+
+      if (customer.riFile.startsWith("http")) {
+        window.open(customer.riFile, "_blank");
+        toast.success("RI file opened in new tab");
+      } else {
+        const link = document.createElement("a");
+        link.href = customer.riFile;
+        link.download = `RI_${customerName?.replace(
+          /\s+/g,
+          "_"
+        )}_${customerId}`;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("RI file download started");
+      }
+    } catch (error) {
+      console.error("Error downloading RI file:", error);
+      toast.error("Failed to download RI file");
     }
   };
 
@@ -481,31 +524,29 @@ const Customer = () => {
                               {row.cells.map((cell) => {
                                 return (
                                   <Td
-                                    className={`
-                    ${cell.column.id === "name"
+                                    className={` ${
+                                      cell.column.id === "name"
                                         ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
                                         : ""
-                                      }
-                    text-center
-                    border-b border-gray-200
-                    p-3
-                  `}
+                                    } text-center border-b border-gray-200 p-3 `}
                                     {...cell.getCellProps()}
                                   >
                                     {cell.column.id !== "customertype" &&
                                       cell.column.id !== "status" &&
                                       cell.column.id !== "created_on" &&
+                                      cell.column.id !== "riFile" &&
                                       cell.render("Cell")}
                                     {cell.column.id === "customertype" && (
                                       <span
-                                        className={`text-sm rounded-md px-3 py-1 ${cell.row.original.customertype ===
+                                        className={`text-sm rounded-md px-3 py-1 ${
+                                          cell.row.original.customertype ===
                                           "People"
-                                          ? "bg-[#fff0f6] text-[#c41d7f]"
-                                          : "bg-[#e6f4ff] text-[#0958d9]"
-                                          }`}
+                                            ? "bg-[#fff0f6] text-[#c41d7f]"
+                                            : "bg-[#e6f4ff] text-[#0958d9]"
+                                        }`}
                                       >
                                         {cell.row.original.customertype ===
-                                          "People"
+                                        "People"
                                           ? "Individual"
                                           : "Corporate"}
                                       </span>
@@ -522,18 +563,44 @@ const Customer = () => {
                                       <span
                                         className="text-sm rounded-md px-3 py-1"
                                         style={{
-                                          backgroundColor: `${statusStyles[
-                                            row.original.status?.toLowerCase()
-                                          ]?.bg
-                                            }`,
-                                          color: `${statusStyles[
-                                            row.original.status?.toLowerCase()
-                                          ]?.text
-                                            }`,
+                                          backgroundColor: `${
+                                            statusStyles[
+                                              row.original.status?.toLowerCase()
+                                            ]?.bg
+                                          }`,
+                                          color: `${
+                                            statusStyles[
+                                              row.original.status?.toLowerCase()
+                                            ]?.text
+                                          }`,
                                         }}
                                       >
                                         {row.original.status}
                                       </span>
+                                    )}
+                                    {cell.column.id === "riFile" && (
+                                      <div className="flex justify-center">
+                                        {row.original.riFile ? (
+                                          <Button
+                                            size="sm"
+                                            colorScheme="blue"
+                                            variant="outline"
+                                            onClick={() =>
+                                              downloadRIFile(
+                                                row.original._id,
+                                                row.original.name
+                                              )
+                                            }
+                                            className="text-xs"
+                                          >
+                                            Download RI
+                                          </Button>
+                                        ) : (
+                                          <span className="text-gray-400 text-sm">
+                                            No RI File
+                                          </span>
+                                        )}
+                                      </div>
                                     )}
                                   </Td>
                                 );
@@ -547,18 +614,24 @@ const Customer = () => {
                                     icon={<MdMoreVert />}
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setSelectedRowId(row.original?._id)}
+                                    onClick={() =>
+                                      setSelectedRowId(row.original?._id)
+                                    }
                                   />
                                   <MenuList>
                                     <MenuItem
                                       icon={<MdOutlineVisibility />}
-                                      onClick={() => showDetailsHandler(row.original?._id)}
+                                      onClick={() =>
+                                        showDetailsHandler(row.original?._id)
+                                      }
                                     >
                                       View
                                     </MenuItem>
                                     <MenuItem
                                       icon={<MdEdit />}
-                                      onClick={() => editHandler(row.original?._id)}
+                                      onClick={() =>
+                                        editHandler(row.original?._id)
+                                      }
                                     >
                                       Edit
                                     </MenuItem>
