@@ -32,9 +32,14 @@ const CompaniesDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
         name: data.company?.companyname,
         email: data.company?.email,
         phone: data.company?.phone,
-        contact: data.company?.contact,
+        contactPersonName: data.company?.contactPersonName,
+        designation: data.company?.designation,
+        address: data.company?.address,
         website: data.company?.website,
         gst_no: data.company?.gst_no,
+        status: data.company?.status,
+        additionalContacts: data.company?.additionalContacts || [],
+        comments: data.company?.comments || [],
       });
 
       setIsLoading(false);
@@ -83,9 +88,21 @@ const CompaniesDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
               </p>
             </div>
             <div className="font-bold text-lg text-gray-700">
-              <p>Contact</p>
+              <p>Contact Person Name</p>
               <p className="font-normal text-indigo-800">
-                {details?.contact ? details.contact : "Not Available"}
+                {details?.contactPersonName ? details.contactPersonName : "Not Available"}
+              </p>
+            </div>
+            <div className="font-bold text-lg text-gray-700">
+              <p>Designation</p>
+              <p className="font-normal text-indigo-800">
+                {details?.designation ? details.designation : "Not Available"}
+              </p>
+            </div>
+            <div className="font-bold text-lg text-gray-700">
+              <p>Address</p>
+              <p className="font-normal text-indigo-800">
+                {details?.address ? details.address : "Not Available"}
               </p>
             </div>
             <div className="font-bold text-lg text-gray-700">
@@ -106,6 +123,46 @@ const CompaniesDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                 {details?.gst_no ? details.gst_no : "Not Available"}
               </p>
             </div>
+            <div className="font-bold text-lg text-gray-700">
+              <p>Status</p>
+              <p className="font-normal text-indigo-800">
+                {details?.status ? details.status : "Not Available"}
+              </p>
+            </div>
+            
+            {/* Additional Contacts */}
+            {details?.additionalContacts && details.additionalContacts.length > 0 && (
+              <div className="font-bold text-lg text-gray-700">
+                <p>Additional Contacts</p>
+                <div className="space-y-2">
+                  {details.additionalContacts.map((contact, index) => (
+                    <div key={index} className="bg-white p-3 rounded border">
+                      <p className="font-semibold">{contact.name}</p>
+                      <p className="text-sm text-gray-600">{contact.designation}</p>
+                      <p className="text-sm text-gray-600">{contact.phone}</p>
+                      <p className="text-sm text-gray-600">{contact.email}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Comments */}
+            {details?.comments && details.comments.length > 0 && (
+              <div className="font-bold text-lg text-gray-700">
+                <p>Comments</p>
+                <div className="space-y-2">
+                  {details.comments.map((comment, index) => (
+                    <div key={index} className="bg-white p-3 rounded border">
+                      <p className="text-sm text-gray-600">{comment.comment}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(comment.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -3,13 +3,16 @@ import { BiX } from "react-icons/bi";
 import { toast } from "react-toastify";
 import Loading from "../../Loading";
 import { useCookies } from "react-cookie";
-import { Avatar, Badge } from "@chakra-ui/react";
+import { Avatar, Badge, Textarea, Button, Box, VStack, HStack, Text } from "@chakra-ui/react";
 import moment from "moment";
 
 const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
   const [cookies] = useCookies();
   const [isLoading, setIsLoading] = useState(true);
   const [details, setDetails] = useState({});
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [isAddingComment, setIsAddingComment] = useState(false);
 
   const fetchLeadDetails = async () => {
     try {
@@ -57,6 +60,7 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
         location: data.lead?.location || "N/A",
         leadCategory: data.lead?.leadCategory,
         demo: data.lead?.demo,
+        comments: data.lead?.comments || [],
       });
 
       setIsLoading(false);
@@ -66,8 +70,66 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
     }
   };
 
+  const addComment = async () => {
+    if (!newComment.trim()) {
+      toast.error("Please enter a comment");
+      return;
+    }
+
+    setIsAddingComment(true);
+    try {
+      const baseUrl = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(baseUrl + "lead/add-comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies?.access_token}`,
+        },
+        body: JSON.stringify({
+          leadId: id,
+          comment: newComment,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setNewComment("");
+      fetchLeadDetails(id); // Refresh to get updated comments
+      toast.success("Comment added successfully");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsAddingComment(false);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const baseUrl = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(baseUrl + `lead/comments/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setComments(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    }
+  };
+
   useEffect(() => {
     fetchLeadDetails(id);
+    fetchComments();
   }, []);
 
   return (
@@ -306,6 +368,63 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                 )}
               </div>
             )}
+
+            {/* Comments Section */}
+            <div className="mt-8">
+              <h3 className="text-xl font-bold text-gray-700 mb-4">Comments & Remarks</h3>
+              
+              {/* Add Comment Form */}
+              <Box mb={4} p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                <Textarea
+                  placeholder="Add a comment or remark..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  rows={3}
+                  mb={3}
+                />
+                <Button
+                  colorScheme="blue"
+                  onClick={addComment}
+                  isLoading={isAddingComment}
+                  loadingText="Adding..."
+                  size="sm"
+                >
+                  Add Comment
+                </Button>
+              </Box>
+
+              {/* Comments List */}
+              <VStack spacing={3} align="stretch">
+                {details.comments && details.comments.length > 0 ? (
+                  details.comments.map((comment, index) => (
+                    <Box
+                      key={index}
+                      p={3}
+                      border="1px"
+                      borderColor="gray.200"
+                      borderRadius="md"
+                      bg="gray.50"
+                    >
+                      <HStack justify="space-between" mb={2}>
+                        <Text fontSize="sm" fontWeight="bold" color="gray.600">
+                          {comment.createdBy?.firstname} {comment.createdBy?.lastname}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {moment(comment.timestamp).format("MMM DD, YYYY - h:mm A")}
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="gray.700">
+                        {comment.comment}
+                      </Text>
+                    </Box>
+                  ))
+                ) : (
+                  <Text color="gray.500" textAlign="center" py={4}>
+                    No comments yet
+                  </Text>
+                )}
+              </VStack>
+            </div>
           </div>
         )}
       </div>

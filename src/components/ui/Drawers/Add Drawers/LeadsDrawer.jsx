@@ -54,17 +54,12 @@ const LeadsDrawer = ({
   ];
 
   const statusOptionsList = [
-    // { value: "Draft", label: "Draft" },
-    { value: "New", label: "New" },
-    { value: "Demo", label: "Demo" },
-    { value: "Demo Preparation", label: "Demo Preparation" },
+    { value: "Meeting Scheduled", label: "Meeting Scheduled" },
+    { value: "Meeting Completed", label: "Meeting Completed" },
     { value: "In Negotiation", label: "In Negotiation" },
-    { value: "Completed", label: "Completed" },
-    { value: "Loose", label: "Loose" },
-    { value: "Cancelled", label: "Cancelled" },
-    { value: "Assigned", label: "Assigned" },
-    { value: "On Hold", label: "On Hold" },
-    { value: "Follow Up", label: "Follow Up" },
+    { value: "Deal on Hold", label: "Deal on Hold" },
+    { value: "Deal Won", label: "Deal Won" },
+    { value: "Deal Lost", label: "Deal Lost" },
   ];
   const sourceOptionsList = [
     { value: "Linkedin", label: "Linkedin" },

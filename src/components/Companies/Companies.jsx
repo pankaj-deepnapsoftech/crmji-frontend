@@ -1,10 +1,11 @@
-import { Button, Link, Select, useDisclosure, Input } from "@chakra-ui/react";
+import { Button, Link, Select, useDisclosure, Input, Menu, MenuButton, MenuList, MenuItem, IconButton } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
   MdArrowBack,
   MdEdit,
   MdDeleteOutline,
   MdOutlineVisibility,
+  MdMoreVert,
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -54,33 +55,24 @@ import * as XLSX from 'xlsx';
 
 const columns = [
   {
-    Header: "Created By",
-    accessor: "creator",
-  },
-  {
     Header: "ID",
     accessor: "uniqueId",
   },
   {
-    Header: "Created On",
-    accessor: "created_on",
-  },
- 
-  {
-    Header: "Name",
+    Header: "Company Name",
     accessor: "companyname",
   },
   {
-    Header: "Contact",
-    accessor: "contact",
+    Header: "Contact Person Name",
+    accessor: "contactPersonName",
   },
   {
     Header: "Phone",
     accessor: "phone",
   },
   {
-    Header: "Email",
-    accessor: "email",
+    Header: "Status",
+    accessor: "status",
   },
   {
     Header: "Verification",
@@ -712,27 +704,40 @@ const Companies = () => {
                                 );
                               })}
 
-                              <Td className="flex justify-center items-center gap-x-3 p-3">
-                                <MdOutlineVisibility
-                                  className="text-blue-500 hover:scale-110 transition-transform duration-200"
-                                  size={20}
-                                  onClick={() =>
-                                    showDetailsHandler(row.original?._id)
-                                  }
-                                />
-                                <MdEdit
-                                  className="text-yellow-500 hover:scale-110 transition-transform duration-200"
-                                  size={20}
-                                  onClick={() => editHandler(row.original?._id)}
-                                />
-                                <MdDeleteOutline
-                                  className="text-red-500 hover:scale-110 transition-transform duration-200"
-                                  size={20}
-                                  onClick={() => {
-                                    setCompanyDeleteId(row.original?._id);
-                                    confirmDeleteHandler();
-                                  }}
-                                />
+                              <Td className="flex justify-center items-center p-3">
+                                {/* Actions Dropdown */}
+                                <Menu>
+                                  <MenuButton
+                                    as={IconButton}
+                                    icon={<MdMoreVert />}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="hover:bg-gray-100"
+                                  />
+                                  <MenuList>
+                                    <MenuItem
+                                      icon={<MdOutlineVisibility />}
+                                      onClick={() => showDetailsHandler(row.original?._id)}
+                                    >
+                                      View
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<MdEdit />}
+                                      onClick={() => editHandler(row.original?._id)}
+                                    >
+                                      Edit
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<MdDeleteOutline />}
+                                      onClick={() => {
+                                        setCompanyDeleteId(row.original?._id);
+                                        confirmDeleteHandler();
+                                      }}
+                                    >
+                                      Delete
+                                    </MenuItem>
+                                  </MenuList>
+                                </Menu>
                               </Td>
                             </Tr>
                           );

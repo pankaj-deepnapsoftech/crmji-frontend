@@ -153,41 +153,29 @@ const IndiamartLeads = () => {
   const { isAllowed, msg } = checkAccess(auth, "lead");
 
   const statusStyles = {
-    draft: {
-      bg: "#ffffff",
-      text: "black",
-    },
-    new: {
+    "meeting scheduled": {
       bg: "#e6f4ff",
       text: "#0958d9",
+    },
+    "meeting completed": {
+      bg: "#f6ffed",
+      text: "#389e0d",
     },
     "in negotiation": {
       bg: "#f9f0ff",
       text: "#531dab",
     },
-    completed: {
-      bg: "#f6ffed",
-      text: "#389e0d",
-    },
-    loose: {
-      bg: "#fff1f0",
-      text: "#cf1322",
-    },
-    cancelled: {
-      bg: "#dd153d",
-      text: "#f1ecff",
-    },
-    assigned: {
-      bg: "#48d1cc",
-      text: "#f9f0ff",
-    },
-    "on hold": {
+    "deal on hold": {
       bg: "#deb887",
       text: "#ffffff",
     },
-    "follow up": {
-      bg: "#db95ff",
-      text: "#ffffff",
+    "deal won": {
+      bg: "#f6ffed",
+      text: "#389e0d",
+    },
+    "deal lost": {
+      bg: "#fff1f0",
+      text: "#cf1322",
     },
   };
 

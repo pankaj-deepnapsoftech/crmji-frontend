@@ -16,6 +16,11 @@ import {
   Textarea,
   useDisclosure,
   ModalFooter,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -26,6 +31,7 @@ import {
   MdContactPhone,
   MdDelete,
   MdAssignmentInd,
+  MdMoreVert,
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -59,6 +65,7 @@ import {
   FaSms,
   FaUserShield,
   FaWhatsapp,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import axios from "axios";
 import {
@@ -204,41 +211,29 @@ const Leads = () => {
   const { isAllowed, msg } = checkAccess(auth, "lead");
 
   const statusStyles = {
-    draft: {
-      bg: "#ffffff",
-      text: "black",
-    },
-    new: {
+    "meeting scheduled": {
       bg: "#e6f4ff",
       text: "#0958d9",
+    },
+    "meeting completed": {
+      bg: "#f6ffed",
+      text: "#389e0d",
     },
     "in negotiation": {
       bg: "#f9f0ff",
       text: "#531dab",
     },
-    completed: {
-      bg: "#f6ffed",
-      text: "#389e0d",
-    },
-    loose: {
-      bg: "#fff1f0",
-      text: "#cf1322",
-    },
-    cancelled: {
-      bg: "#dd153d",
-      text: "#f1ecff",
-    },
-    assigned: {
-      bg: "#48d1cc",
-      text: "#f9f0ff",
-    },
-    "on hold": {
+    "deal on hold": {
       bg: "#deb887",
       text: "#ffffff",
     },
-    "follow up": {
-      bg: "#db95ff",
-      text: "#ffffff",
+    "deal won": {
+      bg: "#f6ffed",
+      text: "#389e0d",
+    },
+    "deal lost": {
+      bg: "#fff1f0",
+      text: "#cf1322",
     },
   };
 
@@ -1868,7 +1863,7 @@ const Leads = () => {
 
 
                                 {/* Schedule Demo */}
-                                <FaArrowsAlt
+                                <FaCalendarAlt
                                   className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
                                   size={20}
                                   title="Schedule Demo"
@@ -1878,45 +1873,39 @@ const Leads = () => {
                                   }}
                                 />
 
-                                {/* Contact/Chat */}
-                                <MdContactPhone
-                                  className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
-                                  size={20}
-                                  title="Contact Customer"
-                                  onClick={() =>
-                                    showChatsHandler({
-                                      id: row.original?._id,
-                                      customer_name: row.original?.name,
-                                    })
-                                  }
-                                />
-
-                                {/* View Details */}
-                                {/* <MdOutlineVisibility
-                                  className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
-                                  size={20}
-                                  title="View Details"
-                                  onClick={() => showDetailsHandler(row.original?._id)}
-                                /> */}
-
-                                {/* Edit */}
-                                <MdEdit
-                                  className="text-yellow-500 hover:scale-110 transition-transform cursor-pointer"
-                                  size={20}
-                                  title="Edit Lead"
-                                  onClick={() => editHandler(row.original?._id)}
-                                />
-
-                                {/* Delete */}
-                                <MdDeleteOutline
-                                  className="text-red-500 hover:scale-110 transition-transform cursor-pointer"
-                                  size={20}
-                                  title="Delete Lead"
-                                  onClick={() => {
-                                    setLeadDeleteId(row.original?._id);
-                                    confirmDeleteHandler();
-                                  }}
-                                />
+                                {/* Actions Dropdown */}
+                                <Menu>
+                                  <MenuButton
+                                    as={IconButton}
+                                    icon={<MdMoreVert />}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="hover:bg-gray-100"
+                                  />
+                                  <MenuList>
+                                    <MenuItem
+                                      icon={<MdOutlineVisibility />}
+                                      onClick={() => showDetailsHandler(row.original?._id)}
+                                    >
+                                      View
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<MdEdit />}
+                                      onClick={() => editHandler(row.original?._id)}
+                                    >
+                                      Edit
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<MdDeleteOutline />}
+                                      onClick={() => {
+                                        setLeadDeleteId(row.original?._id);
+                                        confirmDeleteHandler();
+                                      }}
+                                    >
+                                      Delete
+                                    </MenuItem>
+                                  </MenuList>
+                                </Menu>
                               </Td>
 
                             </Tr>
