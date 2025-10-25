@@ -35,6 +35,11 @@ const PeoplesDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
         phone: data.person?.phone,
         email: data.person?.email,
         comment: data.person?.comment,
+        status: data.person?.status,
+        verify: data.person?.verify,
+        uniqueId: data.person?.uniqueId,
+        createdAt: data.person?.createdAt,
+        creator: data.person?.creator?.name || data.person?.creator || "",
       });
 
       setIsLoading(false);
@@ -63,13 +68,19 @@ const PeoplesDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
 
       <div className="mt-8 px-5">
         <h2 className="text-3xl font-bold  py-5 text-center mb-8 border-y border-gray-200 bg-blue-200 rounded-md shadow-md">
-          Individual Details
+          Individual Details--
         </h2>
 
         {isLoading ? (
           <Loading />
         ) : (
           <div className="bg-gray-50 shadow-lg rounded-lg p-6 space-y-6">
+            {details?.uniqueId && (
+              <div className="font-bold text-lg text-gray-700">
+                <p>ID</p>
+                <p className="font-normal text-indigo-800">{details.uniqueId}</p>
+              </div>
+            )}
             <div className="font-bold text-lg text-gray-700">
               <p>First Name</p>
               <p className="font-normal text-indigo-800">
@@ -99,6 +110,38 @@ const PeoplesDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                 {details?.email ? details.email : "Not Available"}
               </p>
             </div>
+            {details?.creator && (
+              <div className="font-bold text-lg text-gray-700">
+                <p>Created By</p>
+                <p className="font-normal text-indigo-800">
+                  {details.creator}
+                </p>
+              </div>
+            )}
+            <div className="font-bold text-lg text-gray-700">
+              <p>Status</p>
+              <p className="font-normal text-indigo-800">
+                {details?.status ? details.status : "Not Available"}
+              </p>
+            </div>
+            <div className="font-bold text-lg text-gray-700">
+              <p>Verification</p>
+              <p className="font-normal">
+                {details?.verify ? (
+                  <span className="px-2 py-1 text-sm font-semibold text-green-800 bg-green-100 rounded-full">Verified</span>
+                ) : (
+                  <span className="px-2 py-1 text-sm font-semibold text-yellow-800 bg-yellow-100 rounded-full">Not Verified</span>
+                )}
+              </p>
+            </div>
+            {details?.createdAt && (
+              <div className="font-bold text-lg text-gray-700">
+                <p>Created On</p>
+                <p className="font-normal text-indigo-800">
+                  {new Date(details.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            )}
             {details?.comment && (
               <div className="font-bold text-lg text-gray-700">
                 <p>Comment</p>

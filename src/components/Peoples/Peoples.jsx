@@ -55,18 +55,6 @@ import { FaFileCsv } from "react-icons/fa6";
 
 const columns = [
   {
-    Header: "Created By",
-    accessor: "creator",
-  },
-  {
-    Header: "Created On",
-    accessor: "created_on",
-  },
-  {
-    Header: "ID",
-    accessor: "uniqueId",
-  },
-  {
     Header: "First Name",
     accessor: "firstname",
   },
@@ -77,10 +65,6 @@ const columns = [
   {
     Header: "Phone",
     accessor: "phone",
-  },
-  {
-    Header: "Email",
-    accessor: "email",
   },
   {
     Header: "Verification",
@@ -190,6 +174,10 @@ const columns = [
         </>
       );
     },
+  },
+  {
+    Header: "Status",
+    accessor: "status",
   },
   // {
   //   Header: "Verification",
