@@ -25,6 +25,8 @@ const Login = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [resetToken, setResetToken] = useState();
   const [resettingPassword, setResettingPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isResendingOTP, setIsResendingOTP] = useState(false);
 
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [canResend, setCanResend] = useState(true);
@@ -37,12 +39,14 @@ const Login = () => {
   const loginHandler = async (e) => {
     e.preventDefault();
 
+    if (isLoggingIn) return;
+
+    setIsLoggingIn(true);
+
     try {
       if (email.length === 0 || password.length === 0) {
         throw new Error("Please fill all the details!");
       }
-
-      
 
       const response = await fetch(baseURL + "auth/login", {
         method: "POST",
@@ -50,9 +54,16 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // Auto-detect on frontend too: if field has @ treat as email
-          email: useEmployeeId ? (identifier.includes('@') ? identifier : undefined) : email,
-          identifier: useEmployeeId ? (identifier.includes('@') ? undefined : identifier) : undefined,
+          email: useEmployeeId
+            ? identifier.includes("@")
+              ? identifier
+              : undefined
+            : email,
+          identifier: useEmployeeId
+            ? identifier.includes("@")
+              ? undefined
+              : identifier
+            : undefined,
           password,
         }),
       });
@@ -88,31 +99,30 @@ const Login = () => {
       navigate("/crm");
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const changeOnlineStatus = async (status, userid) => {
     try {
       const response = await fetch(`${baseURL}chat/changestatus`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status, userId: userid }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update status');
+        throw new Error("Failed to update status");
       }
       const data = await response.json();
-      console.log('Status updated successfully:', data);
-
+      console.log("Status updated successfully:", data);
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error("Error updating status:", error);
     }
   };
-
-  
 
   const loginWithAccessToken = async () => {
     const baseURL = process.env.REACT_APP_BACKEND_URL;
@@ -168,9 +178,7 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          email && email.includes('@')
-            ? { email }
-            : { identifier: email }
+          email && email.includes("@") ? { email } : { identifier: email }
         ),
       });
       const data = await response.json();
@@ -189,10 +197,15 @@ const Login = () => {
 
   const otpVerificationHandler = async (e) => {
     e.preventDefault();
+
+    if (verifyingOTP) return;
+
     if (otp.length < 4) {
       toast.error("Invalid OTP");
       return;
     }
+
+    setVerifyingOtp(true);
 
     try {
       const baseUrl = process.env.REACT_APP_BACKEND_URL;
@@ -203,7 +216,7 @@ const Login = () => {
           authorization: `Bearer ${cookies?.access_token}`,
         },
         body: JSON.stringify(
-          email && email.includes('@')
+          email && email.includes("@")
             ? { email, otp }
             : { identifier: email, otp }
         ),
@@ -218,6 +231,8 @@ const Login = () => {
       setResetToken(data.resetToken);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setVerifyingOtp(false);
     }
   };
 
@@ -239,7 +254,7 @@ const Login = () => {
           Authorization: `Bearer ${cookies?.access_token}`,
         },
         body: JSON.stringify(
-          email && email.includes('@')
+          email && email.includes("@")
             ? { email, newPassword: password, resetToken }
             : { identifier: email, newPassword: password, resetToken }
         ),
@@ -290,9 +305,10 @@ const Login = () => {
   };
 
   const handleResend = () => {
-    getOTPHandler();
-    // setCanResend(false);
-    // setSecondsLeft(30);
+    if (isResendingOTP) return;
+
+    setIsResendingOTP(true);
+    getOTPHandler().finally(() => setIsResendingOTP(false));
   };
 
   useEffect(() => {
@@ -363,7 +379,9 @@ const Login = () => {
                   <span>
                     <FaStarOfLife size="6px" color="red" />
                   </span>
-                  {useEmployeeId ? "Employee ID or Email" : "Email or Employee ID"}
+                  {useEmployeeId
+                    ? "Employee ID or Email"
+                    : "Email or Employee ID"}
                 </label>
                 <div className="relative w-[100%]">
                   <div className="absolute top-[18px] left-[7px] text-base">
@@ -372,15 +390,28 @@ const Login = () => {
                   <input
                     value={useEmployeeId ? identifier : email}
                     required
-                    onChange={(e) => useEmployeeId ? setIdentifier(e.target.value) : setEmail(e.target.value)}
+                    onChange={(e) =>
+                      useEmployeeId
+                        ? setIdentifier(e.target.value)
+                        : setEmail(e.target.value)
+                    }
                     className="w-[100%] outline-none text-base pl-7 pr-2 py-2 border rounded mt-2 border-[#d9d9d9] rounded-[10px] hover:border-[#1640d6] cursor-pointer"
                     type="text"
-                    placeholder={useEmployeeId ? "Employee ID or Email" : "Email or Employee ID"}
+                    placeholder={
+                      useEmployeeId
+                        ? "Employee ID or Email"
+                        : "Email or Employee ID"
+                    }
                   />
                 </div>
               </div>
-              <div className="mt-2 text-xs text-right cursor-pointer text-[#1640d6]" onClick={() => setUseEmployeeId(!useEmployeeId)}>
-                {useEmployeeId ? "Use Email instead" : "Use Employee ID instead"}
+              <div
+                className="mt-2 text-xs text-right cursor-pointer text-[#1640d6]"
+                onClick={() => setUseEmployeeId(!useEmployeeId)}
+              >
+                {useEmployeeId
+                  ? "Use Email instead"
+                  : "Use Employee ID instead"}
               </div>
               <div className="mt-4 flex flex-col items-start text-sm">
                 <label className="flex gap-x-1 items-center font-bold text-sm text-[rgba(0, 0, 0, 0.88)]">
@@ -429,10 +460,11 @@ const Login = () => {
               </div>
 
               <button
+                disabled={isLoggingIn}
                 style={{ boxShadow: "0 2px 0 rgba(5, 95, 255, 0.1)" }}
-                className="w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold"
+                className="w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6] disabled:opacity-50"
               >
-                Log In
+                {isLoggingIn ? "Logging in..." : "Log In"}
               </button>
               <Link to="/">
                 <button
@@ -444,7 +476,10 @@ const Login = () => {
                 </button>
               </Link>
               <div className="mt-4 text-center text-sm">
-                <Link to="/super-admin-register" className="text-[#1640d6] underline">
+                <Link
+                  to="/super-admin-register"
+                  className="text-[#1640d6] underline"
+                >
                   Login Super Admin
                 </Link>
               </div>
@@ -542,16 +577,20 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={handleResend}
-                  disabled={!canResend}
+                  disabled={!canResend || isResendingOTP}
                   style={{ boxShadow: "0 2px 0 rgba(5, 95, 255, 0.1)" }}
-                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6]"
+                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6] disabled:opacity-50"
                 >
-                  {canResend ? "Resend OTP" : `Resend (${secondsLeft}s)`}
+                  {isResendingOTP
+                    ? "Sending..."
+                    : canResend
+                    ? "Resend OTP"
+                    : `Resend (${secondsLeft}s)`}
                 </button>
                 <button
                   disabled={verifyingOTP}
                   style={{ boxShadow: "0 2px 0 rgba(5, 95, 255, 0.1)" }}
-                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6]"
+                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6] disabled:opacity-50"
                 >
                   {verifyingOTP ? "Verifying OTP..." : "Verify OTP"}
                 </button>
@@ -598,16 +637,20 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={handleResend}
-                  disabled={!canResend}
+                  disabled={!canResend || isResendingOTP}
                   style={{ boxShadow: "0 2px 0 rgba(5, 95, 255, 0.1)" }}
-                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6]"
+                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6] disabled:opacity-50"
                 >
-                  {canResend ? "Resend OTP" : `Resend (${secondsLeft}s)`}
+                  {isResendingOTP
+                    ? "Sending..."
+                    : canResend
+                    ? "Resend OTP"
+                    : `Resend (${secondsLeft}s)`}
                 </button>
                 <button
                   disabled={verifyingOTP}
                   style={{ boxShadow: "0 2px 0 rgba(5, 95, 255, 0.1)" }}
-                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6]"
+                  className="mt-4 w-[100%] rounded-lg bg-[#1640d6] text-white py-2 font-bold disabled:cursor-not-allowed disabled:bg-[#b7b6b6] disabled:opacity-50"
                 >
                   {verifyingOTP ? "Verifying OTP..." : "Verify OTP"}
                 </button>
