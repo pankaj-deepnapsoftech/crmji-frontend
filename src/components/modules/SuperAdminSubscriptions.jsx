@@ -9,7 +9,7 @@ const SuperAdminSubscriptions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(6);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,15 +58,32 @@ const SuperAdminSubscriptions = () => {
     setCurrentPage(1);
   };
 
+  // Function to check if free trial has expired (3 days)
+  const getDisplayStatus = (item) => {
+    if (item.subscriptionStatus === 'Free Trial') {
+      const createdAt = new Date(item.createdAt);
+      const currentDate = new Date();
+      const diffInTime = currentDate - createdAt;
+      const diffInDays = diffInTime / (1000 * 3600 * 24); // Convert milliseconds to days
+      if (diffInDays > 3) {
+        return 'Free Trial Expired';
+      }
+    }
+    return item.subscriptionStatus;
+  };
+
   const filteredData = data.filter(item => {
+    const displayStatus = getDisplayStatus(item);
     const matchesSearch = item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.organizationName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.subscriptionStatus?.toLowerCase().includes(searchTerm.toLowerCase());
+      displayStatus.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || item.subscriptionStatus === statusFilter;
+    const matchesStatus = statusFilter === 'all' || displayStatus === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    const matchesRole = item.role === 'Super Admin';
+    
+    return matchesSearch && matchesStatus && matchesRole;
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -80,6 +97,8 @@ const SuperAdminSubscriptions = () => {
         return 'bg-green-100 text-green-800';
       case 'Free Trial':
         return 'bg-blue-100 text-blue-800';
+      case 'Free Trial Expired':
+        return 'bg-orange-100 text-orange-800';
       case 'Lifetime Plan':
         return 'bg-purple-100 text-purple-800';
       case 'Trial Available':
@@ -91,6 +110,25 @@ const SuperAdminSubscriptions = () => {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // Calculate the range of page numbers to display (exactly 6 buttons)
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 6;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return pageNumbers;
   };
 
   if (loading) {
@@ -109,8 +147,8 @@ const SuperAdminSubscriptions = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Subscription Status</h1>
-          <p className="mt-2 text-gray-600">View all admins and their subscription status across organizations</p>
+          <h1 className="text-3xl font-bold text-gray-900">Super Admin Subscriptions</h1>
+          <p className="mt-2 text-gray-600">View all Super Admins and their subscription status across organizations</p>
           {(searchTerm || statusFilter !== 'all') && (
             <div className="mt-4 flex items-center gap-2 text-sm">
               <span className="text-gray-500">Active filters:</span>
@@ -146,7 +184,7 @@ const SuperAdminSubscriptions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Subscriptions</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {data.filter(item => item.subscriptionStatus === 'Active Subscription').length}
+                  {filteredData.filter(item => getDisplayStatus(item) === 'Active Subscription').length}
                 </p>
               </div>
             </div>
@@ -162,7 +200,7 @@ const SuperAdminSubscriptions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Free Trials</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {data.filter(item => item.subscriptionStatus === 'Free Trial').length}
+                  {filteredData.filter(item => getDisplayStatus(item) === 'Free Trial').length}
                 </p>
               </div>
             </div>
@@ -178,7 +216,7 @@ const SuperAdminSubscriptions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Lifetime Plans</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {data.filter(item => item.subscriptionStatus === 'Lifetime Plan').length}
+                  {filteredData.filter(item => getDisplayStatus(item) === 'Lifetime Plan').length}
                 </p>
               </div>
             </div>
@@ -194,7 +232,7 @@ const SuperAdminSubscriptions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Inactive Accounts</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {data.filter(item => item.subscriptionStatus === 'Inactive').length}
+                  {filteredData.filter(item => getDisplayStatus(item) === 'Inactive').length}
                 </p>
               </div>
             </div>
@@ -208,7 +246,7 @@ const SuperAdminSubscriptions = () => {
               <div className="flex-1 max-w-md">
                 <input
                   type="text"
-                  placeholder="Search admins, organizations, or status..."
+                  placeholder="Search Super Admins, organizations, or status..."
                   value={searchTerm}
                   onChange={handleSearch}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -220,9 +258,10 @@ const SuperAdminSubscriptions = () => {
                   onChange={handleStatusFilter}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 >
-                  <option value="all">All Subscription Status</option>
+                  <option value="all">All</option>
                   <option value="Active Subscription">Active Subscription</option>
                   <option value="Free Trial">Free Trial</option>
+                  <option value="Free Trial Expired">Free Trial Expired</option>
                   <option value="Lifetime Plan">Lifetime Plan</option>
                   <option value="Inactive">Inactive</option>
                 </select>
@@ -245,9 +284,10 @@ const SuperAdminSubscriptions = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admin</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Super Admin</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th> */}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscription Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
@@ -256,6 +296,9 @@ const SuperAdminSubscriptions = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentData.map((item, index) => (
                   <tr key={item._id || index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {startIndex + index + 1}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
@@ -275,19 +318,15 @@ const SuperAdminSubscriptions = () => {
                         <div className="text-sm text-gray-500">{item.organizationEmail}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.role === 'Super Admin' ? 'bg-purple-100 text-purple-800' :
-                        item.role === 'Admin' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
                         {item.role}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.subscriptionStatus)}`}>
-                          {item.subscriptionStatus}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(getDisplayStatus(item))}`}>
+                          {getDisplayStatus(item)}
                         </span>
                         {item.statusDetails && (
                           <div className="text-xs text-gray-500 mt-1">
@@ -344,22 +383,19 @@ const SuperAdminSubscriptions = () => {
                     >
                       Previous
                     </button>
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            currentPage === pageNum
-                              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
+                    {getPageNumbers().map(pageNum => (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          currentPage === pageNum
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}

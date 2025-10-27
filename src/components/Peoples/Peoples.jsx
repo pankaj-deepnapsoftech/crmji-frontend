@@ -55,6 +55,10 @@ import { FaFileCsv } from "react-icons/fa6";
 
 const columns = [
   {
+    Header: "ID",
+    accessor: "uniqueId",
+  },
+  {
     Header: "First Name",
     accessor: "firstname",
   },
@@ -543,7 +547,8 @@ const Peoples = () => {
           d?.firstname?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.lastname?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
-          d?.email?.toLowerCase().includes(searchKey.toLowerCase())
+          d?.email?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.uniqueId?.toLowerCase().includes(searchKey.toLowerCase())
       );
       setFilteredData(searchedData);
     } else {
@@ -787,7 +792,7 @@ const Peoples = () => {
                                   <Th
                                     className={`
                     ${
-                      column.id === "firstname"
+                      column.id === "uniqueId"
                         ? "sticky top-0 left-[-2px] z-10 bg-blue-400"
                         : ""
                     }
@@ -841,7 +846,7 @@ const Peoples = () => {
                                   <Td
                                     className={`
                     ${
-                      cell.column.id === "firstname"
+                      cell.column.id === "uniqueId"
                         ? "sticky top-0 left-[-2px] z-20 bg-gray-50"
                         : ""
                     }

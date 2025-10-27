@@ -18,42 +18,42 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
       icon: '💎',
       path: '/super-admin/subscriptions'
     },
-    {
-      id: 'leads',
-      name: 'Leads',
-      icon: '🎯',
-      path: '/super-admin/leads'
-    },
-    {
-      id: 'people',
-      name: 'People & Contacts',
-      icon: '👥',
-      path: '/super-admin/people'
-    },
-    {
-      id: 'customers',
-      name: 'Customers',
-      icon: '🛒',
-      path: '/super-admin/customers'
-    },
-    {
-      id: 'invoices',
-      name: 'Invoices',
-      icon: '📄',
-      path: '/super-admin/invoices'
-    },
-    {
-      id: 'payments',
-      name: 'Payments',
-      icon: '💳',
-      path: '/super-admin/payments'
-    },
-    {
-      id: 'products',
-      name: 'Products',
-      icon: '📦',
-      path: '/super-admin/products'
-    }
+    // {
+    //   id: 'leads',
+    //   name: 'Leads',
+    //   icon: '🎯',
+    //   path: '/super-admin/leads'
+    // },
+    // {
+    //   id: 'people',
+    //   name: 'People & Contacts',
+    //   icon: '👥',
+    //   path: '/super-admin/people'
+    // },
+    // {
+    //   id: 'customers',
+    //   name: 'Customers',
+    //   icon: '🛒',
+    //   path: '/super-admin/customers'
+    // },
+    // {
+    //   id: 'invoices',
+    //   name: 'Invoices',
+    //   icon: '📄',
+    //   path: '/super-admin/invoices'
+    // },
+    // {
+    //   id: 'payments',
+    //   name: 'Payments',
+    //   icon: '💳',
+    //   path: '/super-admin/payments'
+    // },
+    // {
+    //   id: 'products',
+    //   name: 'Products',
+    //   icon: '📦',
+    //   path: '/super-admin/products'
+    // }
   ];
 
   const handleNavigation = (path) => {

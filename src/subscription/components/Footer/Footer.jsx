@@ -113,7 +113,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="subscription-font p-2 border-t mt-4 text-center">
-        All rights reserved: Deepnap Softech Powered By Dryish ERCS
+        All rights reserved: Deepnap Softech 
       </div>
     </footer>
   );

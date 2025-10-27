@@ -183,14 +183,6 @@ const columns = [
       );
     },
   },
-  {
-    Header: "Website",
-    accessor: "website",
-  },
-  {
-    Header: "GST No.",
-    accessor: "gst_no",
-  },
 ];
 
 const Companies = () => {
@@ -372,7 +364,6 @@ const Companies = () => {
               ?.includes(searchKey.replaceAll("/", ""))) ||
           d?.companyname?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.contact?.toLowerCase().includes(searchKey.toLowerCase()) ||
-          d?.website?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
           d?.email?.toLowerCase().includes(searchKey.toLowerCase())
       );
@@ -656,7 +647,7 @@ const Companies = () => {
                               <Th className="text-center py-3 px-4 bg-blue-400 whitespace-nowrap">
                                 <p className="text-white">Actions</p>
                               </Th>
-                            </Tr>
+                              </Tr>
                           );
                         })}
                       </Thead>
