@@ -1,4 +1,16 @@
-import { Button, Link, Select, useDisclosure, Input, Menu, MenuButton, MenuList, MenuItem, IconButton, Portal } from "@chakra-ui/react";
+import {
+  Button,
+  Link,
+  Select,
+  useDisclosure,
+  Input,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+  Portal,
+} from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
   MdArrowBack,
@@ -51,7 +63,7 @@ import {
 } from "@chakra-ui/react";
 import { checkAccess } from "../../utils/checkAccess";
 import { FaFileCsv } from "react-icons/fa6";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 const columns = [
   {
@@ -134,7 +146,9 @@ const columns = [
             setIsVerified(true);
             onClose();
           } else {
-            toast.error(verifyResponse.message || "Invalid OTP. Please try again.");
+            toast.error(
+              verifyResponse.message || "Invalid OTP. Please try again."
+            );
           }
         } catch (error) {
           toast.error("Something went wrong. Please try again.");
@@ -152,14 +166,20 @@ const columns = [
               <Button size="sm" colorScheme="blue" onClick={onOpen}>
                 Verify
               </Button>
-              <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+              <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+              >
                 <AlertDialogOverlay>
                   <AlertDialogContent className="p-6 rounded-lg shadow-lg">
                     <AlertDialogHeader className="text-xl font-semibold text-center">
                       Confirm Verification
                     </AlertDialogHeader>
                     <AlertDialogBody className="text-center space-y-4">
-                      <p className="text-gray-600">A one-time password has been sent to your email</p>
+                      <p className="text-gray-600">
+                        A one-time password has been sent to your email
+                      </p>
                       <Input
                         className="text-center border border-gray-300 rounded-md py-2 px-4 w-3/4 mx-auto"
                         placeholder="Enter OTP"
@@ -167,12 +187,26 @@ const columns = [
                         onChange={(e) => setOtp(e.target.value)}
                       />
                       <div className="flex justify-center gap-4">
-                        <Button onClick={verifyOtp} colorScheme="blue">Verify OTP</Button>
-                        <Button onClick={reSendVerificationOtp} variant="outline" colorScheme="gray">Resend OTP</Button>
+                        <Button onClick={verifyOtp} colorScheme="blue">
+                          Verify OTP
+                        </Button>
+                        <Button
+                          onClick={reSendVerificationOtp}
+                          variant="outline"
+                          colorScheme="gray"
+                        >
+                          Resend OTP
+                        </Button>
                       </div>
                     </AlertDialogBody>
                     <AlertDialogFooter className="flex justify-end gap-3">
-                      <Button ref={cancelRef} onClick={onClose} variant="outline">Cancel</Button>
+                      <Button
+                        ref={cancelRef}
+                        onClick={onClose}
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialogOverlay>
@@ -209,15 +243,42 @@ const Companies = () => {
   const companyBulkInputRef = useRef(null);
 
   const downloadCompanySampleCSV = () => {
-    const headers = ["companyname", "contact", "phone", "email", "website", "gst_no"];
+    const headers = [
+      "companyname",
+      "contact",
+      "phone",
+      "email",
+      "website",
+      "gst_no",
+    ];
     const sample = [
-      { companyname: "Acme Pvt Ltd", contact: "Ravi Kumar", phone: "9876001122", email: "contact@acme.com", website: "https://acme.com", gst_no: "22AAAAA0000A1Z5" },
-      { companyname: "Globex Corp", contact: "Priya Singh", phone: "9876003344", email: "sales@globex.com", website: "https://globex.com", gst_no: "27BBBBB1111B2Z6" },
+      {
+        companyname: "Acme Pvt Ltd",
+        contact: "Ravi Kumar",
+        phone: "9876001122",
+        email: "contact@acme.com",
+        website: "https://acme.com",
+        gst_no: "22AAAAA0000A1Z5",
+      },
+      {
+        companyname: "Globex Corp",
+        contact: "Priya Singh",
+        phone: "9876003344",
+        email: "sales@globex.com",
+        website: "https://globex.com",
+        gst_no: "27BBBBB1111B2Z6",
+      },
     ];
     const csvRows = [];
     csvRows.push(headers.join(","));
     for (const row of sample) {
-      csvRows.push(headers.map((h) => (row[h] !== undefined ? String(row[h]).replaceAll(",", " ") : "")).join(","));
+      csvRows.push(
+        headers
+          .map((h) =>
+            row[h] !== undefined ? String(row[h]).replaceAll(",", " ") : ""
+          )
+          .join(",")
+      );
     }
     const csvContent = csvRows.join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -264,15 +325,14 @@ const Companies = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
+      const workbook = XLSX.read(data, { type: "array" });
       const ws = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
       setBulkPreviewRows(Array.isArray(json) ? json.slice(0, 2000) : []);
       setShowBulkPreview(true);
     };
     reader.readAsArrayBuffer(file);
   };
-
 
   const fetchAllCompanies = async () => {
     setSearchKey("");
@@ -443,7 +503,10 @@ const Companies = () => {
                   style={{ display: "none" }}
                 />
                 <Button
-                  onClick={() => companyBulkInputRef.current && companyBulkInputRef.current.click()}
+                  onClick={() =>
+                    companyBulkInputRef.current &&
+                    companyBulkInputRef.current.click()
+                  }
                   fontSize={{ base: "14px", md: "14px" }}
                   paddingX={{ base: "10px", md: "12px" }}
                   paddingY={{ base: "0", md: "3px" }}
@@ -516,24 +579,40 @@ const Companies = () => {
               {showBulkPreview && bulkPreviewRows.length > 0 && (
                 <div className="mb-4 border rounded p-2">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="font-bold">Bulk Preview ({bulkPreviewRows.length} rows)</div>
-                    <button className="text-red-600 text-sm" onClick={() => setShowBulkPreview(false)}>Close Preview</button>
+                    <div className="font-bold">
+                      Bulk Preview ({bulkPreviewRows.length} rows)
+                    </div>
+                    <button
+                      className="text-red-600 text-sm"
+                      onClick={() => setShowBulkPreview(false)}
+                    >
+                      Close Preview
+                    </button>
                   </div>
                   <div className="overflow-auto" style={{ maxHeight: 300 }}>
                     <table className="min-w-full text-sm">
                       <thead>
                         <tr>
                           {Object.keys(bulkPreviewRows[0] || {}).map((key) => (
-                            <th key={key} className="border px-2 py-1 text-left bg-gray-50">{key}</th>
+                            <th
+                              key={key}
+                              className="border px-2 py-1 text-left bg-gray-50"
+                            >
+                              {key}
+                            </th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {bulkPreviewRows.slice(0, 50).map((row, idx) => (
                           <tr key={idx}>
-                            {Object.keys(bulkPreviewRows[0] || {}).map((key) => (
-                              <td key={key} className="border px-2 py-1">{String(row[key])}</td>
-                            ))}
+                            {Object.keys(bulkPreviewRows[0] || {}).map(
+                              (key) => (
+                                <td key={key} className="border px-2 py-1">
+                                  {String(row[key])}
+                                </td>
+                              )
+                            )}
                           </tr>
                         ))}
                       </tbody>
@@ -606,8 +685,16 @@ const Companies = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer maxHeight="600px" overflowY="auto" overflowX="auto">
-                    <Table variant="simple" {...getTableProps()} className="min-w-[1100px]">
+                  <TableContainer
+                    maxHeight="600px"
+                    overflowY="auto"
+                    overflowX="auto"
+                  >
+                    <Table
+                      variant="simple"
+                      {...getTableProps()}
+                      className="min-w-[1100px]"
+                    >
                       <Thead className="bg-blue-400 text-white text-lg font-semibold">
                         {headerGroups.map((hg) => {
                           return (
@@ -621,7 +708,7 @@ const Companies = () => {
                                     className={`
                     ${
                       column.id === "companyname"
-                        ? "sticky top-0 left-[-2px]"
+                        ? "sticky top-0 left-[-2px] bg-blue-400"
                         : ""
                     }
                     whitespace-nowrap
@@ -676,12 +763,13 @@ const Companies = () => {
                                     className={`
                     ${
                       cell.column.id === "companyname"
-                        ? "sticky top-0 left-[-2px]"
+                        ? "sticky top-0 left-[-2px] bg-white"
                         : ""
                     }
                     whitespace-nowrap
                     text-center
                     border-b border-gray-200
+                   
                     p-3
                   `}
                                     {...cell.getCellProps()}
@@ -720,13 +808,17 @@ const Companies = () => {
                                     <MenuList zIndex={2000}>
                                       <MenuItem
                                         icon={<MdOutlineVisibility />}
-                                        onClick={() => showDetailsHandler(row.original?._id)}
+                                        onClick={() =>
+                                          showDetailsHandler(row.original?._id)
+                                        }
                                       >
                                         View
                                       </MenuItem>
                                       <MenuItem
                                         icon={<MdEdit />}
-                                        onClick={() => editHandler(row.original?._id)}
+                                        onClick={() =>
+                                          editHandler(row.original?._id)
+                                        }
                                       >
                                         Edit
                                       </MenuItem>
