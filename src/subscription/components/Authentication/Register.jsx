@@ -5,7 +5,7 @@ import { FaLock, FaCloudUploadAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
-import {Link} from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const Register = ({
   name,
@@ -30,10 +30,14 @@ const Register = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegistration = async (e) => {
     e.preventDefault();
+
+    if (isLoading) return;
+
+    setIsLoading(true);
 
     if (
       name.trim().length === 0 ||
@@ -45,10 +49,12 @@ const Register = ({
       employeeCount.trim().length === 0
     ) {
       toast.error("Please fill all the fields");
+      setIsLoading(false);
       return;
     }
     if (phone.trim().length < 10 || phone.trim().length > 10) {
       toast.error("Phone no. field should be 10 digits long");
+      setIsLoading(false);
       return;
     }
 
@@ -65,7 +71,7 @@ const Register = ({
       const url = process.env.REACT_APP_BACKEND_URL + "organization/create";
       const response = await fetch(url, {
         method: "POST",
-        body: formData,        
+        body: formData,
       });
       const data = await response.json();
       if (!data.success) {
@@ -84,7 +90,9 @@ const Register = ({
       setProfileImage(null);
     } catch (err) {
       toast.error(err.message);
-      console.log(err)
+      console.log(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -219,19 +227,33 @@ const Register = ({
                 ></input>
               </div>
 
-
               <div className="flex w-[20rem] mx-auto gap-x-1 text-start items-start">
-                <input checked={isAgreed} onChange={(e)=>setIsAgreed(e.target.checked)} className="mt-[6px]" type="checkbox" />
-                <p>Agree to our <Link className="text-[#f33d3d] underline" to='/terms' target="_blank">Terms and Conditions</Link> to proceed.</p>
+                <input
+                  checked={isAgreed}
+                  onChange={(e) => setIsAgreed(e.target.checked)}
+                  className="mt-[6px]"
+                  type="checkbox"
+                />
+                <p>
+                  Agree to our{" "}
+                  <Link
+                    className="text-[#f33d3d] underline"
+                    to="/terms"
+                    target="_blank"
+                  >
+                    Terms and Conditions
+                  </Link>{" "}
+                  to proceed.
+                </p>
               </div>
 
               <div className="pt-4">
                 <button
-                  disabled={!isAgreed}
+                  disabled={!isAgreed || isLoading}
                   type="submit"
-                  className="subscription-font w-[20rem] lg:w-[15rem] py-1 lg:py-3 text-lg border border-[#2e2a5b] text-white bg-[#2e2a5b] rounded-full font-light hover:bg-white hover:text-[#2e2a5b] ease-in-out duration-300 disabled:cursor-not-allowed"
+                  className="subscription-font w-[20rem] lg:w-[15rem] py-1 lg:py-3 text-lg border border-[#2e2a5b] text-white bg-[#2e2a5b] rounded-full font-light hover:bg-white hover:text-[#2e2a5b] ease-in-out duration-300 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Create Account
+                  {isLoading ? "Creating Account..." : "Create Account"}
                 </button>
               </div>
 

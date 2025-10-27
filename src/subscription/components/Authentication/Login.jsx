@@ -23,16 +23,21 @@ const Login = ({
 }) => {
   const [cookies, setCookie] = useCookies();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    if (isLoggingIn) return;
+
     if (email.trim().length === 0 || password.trim().length === 0) {
       toast.error("Please fill all the fields");
       return;
     }
+
+    setIsLoggingIn(true);
 
     try {
       const url = process.env.REACT_APP_BACKEND_URL + "organization/login";
@@ -70,6 +75,8 @@ const Login = ({
       toast.success(data.message);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -162,8 +169,11 @@ const Login = ({
           >
             Forget Password?
           </button>
-          <button className="subscription-font w-[8rem] lg:w-[8rem] py-1 lg:py-2 text-lg border border-[#2e2a5b] text-white bg-[#2e2a5b] rounded-full font-light hover:bg-white hover:text-[#2e2a5b] ease-in-out duration-300">
-            Login
+          <button
+            disabled={isLoggingIn}
+            className="subscription-font w-[8rem] lg:w-[8rem] py-1 lg:py-2 text-lg border border-[#2e2a5b] text-white bg-[#2e2a5b] rounded-full font-light hover:bg-white hover:text-[#2e2a5b] ease-in-out duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoggingIn ? "Logging in..." : "Login"}
           </button>
         </div>
 
