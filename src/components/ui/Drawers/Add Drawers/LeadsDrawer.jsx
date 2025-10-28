@@ -31,7 +31,7 @@ const LeadsDrawer = ({
   const [products, setProducts] = useState([]);
   const [prcQt, setPrcQt] = useState();
   const [location, setLocation] = useState();
-  const [isLoading,setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [productOptionsList, setProductOptionsList] = useState();
   const [selectedProducts, setSelectedProducts] = useState([]);
 
@@ -46,8 +46,8 @@ const LeadsDrawer = ({
 
   const [companyOptionsList, setCompanyOptionsList] = useState();
   const [selectedCompanyOption, setSelectedCompanyOption] = useState();
-  const [showPreviewImage, SetImagePreview] = useState(null)
-  const [file, setFile] = useState(null)
+  const [showPreviewImage, SetImagePreview] = useState(null);
+  const [file, setFile] = useState(null);
   const typeOptionsList = [
     { value: "Company", label: "Corporate" },
     { value: "People", label: "Individual" },
@@ -189,10 +189,12 @@ const LeadsDrawer = ({
     }
   };
 
-   const ImageUploader = async (formData) => {
-
+  const ImageUploader = async (formData) => {
     try {
-      const res = await axios.post("https://images.deepmart.shop/upload", formData);
+      const res = await axios.post(
+        "https://images.deepmart.shop/upload",
+        formData
+      );
       // console.log(res.data?.[0])
       return res.data?.[0];
     } catch (error) {
@@ -330,7 +332,6 @@ const LeadsDrawer = ({
     }
   };
 
-
   useEffect(() => {
     getAllCompanies();
     getAllPeoples();
@@ -397,8 +398,6 @@ const LeadsDrawer = ({
     setCompanyId();
   }, [typeId]);
 
-
-
   return (
     <div
       className="absolute overflow-auto h-[100vh] w-[90vw] md:w-[450px] bg-white right-0 top-0 z-10 py-3"
@@ -418,17 +417,28 @@ const LeadsDrawer = ({
         </h2>
 
         <form onSubmit={addLeadHandler} className="space-y-5">
-          {/* Lead Type */}
-          <div className="mt-2 mb-5">
-            <label className="font-bold text-[#4B5563]">Type</label>
-            <Select
-              className="rounded mt-2"
-              options={typeOptionsList}
-              placeholder="Select type"
-              value={typeId}
-              onChange={(d) => setTypeId(d)}
-              isSearchable={true}
-            />
+          {/* Type and Lead Category side by side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mt-2 mb-5">
+              <label className="font-bold text-[#4B5563]">Type</label>
+              <Select
+                className="rounded mt-2"
+                options={typeOptionsList}
+                placeholder="Select type"
+                value={typeId}
+                onChange={(d) => setTypeId(d)}
+                isSearchable={true}
+              />
+            </div>
+            <div className="mt-2 mb-5">
+              <label className="font-bold text-[#4B5563]">Lead Category</label>
+              <Select
+                value={category}
+                onChange={(e) => setCategory(e)}
+                placeholder="Select a lead category"
+                options={Leadoptions}
+              />
+            </div>
           </div>
 
           {/* Lead Status */}
@@ -565,49 +575,53 @@ const LeadsDrawer = ({
             </>
           )}
 
-          {statusId?.value === "Demo Preparation" && <div className="mt-2 mb-5">
-            <label htmlFor="demoPdf" className="block mb-2 text-sm font-semibold text-gray-700">
-              Attach Demo File
-            </label>
+          {statusId?.value === "Demo Preparation" && (
+            <div className="mt-2 mb-5">
+              <label
+                htmlFor="demoPdf"
+                className="block mb-2 text-sm font-semibold text-gray-700"
+              >
+                Attach Demo File
+              </label>
 
-            <div className="relative">
-              <input
-                id="demoPdf"
-                type="file"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onChange={(e) => {
-                  const file = e.target.files[0]
-                  setFile(file)
-                  
-                  const ImageUrl = URL.createObjectURL(file)
-                  SetImagePreview(ImageUrl)
-                }}
-              />
+              <div className="relative">
+                <input
+                  id="demoPdf"
+                  type="file"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setFile(file);
 
-              <div className="flex items-center justify-between px-4 py-2 bg-white border-2 border-dashed border-gray-300 rounded-md shadow-sm hover:border-blue-500 transition-all duration-200">
-                <span className="text-sm text-gray-500">{file?.name || "No file chosen"}</span>
-                <button
-                  type="button"
-                  disabled={!!file}
-                  className="text-white bg-blue-600 hover:bg-blue-700 font-medium text-xs px-4 py-1 rounded shadow"
-                >
-                  Upload File
-                </button>
+                    const ImageUrl = URL.createObjectURL(file);
+                    SetImagePreview(ImageUrl);
+                  }}
+                />
+
+                <div className="flex items-center justify-between px-4 py-2 bg-white border-2 border-dashed border-gray-300 rounded-md shadow-sm hover:border-blue-500 transition-all duration-200">
+                  <span className="text-sm text-gray-500">
+                    {file?.name || "No file chosen"}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!!file}
+                    className="text-white bg-blue-600 hover:bg-blue-700 font-medium text-xs px-4 py-1 rounded shadow"
+                  >
+                    Upload File
+                  </button>
+                </div>
               </div>
             </div>
-          </div>}
-          {
-            showPreviewImage && (
-              <div>
-                <img
-                  className="w-32 h-32 object-cover rounded-md "
-                  src={showPreviewImage}
-                  alt="Preview"
-                />
-              </div>
-            )
-          }
-
+          )}
+          {showPreviewImage && (
+            <div>
+              <img
+                className="w-32 h-32 object-cover rounded-md "
+                src={showPreviewImage}
+                alt="Preview"
+              />
+            </div>
+          )}
 
           {/* Lead Remarks */}
           <FormControl className="mt-2 mb-5">
@@ -648,24 +662,13 @@ const LeadsDrawer = ({
             />
           </FormControl>
 
-          {/* condition */}
-          <FormControl className="mt-2 mb-5">
-            <FormLabel fontWeight="bold" className="text-[#4B5563]">
-              Lead Category 
-            </FormLabel>
-            <Select
-              value={category}
-              onChange={(e) => setCategory(e)}
-              placeholder="Select a lead status"
-              options={Leadoptions}
-            ></Select>
-          </FormControl>
-
           {/* Submit Button */}
           <Button
             type="submit"
             disabled={isLoading}
-            className={`mt-4 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center ${isLoading ? "cursor-not-allowed bg-blue-400" : ""}`}
+            className={`mt-4 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center ${
+              isLoading ? "cursor-not-allowed bg-blue-400" : ""
+            }`}
             colorScheme="blue"
           >
             {isLoading ? (

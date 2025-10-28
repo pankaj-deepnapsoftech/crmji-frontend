@@ -611,8 +611,8 @@ const Demo = () => {
             className="border border-gray-300 px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Status</option>
-            <option value="scheduled demo">Scheduled Demo</option>
-            <option value="demo completed">Demo Completed</option>
+            <option value="scheduled demo">Scheduled Meeting</option>
+            <option value="demo completed">Meeting Completed</option>
           </select>
 
           <button
@@ -625,7 +625,7 @@ const Demo = () => {
       </div>
       {data.length === 0 ? (
         <Text color="gray.500" textAlign="center" mt={8}>
-          No scheduled demos found.
+          No scheduled meetings found.
         </Text>
       ) : (
         <div>
@@ -716,10 +716,11 @@ const Demo = () => {
                             {/* Lead Type Rendering */}
                             {cell.column.id === "leadtype" && (
                               <span
-                                className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
-                                  ? "bg-[#fff0f6] text-[#c41d7f]"
-                                  : "bg-[#e6f4ff] text-[#0958d9]"
-                                  }`}
+                                className={`text-sm rounded-md px-3 py-1 ${
+                                  row.original.leadtype === "People"
+                                    ? "bg-[#fff0f6] text-[#c41d7f]"
+                                    : "bg-[#e6f4ff] text-[#0958d9]"
+                                }`}
                               >
                                 {row.original.leadtype === "People"
                                   ? "Individual"
@@ -795,7 +796,10 @@ const Demo = () => {
                                     setIsLeadModalOpen(true);
                                   }
                                 } catch (err) {
-                                  console.error("Error fetching lead details:", err);
+                                  console.error(
+                                    "Error fetching lead details:",
+                                    err
+                                  );
                                   toast.error("Failed to fetch lead details");
                                 }
                               }}
@@ -828,7 +832,10 @@ const Demo = () => {
                                     setIsLeadModalOpen(true);
                                   }
                                 } catch (err) {
-                                  console.error("Error fetching lead details:", err);
+                                  console.error(
+                                    "Error fetching lead details:",
+                                    err
+                                  );
                                   toast.error("Failed to fetch lead details");
                                 }
                               }}
@@ -839,7 +846,9 @@ const Demo = () => {
                               icon={<MdDeleteOutline />}
                               onClick={() => {
                                 // Add delete functionality here
-                                toast.info("Delete functionality to be implemented");
+                                toast.info(
+                                  "Delete functionality to be implemented"
+                                );
                               }}
                             >
                               Delete
@@ -910,7 +919,7 @@ const Demo = () => {
               loadingText="Uploading & Completing..."
               disabled={!riFile}
             >
-              Complete Demo
+              Complete meeting
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -934,11 +943,25 @@ const Demo = () => {
                 <Heading size="sm" mb={2}>
                   Basic Information
                 </Heading>
-                <Text><strong>Created By:</strong> {leadData.creator || "N/A"}</Text>
-                <Text><strong>Created On:</strong> {leadData.createdAt ? moment(leadData.createdAt).format("DD/MM/YYYY") : "N/A"}</Text>
-                <Text><strong>Type:</strong> {leadData.leadtype === "People" ? "Individual" : "Corporate"}</Text>
-                <Text><strong>Name:</strong> {leadData.name || "N/A"}</Text>
-                <Text><strong>Status:</strong> {leadData.status || "N/A"}</Text>
+                <Text>
+                  <strong>Created By:</strong> {leadData.creator || "N/A"}
+                </Text>
+                <Text>
+                  <strong>Created On:</strong>{" "}
+                  {leadData.createdAt
+                    ? moment(leadData.createdAt).format("DD/MM/YYYY")
+                    : "N/A"}
+                </Text>
+                <Text>
+                  <strong>Type:</strong>{" "}
+                  {leadData.leadtype === "People" ? "Individual" : "Corporate"}
+                </Text>
+                <Text>
+                  <strong>Name:</strong> {leadData.name || "N/A"}
+                </Text>
+                <Text>
+                  <strong>Status:</strong> {leadData.status || "N/A"}
+                </Text>
               </Box>
 
               {/* Contact Person */}
@@ -956,19 +979,22 @@ const Demo = () => {
               {/* Demo Details */}
               <Box p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
                 <Heading size="sm" mb={2}>
-                  Demo Details
+                  Meeting Details
                 </Heading>
                 <Text>
                   Date & Time:{" "}
                   {leadData.demo?.demoDateTime
                     ? moment(leadData.demo.demoDateTime).format(
-                      "DD/MM/YYYY HH:mm"
-                    )
+                        "DD/MM/YYYY HH:mm"
+                      )
                     : "Not Set"}
                 </Text>
                 <Text>Type: {leadData.demo?.demoType || "N/A"}</Text>
                 <Text>Notes: {leadData.demo?.notes || "No notes"}</Text>
-                <Text>Meeting Notes: {leadData.demo?.demoNotes || "No meeting notes"}</Text>
+                <Text>
+                  Meeting Notes:{" "}
+                  {leadData.demo?.demoNotes || "No meeting notes"}
+                </Text>
 
                 {/* Editable Status */}
                 <Box mt={3}>
@@ -983,11 +1009,11 @@ const Demo = () => {
                     }}
                     maxW="250px"
                   >
-                    <option value="Demo Completed">Demo Completed</option>
+                    <option value="Demo Completed">Meeting Completed</option>
                     <option value="Completed">Completed</option>
                     <option value="Loose">Loose</option>
                     <option value="In Negotiation">In Negotiation</option>
-                    <option value="Scheduled Demo">Scheduled Demo</option>
+                    <option value="Scheduled Demo">Scheduled Meeting</option>
                   </Select>
                 </Box>
 

@@ -3,7 +3,16 @@ import { BiX } from "react-icons/bi";
 import { toast } from "react-toastify";
 import Loading from "../../Loading";
 import { useCookies } from "react-cookie";
-import { Avatar, Badge, Textarea, Button, Box, VStack, HStack, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  Badge,
+  Textarea,
+  Button,
+  Box,
+  VStack,
+  HStack,
+  Text,
+} from "@chakra-ui/react";
 import moment from "moment";
 
 const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
@@ -154,12 +163,28 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
           <Loading />
         ) : (
           <div className="bg-white shadow-lg rounded-lg p-6 space-y-6">
-            {/* Lead Type */}
-            <div className="font-bold text-lg text-gray-700">
-              <p>Type</p>
-              <p className="font-normal text-indigo-800">
-                {details?.type || "Not Available"}
-              </p>
+            {/* Type and Lead Category side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="font-bold text-lg text-gray-700">
+                <p>Type</p>
+                <p className="font-normal text-indigo-800">
+                  {details?.type || "Not Available"}
+                </p>
+              </div>
+              <div className="font-bold text-lg text-gray-700">
+                <p>Lead Category</p>
+                <Badge
+                  colorScheme={
+                    details?.leadCategory === "Hot"
+                      ? "red"
+                      : details?.leadCategory === "Cold"
+                      ? "blue"
+                      : "orange"
+                  }
+                >
+                  {details?.leadCategory || "Not Available"}
+                </Badge>
+              </div>
             </div>
 
             {/* Corporate Field */}
@@ -185,22 +210,6 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
               <p>Status</p>
               <Badge colorScheme="orange">
                 {details?.status || "Not Available"}
-              </Badge>
-            </div>
-
-            {/* category Field */}
-            <div className="font-bold text-lg text-gray-700">
-              <p>Lead Category</p>
-              <Badge
-                colorScheme={
-                  details?.leadCategory === "Hot"
-                    ? "red"
-                    : details?.leadCategory === "Cold"
-                    ? "blue"
-                    : "orange"
-                }
-              >
-                {details?.leadCategory || "Not Available"}
               </Badge>
             </div>
 
@@ -328,9 +337,7 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
 
             {details?.demo && (
               <div className="border rounded-lg p-4 mt-6">
-                <h3 className="font-bold text-lg mb-3">
-                  Demo Scheduled
-                </h3>
+                <h3 className="font-bold text-lg mb-3">Demo Scheduled</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="font-bold text-gray-700">
@@ -371,10 +378,18 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
 
             {/* Comments Section */}
             <div className="mt-8">
-              <h3 className="text-xl font-bold text-gray-700 mb-4">Comments & Remarks</h3>
-              
+              <h3 className="text-xl font-bold text-gray-700 mb-4">
+                Comments & Remarks
+              </h3>
+
               {/* Add Comment Form */}
-              <Box mb={4} p={4} border="1px" borderColor="gray.200" borderRadius="md">
+              <Box
+                mb={4}
+                p={4}
+                border="1px"
+                borderColor="gray.200"
+                borderRadius="md"
+              >
                 <Textarea
                   placeholder="Add a comment or remark..."
                   value={newComment}
@@ -407,10 +422,13 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                     >
                       <HStack justify="space-between" mb={2}>
                         <Text fontSize="sm" fontWeight="bold" color="gray.600">
-                          {comment.createdBy?.firstname} {comment.createdBy?.lastname}
+                          {comment.createdBy?.firstname}{" "}
+                          {comment.createdBy?.lastname}
                         </Text>
                         <Text fontSize="xs" color="gray.500">
-                          {moment(comment.timestamp).format("MMM DD, YYYY - h:mm A")}
+                          {moment(comment.timestamp).format(
+                            "MMM DD, YYYY - h:mm A"
+                          )}
                         </Text>
                       </HStack>
                       <Text fontSize="sm" color="gray.700">
