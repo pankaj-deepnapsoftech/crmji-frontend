@@ -25,7 +25,7 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
 
   const fetchAdmins = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/admins`, {
         withCredentials: true,
         headers: {
@@ -44,7 +44,7 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
     
     setLoading(true);
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/${apiEndpoint}/${adminId}`, {
         withCredentials: true,
         headers: {
@@ -78,7 +78,7 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
     }
 
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/${downloadEndpoint}/${selectedAdmin}`, {
         withCredentials: true,
         responseType: 'blob',

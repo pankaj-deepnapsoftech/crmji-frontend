@@ -35,7 +35,7 @@ const SuperAdminDashboard = () => {
 
   const fetchSuperAdminProfile = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin-auth/profile`, {
         withCredentials: true,
         headers: {
@@ -59,7 +59,7 @@ const SuperAdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/dashboard`, {
         withCredentials: true,
         headers: {
@@ -75,7 +75,7 @@ const SuperAdminDashboard = () => {
 
   const fetchAllAdmins = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/admins`, {
         withCredentials: true,
         headers: {
@@ -94,7 +94,7 @@ const SuperAdminDashboard = () => {
 
   const fetchAllOrganizations = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/organizations`, {
         withCredentials: true,
         headers: {
@@ -110,7 +110,7 @@ const SuperAdminDashboard = () => {
 
   const handleExportAdmins = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/export-admins`, {
         withCredentials: true,
         responseType: 'blob',
@@ -137,7 +137,7 @@ const SuperAdminDashboard = () => {
 
   const handleViewAdmin = async (adminId) => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/admin/${adminId}`, {
         withCredentials: true,
         headers: {
@@ -155,7 +155,7 @@ const SuperAdminDashboard = () => {
   const handleDeleteAdmin = async (adminId, adminName) => {
     if (window.confirm(`Are you sure you want to delete admin: ${adminName}?`)) {
       try {
-        const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+        const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
         await axios.delete(`${baseURL}super-admin/admin/${adminId}`, {
           withCredentials: true,
           headers: {
@@ -173,7 +173,7 @@ const SuperAdminDashboard = () => {
 
   const handleExportIndividualAdmin = async (adminId, adminName) => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/export-admin/${adminId}`, {
         withCredentials: true,
         responseType: 'blob',
@@ -201,7 +201,7 @@ const SuperAdminDashboard = () => {
   const fetchEmployeesByAdmin = async (adminId) => {
     try {
       setLoadingEmployees(true);
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       
       // First get admin details
       const adminResponse = await axios.get(`${baseURL}super-admin/admin/${adminId}`, {

@@ -23,7 +23,7 @@ const SuperAdminRegister = () => {
 
   const checkSuperAdminExists = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin-auth/check-exists`);
       
       if (response.data.exists) {
@@ -62,7 +62,7 @@ const SuperAdminRegister = () => {
     setLoading(true);
 
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.post(`${baseURL}super-admin-auth/register`, {
         name: formData.name,
         email: formData.email,

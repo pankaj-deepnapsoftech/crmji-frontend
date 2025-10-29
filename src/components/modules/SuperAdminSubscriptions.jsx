@@ -26,7 +26,7 @@ const SuperAdminSubscriptions = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8066';
+      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
       const response = await axios.get(`${baseURL}super-admin/admins-subscription-status`, {
         withCredentials: true,
         headers: {
