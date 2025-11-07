@@ -47,8 +47,8 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
         company: data.lead?.company ? data.lead?.company?.companyname : "",
         people: data.lead?.people
           ? data.lead?.people?.firstname +
-            " " +
-            (data.lead?.people?.lastname || "")
+          " " +
+          (data.lead?.people?.lastname || "")
           : "",
         status: data.lead?.status,
         source: data.lead?.source,
@@ -68,7 +68,7 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
         prcQt: data.lead?.prc_qt || "N/A",
         location: data.lead?.location || "N/A",
         leadCategory: data.lead?.leadCategory,
-        demo: data.lead?.demo,
+        meeting: data.lead?.meeting,
         comments: data.lead?.comments || [],
       });
 
@@ -178,8 +178,8 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                     details?.leadCategory === "Hot"
                       ? "red"
                       : details?.leadCategory === "Cold"
-                      ? "blue"
-                      : "orange"
+                        ? "blue"
+                        : "orange"
                   }
                 >
                   {details?.leadCategory || "Not Available"}
@@ -335,41 +335,41 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
               </div>
             )}
 
-            {details?.demo && (
+            {details?.meeting && (
               <div className="border rounded-lg p-4 mt-6">
-                <h3 className="font-bold text-lg mb-3">Demo Scheduled</h3>
+                <h3 className="font-bold text-lg mb-3">Meeting Scheduled</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="font-bold text-gray-700">
-                    <p>Demo Date & Time</p>
+                    <p>Meeting Date & Time</p>
                     <p className="font-normal">
-                      {details?.demo?.demoDateTime
-                        ? moment(details.demo.demoDateTime).format(
-                            "DD-MM-YYYY HH:mm"
-                          )
+                      {details?.meeting?.meetingDateTime
+                        ? moment(details.meeting.meetingDateTime).format(
+                          "DD-MM-YYYY HH:mm"
+                        )
                         : "N/A"}
                     </p>
                   </div>
 
                   <div className="font-bold text-gray-700">
-                    <p>Demo Type</p>
+                    <p>Meeting Type</p>
                     <Badge
                       colorScheme={
-                        details?.demo?.demoType === "Physical"
+                          details?.meeting?.meetingType === "Physical"
                           ? "blue"
                           : "purple"
                       }
                     >
-                      {details?.demo?.demoType || "N/A"}
+                        {details?.meeting?.meetingType || "N/A"}
                     </Badge>
                   </div>
                 </div>
 
-                {details?.demo?.notes && (
+                {details?.meeting?.notes && (
                   <div className="font-bold text-gray-700 mt-3">
-                    <p>Demo Notes</p>
+                    <p>Meeting Notes</p>
                     <p className="font-normal text-green-700">
-                      {details.demo.notes}
+                      {details.meeting.notes}
                     </p>
                   </div>
                 )}

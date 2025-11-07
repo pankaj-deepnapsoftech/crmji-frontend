@@ -82,11 +82,11 @@ const columns = [
   },
   {
     Header: "Meeting Date and Time",
-    accessor: "demoDateTime",
+    accessor: "meetingDateTime",
   },
   {
     Header: "Meeting Type",
-    accessor: "demoType",
+    accessor: "meetingType",
   },
 ];
 
@@ -112,11 +112,11 @@ const Demo = () => {
   const [remark, setRemark] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const statusStyles = {
-    "scheduled demo": {
+    "scheduled meeting": {
       bg: "#e6f7ff",
       text: "#1890ff",
     },
-    "demo completed": {
+    "meeting completed": {
       bg: "#f6ffed",
       text: "#52c41a",
     },
@@ -322,7 +322,7 @@ const Demo = () => {
 
   const markAsCompleted = async () => {
     if (!riFile) {
-      alert("Please select an RI file before completing the demo.");
+      alert("Please select an RI file before completing the meeting.");
       return;
     }
 
@@ -362,12 +362,12 @@ const Demo = () => {
       if (result.success) {
         fetchScheduledDemoLeads();
         onClose();
-        toast.success("Demo marked as completed successfully!");
+        toast.success("meeting marked as completed successfully!");
       } else {
-        alert("Failed to mark demo as completed: " + result.message);
+        alert("Failed to mark meeting as completed: " + result.message);
       }
     } catch (error) {
-      console.error("Error marking demo as completed:", error);
+      console.error("Error marking meeting as completed:", error);
       alert("Error marking demo as completed");
     } finally {
       setUploading(false);
@@ -447,13 +447,13 @@ const Demo = () => {
       if (result.success) {
         if (result.customerCreated) {
           toast.success(
-            "Demo completed and customer record created successfully!",
+            "Meeting completed and customer record created successfully!",
             {
               duration: 5000,
             }
           );
         } else {
-          toast.success(result.message || "Demo status updated successfully!");
+          toast.success(result.message || "meeting status updated successfully!");
         }
 
         await fetchScheduledDemoLeads();
@@ -466,12 +466,12 @@ const Demo = () => {
         setIsLeadModalOpen(false);
       } else {
         toast.error(
-          "Failed to update demo: " + (result.message || "Unknown error")
+          "Failed to update meeting: " + (result.message || "Unknown error")
         );
       }
     } catch (error) {
-      console.error("Error updating demo:", error);
-      toast.error("Error updating demo: " + error.message);
+      console.error("Error updating meeting:", error);
+      toast.error("Error updating meeting: " + error.message);
     } finally {
       setIsUpdating(false);
     }
@@ -492,7 +492,7 @@ const Demo = () => {
       if (data.success) {
         let scheduledDemoLeads = data.leads.filter(
           (lead) =>
-            lead.status === "Scheduled Demo" || lead.status === "Demo Completed"
+            lead.status === "Scheduled Meeting" || lead.status === "Meeting Completed"
         );
 
         if (statusFilter !== "all") {
@@ -503,17 +503,17 @@ const Demo = () => {
 
         const transformedData = scheduledDemoLeads.map((lead) => ({
           ...lead,
-          demoDateTime: lead.demo?.demoDateTime
-            ? moment(lead.demo.demoDateTime).format("DD/MM/YYYY HH:mm")
+          meetingDateTime: lead.meeting?.meetingDateTime
+            ? moment(lead.meeting.meetingDateTime).format("DD/MM/YYYY HH:mm")
             : "Not Set",
-          demoType: lead.demo?.demoType || "Not Set",
-          demoNotes: lead.demo?.notes || "No Notes",
+          meetingType: lead.meeting?.meetingType || "Not Set",
+          demoNotes: lead.meeting?.notes || "No Notes",
         }));
 
         setData(transformedData);
       }
     } catch (error) {
-      console.error("Error fetching scheduled demo leads:", error);
+      console.error("Error fetching scheduled meeting leads:", error);
     } finally {
       setLoading(false);
     }
@@ -537,7 +537,7 @@ const Demo = () => {
 
         // Set initial values for status and remark
         setNewStatus(lead.status || "");
-        setRemark(lead.demo?.remark || "");
+        setRemark(lead.meeting?.remark || "");
       }
     } catch (err) {
       console.error("Error fetching lead KYC:", err);
@@ -611,8 +611,8 @@ const Demo = () => {
             className="border border-gray-300 px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Status</option>
-            <option value="scheduled demo">Scheduled Meeting</option>
-            <option value="demo completed">Meeting Completed</option>
+            <option value="scheduled meeting">Scheduled Meeting</option>
+            <option value="meeting completed">Meeting Completed</option>
           </select>
 
           <button
@@ -828,7 +828,7 @@ const Demo = () => {
                                     const lead = response?.data?.lead;
                                     setLeadData(lead);
                                     setNewStatus(lead.status || "");
-                                    setRemark(lead.demo?.remark || "");
+                                    setRemark(lead.meeting?.remark || "");
                                     setIsLeadModalOpen(true);
                                   }
                                 } catch (err) {
@@ -983,17 +983,17 @@ const Demo = () => {
                 </Heading>
                 <Text>
                   Date & Time:{" "}
-                  {leadData.demo?.demoDateTime
-                    ? moment(leadData.demo.demoDateTime).format(
+                  {leadData.meeting?.meetingDateTime
+                    ? moment(leadData.meeting.meetingDateTime).format(
                         "DD/MM/YYYY HH:mm"
                       )
                     : "Not Set"}
                 </Text>
-                <Text>Type: {leadData.demo?.demoType || "N/A"}</Text>
-                <Text>Notes: {leadData.demo?.notes || "No notes"}</Text>
+                <Text>Type: {leadData.meeting?.meetingType || "N/A"}</Text>
+                <Text>Notes: {leadData.meeting?.notes || "No notes"}</Text>
                 <Text>
                   Meeting Notes:{" "}
-                  {leadData.demo?.demoNotes || "No meeting notes"}
+                  {leadData.meeting?.demoNotes || "No meeting notes"}
                 </Text>
 
                 {/* Editable Status */}
@@ -1009,11 +1009,11 @@ const Demo = () => {
                     }}
                     maxW="250px"
                   >
-                    <option value="Demo Completed">Meeting Completed</option>
+                    <option value="Meeting Completed">Meeting Completed</option>
                     <option value="Completed">Completed</option>
                     <option value="Loose">Loose</option>
                     <option value="In Negotiation">In Negotiation</option>
-                    <option value="Scheduled Demo">Scheduled Meeting</option>
+                    <option value="Scheduled Meeting">Scheduled Meeting</option>
                   </Select>
                 </Box>
 

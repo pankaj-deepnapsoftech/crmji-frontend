@@ -368,7 +368,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
         )}
 
         <NavLink
-          to="demo"
+          to="meeting"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
           }

@@ -19,15 +19,15 @@ const MoveToDemo = ({
   fetchAllLeads,
   leadData,
 }) => {
-  const [demoDateTime, setDemoDateTime] = useState("");
-  const [demoType, setDemoType] = useState(null);
+  const [meetingDateTime, setmeetingDateTime] = useState("");
+  const [meetingType, setDemoType] = useState(null);
   const [notes, setNotes] = useState("");
   const [cookies] = useCookies();
   const [isLoading, setIsLoading] = useState(false);
 
   const notificationCtx = useContext(notificationContext);
 
-  const demoTypeOptions = [
+  const meetingTypeOptions = [
     { value: "Physical", label: "Physical" },
     { value: "Virtual", label: "Virtual" },
   ];
@@ -35,7 +35,7 @@ const MoveToDemo = ({
   const scheduleDemoHandler = async (e) => {
     e.preventDefault();
 
-    if (!demoDateTime || !demoType) {
+    if (!meetingDateTime || !meetingType) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -53,8 +53,8 @@ const MoveToDemo = ({
         },
         body: JSON.stringify({
           leadId: dataId,
-          demoDateTime,
-          demoType: demoType?.value,
+          meetingDateTime,
+          meetingType: meetingType?.value,
           notes,
         }),
       });
@@ -67,7 +67,7 @@ const MoveToDemo = ({
 
       closeDrawerHandler();
       fetchAllLeads();
-      toast.success(data.message || "Demo scheduled successfully!");
+      toast.success(data.message || "Meeting scheduled successfully!");
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -85,12 +85,12 @@ const MoveToDemo = ({
     >
       <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
         <BiX onClick={closeDrawerHandler} size="26px" />
-        Schedule Demo
+        Schedule Meeting
       </h1>
 
       <div className="mt-8 px-5">
         <h2 className="text-2xl font-bold py-5 text-center mb-6 border-y bg-blue-800 text-white rounded-lg shadow-md">
-          Schedule Demo
+          Schedule Meeting
         </h2>
 
         {/* Lead Information */}
@@ -136,12 +136,12 @@ const MoveToDemo = ({
             {/* Demo DateTime */}
             <div className="mt-2 mb-5">
               <label className="font-bold text-[#4B5563]">
-                Demo Date & Time *
+                Meeting Date & Time *
               </label>
               <Input
                 type="datetime-local"
-                value={demoDateTime}
-                onChange={(e) => setDemoDateTime(e.target.value)}
+                value={meetingDateTime}
+                onChange={(e) => setmeetingDateTime(e.target.value)}
                 className="rounded mt-2 border p-3 focus:ring-2 focus:ring-green-400"
                 required
               />
@@ -149,12 +149,12 @@ const MoveToDemo = ({
 
             {/* Demo Type */}
             <div className="mt-2 mb-5">
-              <label className="font-bold text-[#4B5563]">Demo Type *</label>
+              <label className="font-bold text-[#4B5563]">Meeting Type *</label>
               <Select
                 className="rounded mt-2 border p-3 focus:ring-2 focus:ring-green-400"
-                options={demoTypeOptions}
-                placeholder="Select demo type"
-                value={demoType}
+                options={meetingTypeOptions}
+                placeholder="Select Meeting type"
+                value={meetingType}
                 onChange={(d) => setDemoType(d)}
                 isSearchable={true}
                 required
@@ -170,7 +170,7 @@ const MoveToDemo = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 resize="none"
-                placeholder="Additional notes about the demo..."
+                placeholder="Additional notes about the meeting..."
                 className="rounded mt-2 border p-3 focus:ring-2 focus:ring-green-400"
               />
             </FormControl>
@@ -182,7 +182,7 @@ const MoveToDemo = ({
               colorScheme="black"
               isLoading={isLoading}
             >
-              Schedule Demo
+              Schedule Meeting
             </Button>
           </form>
         )}

@@ -329,7 +329,7 @@ const Leads = () => {
       const newData = data.leads.filter(
         (lead) =>
           lead.dataBank !== true &&
-          lead?.status !== "Scheduled Demo" &&
+          lead?.status !== "Scheduled Meeting" &&
           lead?.status !== "Completed"
       );
 
@@ -1875,7 +1875,7 @@ const Leads = () => {
                                 <FaCalendarAlt
                                   className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
                                   size={20}
-                                  title="Schedule Demo"
+                                  title="Schedule Meeting"
                                   onClick={() => {
                                     setDataId(row.original?._id);
                                     dispatch(openMoveToDemoDrawer());

@@ -575,7 +575,7 @@ const LeadsDrawer = ({
             </>
           )}
 
-          {statusId?.value === "Demo Preparation" && (
+          {statusId?.value === "Meeting Preparation" && (
             <div className="mt-2 mb-5">
               <label
                 htmlFor="demoPdf"
