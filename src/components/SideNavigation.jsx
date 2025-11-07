@@ -124,7 +124,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             <span>
               <FaPeopleGroup />
             </span>
-            <span>Employees</span>
+            <span>Users</span>
             {!checkAccess(auth, "admin")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />

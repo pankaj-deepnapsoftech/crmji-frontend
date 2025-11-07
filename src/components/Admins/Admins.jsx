@@ -1,4 +1,12 @@
-import { Button, Select, useDisclosure, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import {
+  Button,
+  Select,
+  useDisclosure,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+} from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
   MdArrowBack,
@@ -60,7 +68,7 @@ const columns = [
       // Extract the number part from the original employeeId (last 3 digits)
       const originalId = row.original.employeeId || "";
       const numberPart = originalId.slice(-3) || "001";
-      
+
       return `UI${numberPart}`;
     },
   },
@@ -104,7 +112,15 @@ const Admins = () => {
     state: { pageIndex, pageSize },
     pageCount,
     setPageSize,
-  } = useTable({ columns, data: filteredData }, useSortBy, usePagination);
+  } = useTable(
+    {
+      columns,
+      data: filteredData,
+      initialState: { pageSize: 5 },
+    },
+    useSortBy,
+    usePagination
+  );
 
   const {
     addEmployeeDrawerIsOpened,
@@ -264,6 +280,7 @@ const Admins = () => {
                   onChange={(e) => setPageSize(e.target.value)}
                   width="80px"
                 >
+                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={50}>50</option>
@@ -328,7 +345,7 @@ const Admins = () => {
                     className="shadow-lg rounded-lg bg-white"
                   >
                     <Table variant="striped" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-lg font-semibold text-gray-800">
+                      <Thead className="bg-blue-400 text-lg font-semibold text-gray-800 sticky top-0 z-10">
                         {headerGroups.map((hg) => (
                           <Tr
                             {...hg.getHeaderGroupProps()}
@@ -337,18 +354,13 @@ const Admins = () => {
                             {hg.headers.map((column) => (
                               <Th
                                 className={`
-                                ${
-                                  column.id === "name"
-                                    ? "sticky top-0 left-[-2px]"
-                                    : ""
-                                }
                                 text-transform: capitalize
                                 font-size: 15px
                                 font-weight: 700
                                 border-b-2 border-gray-300
                                 p-3
                                 text-center
-                                
+                                bg-blue-400
                               `}
                                 borderLeft="1px solid #d7d7d7"
                                 borderRight="1px solid #d7d7d7"
@@ -370,7 +382,7 @@ const Admins = () => {
                                 </div>
                               </Th>
                             ))}
-                            <Th className="p-3 text-center bg-blue-400 text-white ">
+                            <Th className="p-3 text-center bg-blue-400 text-white sticky top-0 z-10">
                               <p className="text-white">Actions</p>
                             </Th>
                           </Tr>
@@ -379,7 +391,6 @@ const Admins = () => {
 
                       <Tbody {...getTableBodyProps()}>
                         {page.map((row) => {
-                       
                           prepareRow(row);
                           return (
                             <Tr
@@ -420,7 +431,6 @@ const Admins = () => {
                                       )}
                                     </span>
                                   )}
-                                   
                                 </Td>
                               ))}
                               <Td className="p-3 text-center">
@@ -431,8 +441,7 @@ const Admins = () => {
                                     size="sm"
                                     rightIcon={<MdMoreVert />}
                                     className="hover:bg-gray-100"
-                                  >
-                                  </MenuButton>
+                                  ></MenuButton>
                                   <MenuList>
                                     <MenuItem
                                       icon={<MdOutlineVisibility />}
@@ -444,7 +453,9 @@ const Admins = () => {
                                     </MenuItem>
                                     <MenuItem
                                       icon={<MdEdit />}
-                                      onClick={() => editHandler(row.original?._id)}
+                                      onClick={() =>
+                                        editHandler(row.original?._id)
+                                      }
                                     >
                                       Edit
                                     </MenuItem>

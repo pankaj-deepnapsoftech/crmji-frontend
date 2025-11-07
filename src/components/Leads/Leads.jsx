@@ -153,25 +153,34 @@ const Leads = () => {
 
   // Table columns: hide Created On, Created By, Assigned, Source, Follow-up Date/Reason, PRC QT from main table.
   // Add a View button to open details drawer where these fields are shown.
-  const columns = useMemo(() => [
-    { Header: "", accessor: "select" },
-    { Header: "Type", accessor: "leadtype" },
-    { Header: "Name", accessor: "name" },
-    { Header: "Status", accessor: "status" },
-    { Header: "Phone", accessor: "phone" },
-    { Header: "Email", accessor: "email" },
-    { Header: "Location", accessor: "location" },
-    { Header: "Lead Category", accessor: "leadCategory" },
-    {
-      Header: "View",
-      accessor: "view",
-      Cell: ({ row }) => (
-        <Button size="sm" onClick={() => { setDataId(row.original._id); dispatch(openShowDetailsLeadsDrawer()); }}>
-          View
-        </Button>
-      ),
-    },
-  ], [dispatch]);
+  const columns = useMemo(
+    () => [
+      { Header: "", accessor: "select" },
+      { Header: "Type", accessor: "leadtype" },
+      { Header: "Name", accessor: "name" },
+      { Header: "Lead Category", accessor: "leadCategory" },
+      { Header: "Status", accessor: "status" },
+      { Header: "Phone", accessor: "phone" },
+      { Header: "Email", accessor: "email" },
+      { Header: "Location", accessor: "location" },
+      {
+        Header: "View",
+        accessor: "view",
+        Cell: ({ row }) => (
+          <Button
+            size="sm"
+            onClick={() => {
+              setDataId(row.original._id);
+              dispatch(openShowDetailsLeadsDrawer());
+            }}
+          >
+            View
+          </Button>
+        ),
+      },
+    ],
+    [dispatch]
+  );
 
   const {
     getTableProps,
@@ -190,7 +199,7 @@ const Leads = () => {
     {
       columns,
       data: filteredData,
-      initialState: { pageSize: 10 },
+      initialState: { pageSize: 5 },
     },
     useSortBy,
     usePagination

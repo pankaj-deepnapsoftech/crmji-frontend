@@ -21,7 +21,7 @@ import { useCookies } from "react-cookie";
 import Loading from "../ui/Loading";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import moment from "moment";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 import {
   Table,
@@ -65,6 +65,10 @@ const columns = [
   {
     Header: "Last Name",
     accessor: "lastname",
+  },
+  {
+    Header: "Status",
+    accessor: "status",
   },
   {
     Header: "Phone",
@@ -130,7 +134,9 @@ const columns = [
             setIsVerified(true);
             onClose();
           } else {
-            toast.error(verifyResponse.message || "Invalid OTP. Please try again.");
+            toast.error(
+              verifyResponse.message || "Invalid OTP. Please try again."
+            );
           }
         } catch (error) {
           toast.error("Something went wrong. Please try again.");
@@ -148,14 +154,20 @@ const columns = [
               <Button size="sm" colorScheme="blue" onClick={onOpen}>
                 Verify
               </Button>
-              <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+              <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+              >
                 <AlertDialogOverlay>
                   <AlertDialogContent className="p-6 rounded-lg shadow-lg">
                     <AlertDialogHeader className="text-xl font-semibold text-center">
                       Confirm Verification
                     </AlertDialogHeader>
                     <AlertDialogBody className="text-center space-y-4">
-                      <p className="text-gray-600">A one-time password has been sent to your email</p>
+                      <p className="text-gray-600">
+                        A one-time password has been sent to your email
+                      </p>
                       <Input
                         className="text-center border border-gray-300 rounded-md py-2 px-4 w-3/4 mx-auto"
                         placeholder="Enter OTP"
@@ -163,12 +175,26 @@ const columns = [
                         onChange={(e) => setOtp(e.target.value)}
                       />
                       <div className="flex justify-center gap-4">
-                        <Button onClick={verifyOtp} colorScheme="blue">Verify OTP</Button>
-                        <Button onClick={reSendVerificationOtp} variant="outline" colorScheme="gray">Resend OTP</Button>
+                        <Button onClick={verifyOtp} colorScheme="blue">
+                          Verify OTP
+                        </Button>
+                        <Button
+                          onClick={reSendVerificationOtp}
+                          variant="outline"
+                          colorScheme="gray"
+                        >
+                          Resend OTP
+                        </Button>
                       </div>
                     </AlertDialogBody>
                     <AlertDialogFooter className="flex justify-end gap-3">
-                      <Button ref={cancelRef} onClick={onClose} variant="outline">Cancel</Button>
+                      <Button
+                        ref={cancelRef}
+                        onClick={onClose}
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialogOverlay>
@@ -179,10 +205,7 @@ const columns = [
       );
     },
   },
-  {
-    Header: "Status",
-    accessor: "status",
-  },
+
   // {
   //   Header: "Verification",
   //   accessor: "verified",
@@ -357,7 +380,15 @@ const Peoples = () => {
     state: { pageIndex, pageSize },
     pageCount,
     setPageSize,
-  } = useTable({ columns, data: filteredData }, useSortBy, usePagination);
+  } = useTable(
+    {
+      columns,
+      data: filteredData,
+      initialState: { pageSize: 5 },
+    },
+    useSortBy,
+    usePagination
+  );
 
   const {
     addPeoplesDrawerIsOpened,
@@ -380,13 +411,29 @@ const Peoples = () => {
   const downloadPeopleSampleCSV = () => {
     const headers = ["firstname", "lastname", "phone", "email"];
     const sample = [
-      { firstname: "Rahul", lastname: "Sharma", phone: "9876543210", email: "rahul@example.com" },
-      { firstname: "Anita", lastname: "Verma", phone: "9876501234", email: "anita@example.com" },
+      {
+        firstname: "Rahul",
+        lastname: "Sharma",
+        phone: "9876543210",
+        email: "rahul@example.com",
+      },
+      {
+        firstname: "Anita",
+        lastname: "Verma",
+        phone: "9876501234",
+        email: "anita@example.com",
+      },
     ];
     const csvRows = [];
     csvRows.push(headers.join(","));
     for (const row of sample) {
-      csvRows.push(headers.map((h) => (row[h] !== undefined ? String(row[h]).replaceAll(",", " ") : "")).join(","));
+      csvRows.push(
+        headers
+          .map((h) =>
+            row[h] !== undefined ? String(row[h]).replaceAll(",", " ") : ""
+          )
+          .join(",")
+      );
     }
     const csvContent = csvRows.join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -406,9 +453,9 @@ const Peoples = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
+      const workbook = XLSX.read(data, { type: "array" });
       const ws = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
       setBulkPreviewRows(Array.isArray(json) ? json.slice(0, 2000) : []);
       setShowBulkPreview(true);
     };
@@ -432,7 +479,6 @@ const Peoples = () => {
       });
 
       const data = await response.json();
-
 
       if (!data.success) {
         throw new Error(data.message);
@@ -470,10 +516,9 @@ const Peoples = () => {
         });
 
         const otpResponse = await response.json();
-
       }
     } catch (error) {
-      toast.error(`Error while sending OTPs: ${error} `)
+      toast.error(`Error while sending OTPs: ${error} `);
     }
   };
 
@@ -618,7 +663,10 @@ const Peoples = () => {
                   style={{ display: "none" }}
                 />
                 <Button
-                  onClick={() => peopleBulkInputRef.current && peopleBulkInputRef.current.click()}
+                  onClick={() =>
+                    peopleBulkInputRef.current &&
+                    peopleBulkInputRef.current.click()
+                  }
                   fontSize={{ base: "14px", md: "14px" }}
                   paddingX={{ base: "10px", md: "12px" }}
                   paddingY={{ base: "0", md: "3px" }}
@@ -678,6 +726,7 @@ const Peoples = () => {
                   onChange={(e) => setPageSize(e.target.value)}
                   width="80px"
                 >
+                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={50}>50</option>
@@ -691,24 +740,40 @@ const Peoples = () => {
               {showBulkPreview && bulkPreviewRows.length > 0 && (
                 <div className="mb-4 border rounded p-2">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="font-bold">Bulk Preview ({bulkPreviewRows.length} rows)</div>
-                    <button className="text-red-600 text-sm" onClick={() => setShowBulkPreview(false)}>Close Preview</button>
+                    <div className="font-bold">
+                      Bulk Preview ({bulkPreviewRows.length} rows)
+                    </div>
+                    <button
+                      className="text-red-600 text-sm"
+                      onClick={() => setShowBulkPreview(false)}
+                    >
+                      Close Preview
+                    </button>
                   </div>
                   <div className="overflow-auto" style={{ maxHeight: 300 }}>
                     <table className="min-w-full text-sm">
                       <thead>
                         <tr>
                           {Object.keys(bulkPreviewRows[0] || {}).map((key) => (
-                            <th key={key} className="border px-2 py-1 text-left bg-gray-50">{key}</th>
+                            <th
+                              key={key}
+                              className="border px-2 py-1 text-left bg-gray-50"
+                            >
+                              {key}
+                            </th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {bulkPreviewRows.slice(0, 50).map((row, idx) => (
                           <tr key={idx}>
-                            {Object.keys(bulkPreviewRows[0] || {}).map((key) => (
-                              <td key={key} className="border px-2 py-1">{String(row[key])}</td>
-                            ))}
+                            {Object.keys(bulkPreviewRows[0] || {}).map(
+                              (key) => (
+                                <td key={key} className="border px-2 py-1">
+                                  {String(row[key])}
+                                </td>
+                              )
+                            )}
                           </tr>
                         ))}
                       </tbody>
@@ -778,9 +843,13 @@ const Peoples = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer maxHeight="600px" overflowY="auto">
+                  <TableContainer
+                    maxHeight="600px"
+                    overflowY="auto"
+                    className="shadow-lg rounded-lg bg-white"
+                  >
                     <Table variant="simple" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold">
+                      <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
                         {headerGroups.map((hg) => {
                           return (
                             <Tr
@@ -790,21 +859,7 @@ const Peoples = () => {
                               {hg.headers.map((column) => {
                                 return (
                                   <Th
-                                    className={`
-                    ${
-                      column.id === "uniqueId"
-                        ? "sticky top-0 left-[-2px] z-10 bg-blue-400"
-                        : ""
-                    }
-                    text-transform: capitalize
-                    font-size: 15px
-                    font-weight: 700
-                    text-center
-                    border-r border-gray-300
-                    py-3
-                    px-4
-                    cursor-pointer
-                  `}
+                                    className="text-transform: capitalize font-size: 15px font-weight: 700 text-center border-r border-gray-300 py-3 px-4 cursor-pointer bg-blue-400"
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}
@@ -824,7 +879,7 @@ const Peoples = () => {
                                   </Th>
                                 );
                               })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 ">
+                              <Th className="text-center py-3 px-4 bg-blue-400 sticky top-0 z-10">
                                 <p className="text-white"> Actions</p>
                               </Th>
                             </Tr>

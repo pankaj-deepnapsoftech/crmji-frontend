@@ -189,13 +189,29 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
               className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
             />
           </FormControl>
+          <FormControl className="mt-3 mb-5" isRequired>
+            <FormLabel fontWeight="bold" className="text-[#4B5563]">
+              Last Name
+            </FormLabel>
+            <Input
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
+              type="text"
+              placeholder="Enter Last Name"
+              className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+            />
+          </FormControl>
 
           {/* Status with Add More */}
           <FormControl className="mt-3 mb-5">
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
               Status
             </FormLabel>
-            <Select value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Select status">
+            <Select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              placeholder="Select status"
+            >
               {statusOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -244,18 +260,6 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
           </FormControl>
 
           {/* Last Name */}
-          <FormControl className="mt-3 mb-5" isRequired>
-            <FormLabel fontWeight="bold" className="text-[#4B5563]">
-              Last Name
-            </FormLabel>
-            <Input
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              type="text"
-              placeholder="Enter Last Name"
-              className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
-            />
-          </FormControl>
 
           {/* Corporate Selection (Optional) */}
           <FormControl className="mt-2 mb-5">
