@@ -111,7 +111,15 @@ const Customer = () => {
     state: { pageIndex, pageSize },
     pageCount,
     setPageSize,
-  } = useTable({ columns, data: filteredData }, useSortBy, usePagination);
+  } = useTable(
+    {
+      columns,
+      data: filteredData,
+      initialState: { pageSize: 5 },
+    },
+    useSortBy,
+    usePagination
+  );
 
   const {
     addCustomersDrawerIsOpened,
@@ -381,6 +389,7 @@ const Customer = () => {
                   onChange={(e) => setPageSize(e.target.value)}
                   width="80px"
                 >
+                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={50}>50</option>
@@ -462,9 +471,16 @@ const Customer = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer maxHeight="600px" overflowY="auto">
+                  <TableContainer
+                    maxHeight="600px"
+                    overflowY="auto"
+                    shadow="md"
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="gray.200"
+                  >
                     <Table variant="striped" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold">
+                      <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
                         {headerGroups.map((hg) => {
                           return (
                             <Tr
@@ -475,7 +491,11 @@ const Customer = () => {
                                 return (
                                   <Th
                                     className={`
-                    ${column.id === "name" ? "sticky top-0 left-[-2px]" : ""}
+                    ${
+                      column.id === "name"
+                        ? "sticky top-0 left-[-2px]"
+                        : "sticky top-0"
+                    }
                     text-transform: capitalize
                     font-size: 15px
                     font-weight: 700
@@ -484,6 +504,8 @@ const Customer = () => {
                     py-3
                     px-4
                     hover:bg-blue-200 cursor-pointer
+                    bg-blue-400
+                    z-10
                   `}
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
@@ -504,7 +526,7 @@ const Customer = () => {
                                   </Th>
                                 );
                               })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 text-white">
+                              <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
                                 <p className="text-white">Actions</p>
                               </Th>
                             </Tr>
