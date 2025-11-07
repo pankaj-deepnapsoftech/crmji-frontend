@@ -133,7 +133,7 @@ function App() {
             {/* <Route path="customers" element={<Companies />} /> */}
             <Route path="corporates" element={<Companies />} />
             <Route path="leads" element={<Leads />} />
-            <Route path="demo" element={<Demo />} />
+            <Route path="meeting" element={<Demo />} />
             <Route path="indiamart-leads" element={<IndiamartLeads />} />
             <Route path="justdial-leads" element={<IndiamartLeads />} />
             <Route path="facebook-leads" element={<IndiamartLeads />} />

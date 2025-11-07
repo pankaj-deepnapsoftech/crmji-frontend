@@ -59,7 +59,7 @@ const Footer = () => {
   ];
 
   const legalLinks = [
-    { label: "Book Demo", to: "/contact" },
+    { label: "Book Meeting", to: "/contact" },
     { label: "Privacy Policy", to: "/policy" },
     { label: "Terms & Conditions", to: "/terms" },
   ];
