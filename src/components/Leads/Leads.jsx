@@ -135,7 +135,9 @@ const Leads = () => {
         const currentPageIds = filteredData
           .slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
           .map((d) => d._id);
-        const allSelected = currentPageIds.every((pid) => updated.includes(pid));
+        const allSelected = currentPageIds.every((pid) =>
+          updated.includes(pid)
+        );
         setIsAllSelected(allSelected);
         return updated;
       });
@@ -176,9 +178,15 @@ const Leads = () => {
       return;
     }
 
-    const selectedRows = filteredData.filter((d) => selectedIds.includes(d._id));
+    const selectedRows = filteredData.filter((d) =>
+      selectedIds.includes(d._id)
+    );
 
-    const users = selectedRows.map((d) => ({ id: d._id, phone: d.phone, name: d.name }));
+    const users = selectedRows.map((d) => ({
+      id: d._id,
+      phone: d.phone,
+      name: d.name,
+    }));
     setSelectedUsers(users);
     setBulkSMSMobiles(selectedRows.map((d) => d.phone));
     setBulkName(selectedRows.map((d) => d.name));
@@ -204,18 +212,22 @@ const Leads = () => {
   const [templateLang, setTemplateLang] = useState("en");
   const [bulkName, setBulkName] = useState([]);
 
-  const { isOpen: isTemplateModalOpen, onOpen: openTemplateModal, onClose: closeTemplateModal } = useDisclosure();
-  const [entityId, setEntityId] = useState('1001558230000012624');
+  const {
+    isOpen: isTemplateModalOpen,
+    onOpen: openTemplateModal,
+    onClose: closeTemplateModal,
+  } = useDisclosure();
+  const [entityId, setEntityId] = useState("1001558230000012624");
 
-  const [templateId, setTemplateId] = useState('');
-  const [templateText, setTemplateText] = useState('');
+  const [templateId, setTemplateId] = useState("");
+  const [templateText, setTemplateText] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false); // For loading state on save
 
   // Table columns: hide Created On, Created By, Assigned, Source, Follow-up Date/Reason, PRC QT from main table.
   // Add a View button to open details drawer where these fields are shown.
   const columns = useMemo(
     () => [
-      { 
+      {
         Header: () => (
           <input
             type="checkbox"
@@ -223,8 +235,8 @@ const Leads = () => {
             onChange={selectAllHandler}
             className="cursor-pointer"
           />
-        ), 
-        accessor: "select" 
+        ),
+        accessor: "select",
       },
       { Header: "Type", accessor: "leadtype" },
       { Header: "Name", accessor: "name" },
@@ -412,7 +424,6 @@ const Leads = () => {
     }
   };
 
-
   const fetchLeadSummary = async () => {
     setData([]);
     setFilteredData([]);
@@ -512,8 +523,6 @@ const Leads = () => {
   };
 
   const [showBulkButtons, setShowBulkButtons] = useState(false);
-
-
 
   const bulkAssignHandler = async (e) => {
     const rows = document.getElementsByName("select");
@@ -1088,13 +1097,16 @@ const Leads = () => {
   };
   const handleSaveTemplate = async () => {
     if (!templateId || isNaN(templateId) || !templateText) {
-      toast.error("TemplateID must be numeric and both TemplateID and Text are required.");
+      toast.error(
+        "TemplateID must be numeric and both TemplateID and Text are required."
+      );
       return;
     }
 
     setSavingTemplate(true);
     try {
-      const response = await fetch(baseURL + "sms/template", { // Adjust endpoint to your actual backend route for adding templates
+      const response = await fetch(baseURL + "sms/template", {
+        // Adjust endpoint to your actual backend route for adding templates
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1116,10 +1128,10 @@ const Leads = () => {
       toast.success("Template added successfully");
       closeTemplateModal();
       // Reset fields
-      setEntityId('');
-      setTemplateName('');
-      setTemplateId('');
-      setTemplateText('');
+      setEntityId("");
+      setTemplateName("");
+      setTemplateId("");
+      setTemplateText("");
       // Optionally: Fetch and refresh a list of templates if you add a table below the form
     } catch (err) {
       toast.error(err.message);
@@ -1638,8 +1650,7 @@ const Leads = () => {
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
                   <span className="mt-1 font-semibold text-2xl">
-                    Kya Majburi hai ki yeh software chalana pad rha hai. Odoo
-                    use kar free de rha hai yeh sab kuch.
+                    No data found.
                   </span>
                 </div>
               )}

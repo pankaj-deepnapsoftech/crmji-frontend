@@ -133,8 +133,6 @@ const columns = [
     Header: "Lead Category",
     accessor: "leadCategory",
   },
-
-
 ];
 
 const DataBank = () => {
@@ -299,10 +297,16 @@ const DataBank = () => {
       }
 
       // Filter leads where dataBank is true and merge archived Individuals/Companies from response
-      const dataBankLeads = (data.leads || []).filter((lead) => lead.dataBank === true);
+      const dataBankLeads = (data.leads || []).filter(
+        (lead) => lead.dataBank === true
+      );
       const archivedIndividuals = data.archivedIndividuals || [];
       const archivedCompanies = data.archivedCompanies || [];
-      const merged = [...dataBankLeads, ...archivedIndividuals, ...archivedCompanies];
+      const merged = [
+        ...dataBankLeads,
+        ...archivedIndividuals,
+        ...archivedCompanies,
+      ];
       setData(merged);
       setFilteredData(merged);
       setLeadLength(merged.length);
@@ -617,8 +621,7 @@ const DataBank = () => {
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
                   <span className="mt-1 font-semibold text-2xl">
-                    Kya Majburi hai ki yeh software chalana pad rha hai. Odoo
-                    use kar free de rha hai yeh sab kuch.
+                    No data found. Odoo use kar free de rha hai yeh sab kuch.
                   </span>
                 </div>
               )}
