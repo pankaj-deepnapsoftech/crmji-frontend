@@ -839,7 +839,7 @@ const Peoples = () => {
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
                   <span className="mt-1 font-semibold text-2xl">
-                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                    No data found.
                   </span>
                 </div>
               )}

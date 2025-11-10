@@ -38,7 +38,7 @@ const Layout = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
   }, []);
   return (
     <>
-      <Header
+      <Header 
         showAuthenticationMenu={showAuthenticationMenu}
         setShowAuthenticationMenu={setShowAuthenticationMenu}
       />

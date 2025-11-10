@@ -194,7 +194,7 @@ const Invoices = () => {
   };
 
   console.log(data);
-  
+
   const deleteHandler = async (id) => {
     try {
       const baseUrl = process.env.REACT_APP_BACKEND_URL;
@@ -294,7 +294,11 @@ const Invoices = () => {
           d?.status?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.paymentstatus?.toLowerCase().includes(searchKey.toLowerCase()) ||
           (d?.customer?.people
-            ? (d?.customer?.people?.firstname + " " + d?.customer?.people?.lastname)
+            ? (
+                d?.customer?.people?.firstname +
+                " " +
+                d?.customer?.people?.lastname
+              )
                 .toLowerCase()
                 .includes(searchKey.toLowerCase())
             : d.customer.company.companyname
@@ -463,7 +467,7 @@ const Invoices = () => {
               <div className="flex items-center justify-center flex-col">
                 <FcDatabase color="red" size={80} />
                 <span className="mt-1 font-semibold text-2xl">
-                  Kya Majburi thi ki yeh software chalana pad rha hai.
+                  No data found.
                 </span>
               </div>
             )}

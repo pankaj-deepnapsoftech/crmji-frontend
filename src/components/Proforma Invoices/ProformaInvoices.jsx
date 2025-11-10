@@ -228,7 +228,8 @@ const ProformaInvoices = () => {
         if (!response.ok) throw new Error("Failed to fetch file");
         const filename = response.headers
           .get("content-disposition")
-          ?.split("filename=")[1]?.replace(/"/g, "");
+          ?.split("filename=")[1]
+          ?.replace(/"/g, "");
         return response.blob().then((blob) => ({
           filename: filename || "proforma-invoice.pdf",
           blob,
@@ -275,11 +276,11 @@ const ProformaInvoices = () => {
           d?.status?.toLowerCase().includes(searchKey.toLowerCase()) ||
           (d?.people
             ? (d?.people?.firstname + " " + d?.people?.lastname)
-              .toLowerCase()
-              .includes(searchKey.toLowerCase())
+                .toLowerCase()
+                .includes(searchKey.toLowerCase())
             : d?.company?.companyname
-              .toLowerCase()
-              .includes(searchKey.toLowerCase()))
+                .toLowerCase()
+                .includes(searchKey.toLowerCase()))
       );
       setFilteredData(searchedData);
     } else {
@@ -456,7 +457,7 @@ const ProformaInvoices = () => {
               <div className="flex items-center justify-center flex-col">
                 <FcDatabase color="red" size={80} />
                 <span className="mt-1 font-semibold text-2xl">
-                  Kya Majburi thi ki yeh software chalana pad rha hai.
+                  No data found.
                 </span>
               </div>
             )}

@@ -98,7 +98,6 @@ const EmailData = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-
   const [peopleDeleteId, setPeopleDeleteId] = useState();
 
   const dispatch = useDispatch();
@@ -152,7 +151,6 @@ const EmailData = () => {
       });
 
       const data = await response.json();
-
 
       setData(data.data);
       setFilteredData(data.data);
@@ -405,7 +403,7 @@ const EmailData = () => {
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
                   <span className="mt-1 font-semibold text-2xl">
-                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                    No data found.
                   </span>
                 </div>
               )}
