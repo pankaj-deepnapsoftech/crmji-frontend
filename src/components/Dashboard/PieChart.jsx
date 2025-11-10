@@ -67,7 +67,7 @@ const PieChart = ({
       {data && data.datasets[0]?.data?.every((value) => value === 0) ? (
         <p className="text-center text-gray-600 text-sm sm:text-base">No graph to show!</p>
       ) : (
-        <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px] items-center justify-center flex">
+        <div className="w-full h-[300px] sm:h-[350px] lg:h-[440px] items-center justify-center flex">
           <Pie data={data} options={options} className="cursor-pointer" />
         </div>
       )}

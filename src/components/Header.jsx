@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 import ClickMenu from "./ui/ClickMenu";
 import { IoIosNotifications } from "react-icons/io";
 import Loading from "./ui/Loading";
+import { MdMenu, MdClose } from "react-icons/md";
+
 // import { fetchData, createGroupForm, addRecipient, addChatMessages, fetchGroup, togglechatarea, selectedGroupperson } from "../../redux/reducers/Chatsystem";
 import {
   closeAddLeadsDrawer,
@@ -24,7 +26,7 @@ import LeadsDrawer from "./ui/Drawers/Add Drawers/LeadsDrawer";
 import { notificationContext } from "./ctx/notificationContext";
 import { SocketContext } from "../socket";
 
-const Header = () => {
+const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   const socket = useContext(SocketContext);
   const [showUserDetailsMenu, setShowUserDetailsMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
@@ -94,12 +96,12 @@ const Header = () => {
     // Register notification listeners inside useEffect with cleanup
     const handleSendNotification = async (data) => {
       console.log("New one-to-one notification arrived:", data);
-      
+
       // Show toast for one-to-one messages
       if (data.sender && data.sender !== user.id) {
         toast.info("You have a new message!");
       }
-      
+
       // Refresh notification count
       notificationCtx.getChatNotificationsHandler(user.id);
       notificationCtx.getUnseenchatNotificationCount();
@@ -216,7 +218,7 @@ const Header = () => {
   // };
 
   return (
-    <div className="relative flex justify-between items-center py-2 px-3">
+    <div className="relative flex justify-between  items-center py-2 px-3 bg-white shadow-sm border-b border-gray-300">
       {/* {showNotificationsDetailsLeadsDrawerIsOpened && (
         <ClickMenu
           top={0}
@@ -248,7 +250,23 @@ const Header = () => {
         </ClickMenu>
       )} */}
 
-      <img src={logo} className="w-[150px]"></img>
+      <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-gray-700 pl-2 justify-start">
+        <div
+          className="block xl:hidden text-3xl text-[#696a6e] cursor-pointer mr-1"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <MdClose /> : <MdMenu />}
+        </div>
+
+        <img src={logo} className="hidden sm:block w-[150px]" alt="logo" />
+
+        <div className="ml-0 sm:ml-[100px] text-center">
+          <span className="font-semibold text-sm sm:text-base">Welcome!</span>
+          <span className="font-bold text-sm sm:text-base truncate max-w-[100px] sm:max-w-none ml-2">
+            {user?.name?.toUpperCase() || "USER"}
+          </span>
+        </div>
+      </div>
 
       <div className="flex gap-x-5 items-center">
         {user?.isTrial && !user?.isTrialEnded && (
@@ -263,11 +281,11 @@ const Header = () => {
           </div>
         )}
         <Link to="/contact">
-          <button className="border border-[#1640d6] rounded-md px-7 py-2 bg-[#1640d6] text-white font-medium hover:bg-white hover:text-[#1640d6] ease-in-out duration-300">
+          <button className="hidden sm:inline-block rounded-lg px-2 py-1 bg-[#5173ec] text-white hover:bg-[#3f5cc4] ease-in-out duration-300 text-sm">
             Raise a Request
           </button>
         </Link>
-        <div className="relative cursor-pointer">
+        <div className="relative cursor-pointer ">
           {notificationCtx.unseenNotifications +
             notificationCtx.unseenchatNotifications >
             0 && (
@@ -277,7 +295,8 @@ const Header = () => {
             </span>
           )}
           <IoIosNotifications
-            size={40}
+            className="hover:text-gray-600"
+            size={27}
             onClick={() => {
               notificationCtx.getChatNotificationsHandler(user.id);
               // notificationCtx.getNotifications();

@@ -41,6 +41,7 @@ const Dashboard = () => {
   const { isAllowed, msg } = checkAccess(auth, "dashboard");
   const [cookies] = useCookies();
   const today = new Date();
+
   const [startDate, setStartDate] = useState(
     new Date(`${today.getMonth() + 1}/02/${today.getFullYear()}`)
       .toISOString()
@@ -621,6 +622,9 @@ const Dashboard = () => {
 
   return (
     <>
+   <p className="text-[20px] font-semibold text-gray-500 ml-6">
+          Dashboard
+        </p>
       {!isAllowed && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-bold text-[#ff6f6f] flex gap-x-2">
           {/* {!isSubscribed ? 'Subscribe to unlock!' : 'You do not have access to this route. Contact your Super Admin for further action.'} */}
@@ -629,7 +633,71 @@ const Dashboard = () => {
       )}
 
       {isAllowed && (
+        
         <div className="px-2 py-4 md:px-4 lg:px-6">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mb-6 w-full">
+  <Link to="admins">
+    <Cards
+      label="Total Employees"
+      content={totalEmployees}
+      bg="bg-indigo-50"
+      Icon={RiUserStarLine}
+      iconColor="text-indigo-500"
+    />
+  </Link>
+
+  <Link to="individuals">
+    <Cards
+      label="Total Individuals"
+      content={totalPeople}
+      bg="bg-orange-100"
+      Icon={TbUsersGroup}
+      iconColor="text-orange-700"
+    />
+  </Link>
+
+  <Link to="corporates">
+    <Cards
+      label="Total Corporates"
+      content={totalCompanies}
+      bg="bg-blue-50"
+      Icon={RiUserStarLine}
+      iconColor="text-blue-500"
+    />
+  </Link>
+
+  <Link to="leads">
+    <Cards
+      label="Total Bulk SMS"
+      content={totalSms}
+      bg="bg-yellow-100"
+      Icon={MdOutlineSms}
+      iconColor="text-yellow-600"
+    />
+  </Link>
+
+  <Link to="leads">
+    <Cards
+      label="Total Whatsapp"
+      content={totalWhatsapp}
+      bg="bg-green-100"
+      Icon={FaWhatsapp}
+      iconColor="text-green-700"
+    />
+  </Link>
+
+  <Link to="leads">
+    <Cards
+      label="Total Bulk Email"
+      content={totalEmail}
+      bg="bg-red-100"
+      Icon={AiOutlineMail}
+      iconColor="text-red-600"
+    />
+  </Link>
+</div>
+
           {/* Date Range and Duration Filters */}
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 mb-6">
             {/* Date Range Filter */}
@@ -639,7 +707,7 @@ const Dashboard = () => {
                   e.preventDefault();
                   filterBasedOnDate();
                 }}
-                className="bg-white p-4 rounded-lg shadow-sm border"
+                className="bg-white p-[18px] rounded-lg shadow-md border"
               >
                 <h3 className="text-lg font-semibold mb-4 text-gray-700">Date Range Filter</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -660,21 +728,22 @@ const Dashboard = () => {
                       backgroundColor="white"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
+                      max={today?.toISOString()?.split('T')[0]}
                       type="date"
                       placeholder="Date"
-                      min={startDate}
+                    
                       size="sm"
                     />
                   </FormControl>
-                  <div className="flex items-end">
+                  <div className="flex items-end ">
                     <Button
                       type="submit"
-                      className="w-full"
+                      className="w-full text-sm"
                       color="white"
                       colorScheme="blue"
                       size="sm"
                     >
-                      Apply Date Range
+                      Apply Date
                     </Button>
                   </div>
                 </div>
@@ -688,7 +757,7 @@ const Dashboard = () => {
                   e.preventDefault();
                   filterBasedOnDuration();
                 }}
-                className="bg-white p-4 rounded-lg shadow-sm border"
+                className="bg-white p-4 rounded-lg shadow-md border"
               >
                 <h3 className="text-lg font-semibold mb-4 text-gray-700">Quick Duration Filter</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -705,7 +774,7 @@ const Dashboard = () => {
                       isSearchable={true}
                     />
                   </div>
-                  <div className="flex items-end">
+                  <div className="flex items-end mb-[3px]">
                     <Button
                       type="submit"
                       className="w-full"
@@ -723,7 +792,7 @@ const Dashboard = () => {
 
           {role === "Super Admin" && (
             <div className="mb-6">
-              <div className="bg-white p-4 rounded-lg shadow-sm border">
+              <div className="bg-white p-4 rounded-lg shadow-md border">
                 <h1 className="text-lg font-semibold mb-4 text-gray-700">Analyze Employee Performance</h1>
                 <form
                   onSubmit={(e) => {
@@ -743,7 +812,7 @@ const Dashboard = () => {
                       size="sm"
                     />
                   </FormControl>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 mt-[28px]">
                     <Button
                       type="submit"
                       color="white"
@@ -772,67 +841,7 @@ const Dashboard = () => {
           <Divider className="my-6" />
 
           {/* Stats Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-            <Link to="admins">
-              <Cards
-                label="Total Employees"
-                content={totalEmployees}
-                bg="from-indigo-500 to-purple-500"
-                Icon={RiUserStarLine}
-                iconColor="text-indigo-500"
-              />
-            </Link>
-
-            <Link to="individuals">
-              <Cards
-                label="Total Individuals"
-                content={totalPeople}
-                bg="from-orange-400 to-orange-600"
-                Icon={TbUsersGroup}
-                iconColor="text-orange-700"
-              />
-            </Link>
-
-            <Link to="corporates">
-              <Cards
-                label="Total Corporates"
-                content={totalCompanies}
-                bg="from-green-400 to-green-600"
-                Icon={RiUserStarLine}
-                iconColor="text-green-700"
-              />
-            </Link>
-
-            <Link to="leads">
-              <Cards
-                label="Total Bulk SMS"
-                content={totalSms}
-                bg="from-cyan-500 to-cyan-700"
-                Icon={MdOutlineSms}
-                iconColor="text-cyan-500"
-              />
-            </Link>
-            
-            <Link to="leads">
-              <Cards
-                label="Total Whatsapp"
-                content={totalWhatsapp}
-                bg="from-rose-400 to-rose-500"
-                Icon={FaWhatsapp}
-                iconColor="text-rose-500"
-              />
-            </Link>
-            
-            <Link to="leads">
-              <Cards
-                label="Total Email"
-                content={totalEmail}
-                bg="from-slate-400 to-slate-500"
-                Icon={AiOutlineMail}
-                iconColor="text-slate-500"
-              />
-            </Link>
-          </div>
+          
 
           {/* Charts and Analytics Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -5,6 +5,8 @@ import {
   MdSupportAgent,
   MdKeyboardArrowDown,
   MdOutlineMarkEmailRead,
+  MdGroups,
+  MdOutlineArchive,
 } from "react-icons/md";
 import {
   MdOutlineSpeed,
@@ -38,6 +40,10 @@ import { FaDatabase } from "react-icons/fa6";
 import { useState } from "react";
 import { SocketContext } from "../socket";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { FiMessageSquare } from "react-icons/fi";
+import logo from "../assets/images/logo/logo.png";
+import { IoIosSettings } from "react-icons/io";
+
 
 const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
   const socket = useContext(SocketContext);
@@ -72,16 +78,20 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
   };
 
   return (
-    <div className="px-3 py-3 w-[100vw] h-[100vh] md:h-auto fixed top-0 left-0 overflow-y-auto overflow-x-hidden bg-[#f9fafc] xl:relative">
+    <div className="px-3 py-3 w-[70vw] bottom-8 h-[100vh] md:h-auto 
+             fixed top-0 left-0 z-20 overflow-y-auto overflow-x-hidden 
+             bg-[#f9fafc] xl:relative">
       {isMenuOpen && (
+        
         <div
-          className="flex justify-end mr-5 text-lg"
+          className="flex justify-between mr-2 text-lg"
           onClick={() => setIsMenuOpen(false)}
         >
-          <MdClose />
+          <img src={logo} className="block xl:hidden w-[150px] items-center pr-[20px]" alt="logo" />
+          <MdClose className="cursor-pointer" size={25}/>
         </div>
       )}
-      <ul className="text-sm font-bold overflow-x-hidden overflow-y-auto">
+      <ul className="text-lg font-semibold overflow-x-hidden overflow-y-auto">
         <NavLink
           end={true}
           to=""
@@ -93,11 +103,11 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           }}
         >
           <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            className="flex gap-x-2 pl-3 pr-9 pt-8  rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <MdOutlineSpeed />
+              <MdOutlineSpeed size={23}/>
             </span>
             <span>Dashboard</span>
             {!checkAccess(auth, "dashboard")?.isAllowed && (
@@ -122,7 +132,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <FaPeopleGroup />
+              <FaPeopleGroup size={23} />
             </span>
             <span>Users</span>
             {!checkAccess(auth, "admin")?.isAllowed && (
@@ -133,7 +143,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           </li>
         </NavLink>
 
-        <NavLink
+        {/* <NavLink
           to="chats"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
@@ -149,7 +159,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(true)}
           >
             <span>
-              <FaMessage />
+              <FiMessageSquare size={23} />
             </span>
             <span>Chat</span>
             {!checkAccess(auth, "admin")?.isAllowed && (
@@ -158,19 +168,19 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </li>
-        </NavLink>
+        </NavLink> */}
 
         <div
           onClick={() => setShowProspectsSubmenu((prev) => !prev)}
-          className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+          className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3  rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
         >
           <div className="flex gap-x-2">
             <span>
-              <MdOutlinePeople />
+              <MdOutlinePeople size={23} />
             </span>
             <span>Prospects</span>
           </div>
-          <MdKeyboardArrowDown />
+          <MdKeyboardArrowDown size={23} />
         </div>
         {showProspectsSubmenu && (
           <div>
@@ -225,7 +235,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
         >
           <div className="flex gap-x-2">
             <span>
-              <MdLeaderboard />
+              <MdLeaderboard size={23}/>
             </span>
             <span>Leads</span>
             {!checkAccess(auth, "lead")?.isAllowed && (
@@ -234,7 +244,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </div>
-          <MdKeyboardArrowDown />
+         <span className="ml-6"> <MdKeyboardArrowDown size={23} /></span>
         </div>
         {showLeadsSubmenu && (
           <div>
@@ -381,7 +391,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <MdLeaderboard />
+              <MdGroups size={25} />
             </span>
             <span>Meetings</span>
             {!checkAccess(auth, "lead")?.isAllowed && (
@@ -433,7 +443,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <MdHeadphones />
+              <MdHeadphones size={23}/>
             </span>
             <span>Customers</span>
             {!checkAccess(auth, "customer")?.isAllowed && (
@@ -443,31 +453,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             )}
           </li>
         </NavLink>
-        <NavLink
-          to="renewals"
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            isMenuOpen && setIsMenuOpen(false);
-          }}
-        >
-          <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            onClick={() => changeOnlineStatus(false)}
-          >
-            <span>
-              <MdAutorenew />
-            </span>
-            <span>Renewals</span>
 
-            {!checkAccess(auth, "renewals")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
-              </span>
-            )}
-          </li>
-        </NavLink>
         {/* Products Dropdown */}
         <div className="relative">
           <li
@@ -478,12 +464,14 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             }}
           >
             <span>
-              <MdOutlineProductionQuantityLimits />
+              <MdOutlineProductionQuantityLimits size={23} />
             </span>
             <span>Products</span>
-            <span className="ml-auto">
+            <span className="ml-10"> <MdKeyboardArrowDown size={23} /></span>
+            {/* <span className="ml-10">
               {showProductsSubmenu ? <FaChevronDown /> : <FaChevronRight />}
-            </span>
+            </span> */}
+            
           </li>
 
           {showProductsSubmenu && (
@@ -527,7 +515,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
                   onClick={() => changeOnlineStatus(false)}
                 >
                   <span>
-                    <MdOutlineProductionQuantityLimits />
+                    <MdOutlineProductionQuantityLimits size={23}/>
                   </span>
                   <span>Products</span>
                   {!checkAccess(auth, "product")?.isAllowed && (
@@ -535,6 +523,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
                       <FaLock size="12" color="#b1b1b1" />
                     </span>
                   )}
+                  
                 </li>
               </NavLink>
 
@@ -552,7 +541,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
                   onClick={() => changeOnlineStatus(false)}
                 >
                   <span>
-                    <MdOutlineCategory />
+                    <MdOutlineCategory size={23}/>
                   </span>
                   <span>Products Category</span>
                   {!checkAccess(auth, "category")?.isAllowed && (
@@ -566,22 +555,23 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           )}
         </div>
 
-        {/* Invoices and Payments Dropdown */}
+         {/* Invoices and Payments Dropdown */}
         <div className="relative">
           <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
+            className="flex gap-x-1 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
             onClick={() => {
               setShowInvoicesSubmenu(!showInvoicesSubmenu);
               changeOnlineStatus(false);
             }}
           >
             <span>
-              <FaFileInvoice />
+              <FaFileInvoice size={20}/>
             </span>
-            <span>Invoices and Payments</span>
-            <span className="ml-auto">
+            <span>Invoices & Payments</span>
+            <span><MdKeyboardArrowDown size={23} /></span>
+            {/* <span className="ml-auto">
               {showInvoicesSubmenu ? <FaChevronDown /> : <FaChevronRight />}
-            </span>
+            </span> */}
           </li>
 
           {showInvoicesSubmenu && (
@@ -600,7 +590,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
                   onClick={() => changeOnlineStatus(false)}
                 >
                   <span>
-                    <FaFileInvoice />
+                    <FaFileInvoice size={20}/>
                   </span>
                   <span>Invoices</span>
                   {!checkAccess(auth, "invoice")?.isAllowed && (
@@ -625,7 +615,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
                   onClick={() => changeOnlineStatus(false)}
                 >
                   <span>
-                    <FaFileLines />
+                    <FaFileLines size={20}/>
                   </span>
                   <span>Proforma Invoices</span>
                   {!checkAccess(auth, "proforma-invoice")?.isAllowed && (
@@ -650,7 +640,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
                   onClick={() => changeOnlineStatus(false)}
                 >
                   <span>
-                    <MdOutlinePayment />
+                    <MdOutlinePayment size={20}/>
                   </span>
                   <span>Payments</span>
                   {!checkAccess(auth, "payment")?.isAllowed && (
@@ -663,6 +653,34 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             </div>
           )}
         </div>
+
+        <NavLink
+          to="renewals"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <MdAutorenew size={23} />
+            </span>
+            <span>Renewals</span>
+
+            {!checkAccess(auth, "renewals")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
+        
+       
 
 
         {/* <NavLink
@@ -729,9 +747,9 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <TbReport />
+              <TbReport size={23}/>
             </span>
-            <span>Report</span>
+            <span>Reports</span>
             {!checkAccess(auth, "report")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />
@@ -816,7 +834,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <FaDatabase />
+              <MdOutlineArchive size={23}/>
             </span>
             <span>Archive</span>
 
@@ -842,7 +860,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <GrDocumentStore />
+              <GrDocumentStore size={20}/>
             </span>
             <span>Media Center</span>
 
@@ -889,11 +907,11 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           }}
         >
           <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            className="flex gap-x-1 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <IoSettingsSharp />
+              <IoIosSettings size={25}/>
             </span>
             <span>Settings</span>
             {!checkAccess(auth, "website configuration")?.isAllowed && (
@@ -914,13 +932,13 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           }}
         >
           <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            className="flex gap-x-1 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
             onClick={() => changeOnlineStatus(false)}
           >
-            <span>
-              <GrConfigure />
+            <span className="mt-0.5">
+              <GrConfigure size={18}/>
             </span>
-            <span>CRM Configuration</span>
+            <span className="text-[16px]">Integration</span>
             {!checkAccess(auth, "website configuration")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />
