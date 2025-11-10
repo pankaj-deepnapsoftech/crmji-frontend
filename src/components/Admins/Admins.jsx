@@ -97,7 +97,7 @@ const Admins = () => {
   const cancelRef = useRef();
 
   const dispatch = useDispatch();
-  const { role, ...auth } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const { isAllowed, msg } = checkAccess(auth, "admin");
 
   const {
