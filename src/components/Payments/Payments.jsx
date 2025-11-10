@@ -256,9 +256,10 @@ const Payments = () => {
       .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch file");
         const header = response.headers.get("content-disposition");
-        const filename = (header && header.includes("filename="))
-          ? header.split("filename=")[1]?.replace(/"/g, "")
-          : "payment.pdf";
+        const filename =
+          header && header.includes("filename=")
+            ? header.split("filename=")[1]?.replace(/"/g, "")
+            : "payment.pdf";
         return response.blob().then((blob) => ({ filename, blob }));
       })
       .then(({ filename, blob }) => {
@@ -286,15 +287,15 @@ const Payments = () => {
         return (
           (d?.invoice?.customer?.people
             ? (
-              d?.invoice?.customer?.people?.firstname +
-              " " +
-              d?.invoice?.customer?.people?.lastname
-            )
-              .toLowerCase()
-              .includes(searchKey.toLowerCase())
+                d?.invoice?.customer?.people?.firstname +
+                " " +
+                d?.invoice?.customer?.people?.lastname
+              )
+                .toLowerCase()
+                .includes(searchKey.toLowerCase())
             : d?.invoice?.customer?.company?.companyname
-              .toLowerCase()
-              .includes(searchKey.toLowerCase())) ||
+                .toLowerCase()
+                .includes(searchKey.toLowerCase())) ||
           d?.mode?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.amount
             .toString()
@@ -450,8 +451,7 @@ const Payments = () => {
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
                   <span className="mt-1 font-semibold text-2xl">
-                    Kya Majburi hai ki yeh software chalana pad rha hai. Odoo
-                    use kar free de rha hai yeh sab kuch.
+                    No data found.
                   </span>
                 </div>
               )}

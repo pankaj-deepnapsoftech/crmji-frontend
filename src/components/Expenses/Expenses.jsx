@@ -407,8 +407,7 @@ const Expenses = () => {
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
                   <span className="mt-1 font-semibold text-2xl">
-                    Kya Majburi hai ki yeh software chalana pad rha hai. Odoo
-                    use kar free de rha hai yeh sab kuch.
+                    No data found.
                   </span>
                 </div>
               )}

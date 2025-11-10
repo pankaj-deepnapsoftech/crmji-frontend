@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downloadEndpoint }) => {
+const SuperAdminModule = ({
+  moduleName,
+  moduleData,
+  columns,
+  apiEndpoint,
+  downloadEndpoint,
+}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAdmin, setSelectedAdmin] = useState('');
+  const [selectedAdmin, setSelectedAdmin] = useState("");
   const [admins, setAdmins] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -14,43 +20,52 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
 
   useEffect(() => {
     // Check if Super Admin is logged in
-    const token = localStorage.getItem('superAdminToken');
+    const token = localStorage.getItem("superAdminToken");
     if (!token) {
-      navigate('/super-admin-login');
+      navigate("/super-admin-login");
       return;
     }
-    
+
     fetchAdmins();
   }, [navigate]);
 
   const fetchAdmins = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
+      const baseURL =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:9003";
       const response = await axios.get(`${baseURL}super-admin/admins`, {
         withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('superAdminToken') || ''}`
-        }
+          Authorization: `Bearer ${
+            localStorage.getItem("superAdminToken") || ""
+          }`,
+        },
       });
       setAdmins(response.data.admins);
     } catch (error) {
-      console.error('Error fetching admins:', error);
-      toast.error('Failed to fetch admins data');
+      console.error("Error fetching admins:", error);
+      toast.error("Failed to fetch admins data");
     }
   };
 
   const fetchData = async (adminId) => {
     if (!adminId) return;
-    
+
     setLoading(true);
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
-      const response = await axios.get(`${baseURL}super-admin/${apiEndpoint}/${adminId}`, {
-        withCredentials: true,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('superAdminToken') || ''}`
+      const baseURL =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:9003";
+      const response = await axios.get(
+        `${baseURL}super-admin/${apiEndpoint}/${adminId}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("superAdminToken") || ""
+            }`,
+          },
         }
-      });
+      );
       setData(response.data[moduleData] || []);
     } catch (error) {
       console.error(`Error fetching ${moduleName.toLowerCase()}:`, error);
@@ -73,30 +88,43 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
 
   const handleDownload = async () => {
     if (!selectedAdmin) {
-      toast.error('Please select an admin first');
+      toast.error("Please select an admin first");
       return;
     }
 
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
-      const response = await axios.get(`${baseURL}super-admin/${downloadEndpoint}/${selectedAdmin}`, {
-        withCredentials: true,
-        responseType: 'blob',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('superAdminToken') || ''}`
+      const baseURL =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:9003";
+      const response = await axios.get(
+        `${baseURL}super-admin/${downloadEndpoint}/${selectedAdmin}`,
+        {
+          withCredentials: true,
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("superAdminToken") || ""
+            }`,
+          },
         }
-      });
-      
+      );
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      const adminName = admins.find(admin => admin._id === selectedAdmin)?.name || 'admin';
-      link.setAttribute('download', `${moduleName.toLowerCase()}_${adminName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      const adminName =
+        admins.find((admin) => admin._id === selectedAdmin)?.name || "admin";
+      link.setAttribute(
+        "download",
+        `${moduleName.toLowerCase()}_${adminName.replace(
+          /[^a-zA-Z0-9]/g,
+          "_"
+        )}_${new Date().toISOString().split("T")[0]}.xlsx`
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success(`${moduleName} data exported successfully`);
     } catch (error) {
       console.error(`Error exporting ${moduleName.toLowerCase()}:`, error);
@@ -105,9 +133,9 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('superAdminToken');
-    navigate('/super-admin-login');
-    toast.success('Logged out successfully');
+    localStorage.removeItem("superAdminToken");
+    navigate("/super-admin-login");
+    toast.success("Logged out successfully");
   };
 
   // Pagination logic
@@ -258,12 +286,9 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
           ) : (
             <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
               <div className="text-3xl sm:text-4xl mb-4">📭</div>
-              <p className="text-base sm:text-lg font-medium">
-                Kya Majburi hai ki yeh software chalana pad rha hai. Odoo use kar free de rha hai yeh sab kuch.
-              </p>
+              <p className="text-base sm:text-lg font-medium">No data found</p>
               <p className="text-xs sm:text-sm">
-                No {moduleName.toLowerCase()} Kya Majburi thi ki yeh software
-                chalana pad rha hai.
+                No {moduleName.toLowerCase()} No data found
               </p>
             </div>
           )}
