@@ -9,11 +9,15 @@ import { BiX } from "react-icons/bi";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
+import { useDispatch, useSelector } from "react-redux";
+import { userExists } from "../../../../redux/reducers/auth";
 import Loading from "../../Loading";
 import Select from "react-select";
 
 const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
   const [cookies] = useCookies();
+  const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -21,6 +25,39 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [permissionOptions, setPermissionOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const refreshAuthState = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(baseURL + "auth/login-with-access-token", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        dispatch(
+          userExists({
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role,
+            allowedroutes: data.user.allowedroutes,
+            isTrial: data.user.isTrial,
+            isTrialEnded: data.user.isTrialEnded,
+            isSubscribed: data.user.isSubscribed,
+            isSubscriptionEnded: data.user.isSubscriptionEnded,
+            account: data.user.account,
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error refreshing auth state:", err);
+    }
+  };
 
   const editAdminAccessHandler = async (e) => {
     e.preventDefault();
@@ -47,6 +84,11 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
 
       if (!data.success) {
         throw new Error(data.message);
+      }
+
+      // If the edited user is the currently logged-in user, refresh their auth state
+      if (auth.id === id) {
+        await refreshAuthState();
       }
 
       closeDrawerHandler();
@@ -90,7 +132,6 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
 
       setSelectedPermissions(permissions);
       setIsLoading(false);
-      toast.success(data.message);
     } catch (err) {
       setIsLoading(false);
       toast.error(err.message);
