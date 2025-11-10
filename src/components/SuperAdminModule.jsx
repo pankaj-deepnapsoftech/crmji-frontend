@@ -259,7 +259,7 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
             <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
               <div className="text-3xl sm:text-4xl mb-4">📭</div>
               <p className="text-base sm:text-lg font-medium">
-                Kya Majburi thi ki yeh software chalana pad rha hai.
+                Kya Majburi hai ki yeh software chalana pad rha hai. Odoo use kar free de rha hai yeh sab kuch.
               </p>
               <p className="text-xs sm:text-sm">
                 No {moduleName.toLowerCase()} Kya Majburi thi ki yeh software
