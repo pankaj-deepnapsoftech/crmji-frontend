@@ -410,14 +410,14 @@ const Products = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer                                       
-                    className="shadow-lg rounded-lg bg-white"
-                  >
+                  <TableContainer className="shadow-lg rounded-lg bg-white">
                     <Table variant="simple" {...getTableProps()}>
                       <Thead className="text-lg font-semibold bg-blue-400">
                         {headerGroups.map((hg) => {
@@ -482,7 +482,7 @@ const Products = () => {
                                   <Td
                                     className={`${
                                       cell.column.id === "name"
-                                        ? "sticky top-0 left-[-2px] bg-white z-10" 
+                                        ? "sticky top-0 left-[-2px] bg-white z-10"
                                         : ""
                                     } font-semibold text-sm text-gray-700 px-4 py-3 border-l border-r border-[#e0e0e0] transition duration-300 ease-in-out`}
                                     {...cell.getCellProps()}

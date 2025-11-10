@@ -1270,7 +1270,6 @@ const Leads = () => {
               </div>
 
               <div className="mt-3 md:mt-0 flex flex-wrap justify-start gap-3 w-full">
-
                 {/* Add New Lead */}
                 <Button
                   fontSize={{ base: "13px", md: "14px" }}
@@ -1297,7 +1296,10 @@ const Leads = () => {
                       colorScheme="yellow"
                       variant="solid"
                       boxShadow="sm"
-                      _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "md",
+                      }}
                       onClick={bulkSMSHandler}
                     >
                       Bulk SMS
@@ -1311,7 +1313,10 @@ const Leads = () => {
                       colorScheme="whatsapp"
                       variant="solid"
                       boxShadow="sm"
-                      _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "md",
+                      }}
                       onClick={whatsappHandler}
                     >
                       Bulk WhatsApp
@@ -1325,7 +1330,10 @@ const Leads = () => {
                       colorScheme="orange"
                       variant="solid"
                       boxShadow="sm"
-                      _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "md",
+                      }}
                       onClick={bulkAssignHandler}
                     >
                       Bulk Assign
@@ -1340,7 +1348,10 @@ const Leads = () => {
                         colorScheme="teal"
                         variant="solid"
                         boxShadow="sm"
-                        _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
+                        _hover={{
+                          transform: "translateY(-1px)",
+                          boxShadow: "md",
+                        }}
                         onClick={bulkDownloadHandler}
                       >
                         Bulk Download
@@ -1357,7 +1368,10 @@ const Leads = () => {
                         colorScheme="cyan"
                         variant="solid"
                         boxShadow="sm"
-                        _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
+                        _hover={{
+                          transform: "translateY(-1px)",
+                          boxShadow: "md",
+                        }}
                         onClick={() => setToggleBulkUpload((prev) => !prev)}
                       >
                         Bulk Upload
@@ -1376,7 +1390,10 @@ const Leads = () => {
                             </Button>
                           </a>
 
-                          <form onSubmit={bulkUploadHandler} className="flex flex-col gap-2">
+                          <form
+                            onSubmit={bulkUploadHandler}
+                            className="flex flex-col gap-2"
+                          >
                             <input
                               ref={csvRef}
                               className="border border-gray-300 rounded-md p-2 text-sm focus:outline-blue-500"
@@ -1462,9 +1479,6 @@ const Leads = () => {
                   />
                 </div>
               </div>
-
-
-
             </div>
 
             <div>
@@ -1623,7 +1637,9 @@ const Leads = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
@@ -1655,10 +1671,11 @@ const Leads = () => {
                                 return (
                                   <Th
                                     bg="blue.400"
-                                    className={`${column.id === "name"
-                                      ? "sticky top-0 left-[-2px]"
-                                      : ""
-                                      }`}
+                                    className={`${
+                                      column.id === "name"
+                                        ? "sticky top-0 left-[-2px]"
+                                        : ""
+                                    }`}
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}
@@ -1728,27 +1745,32 @@ const Leads = () => {
                                       cell.render("Cell")}
 
                                     {cell.column.id === "select" && (
-                                     <input
-  value={cell.row.original._id}
-  name="select"
-  type="checkbox"
-  className="cursor-pointer"
-  checked={selectedIds.includes(cell.row.original._id)}
-  onChange={(e) => {
-    selectOneHandler(e, cell.row.original._id);
-    // remove the old handleSelection call — it's redundant now
-  }}
-/>
-
+                                      <input
+                                        value={cell.row.original._id}
+                                        name="select"
+                                        type="checkbox"
+                                        className="cursor-pointer"
+                                        checked={selectedIds.includes(
+                                          cell.row.original._id
+                                        )}
+                                        onChange={(e) => {
+                                          selectOneHandler(
+                                            e,
+                                            cell.row.original._id
+                                          );
+                                          // remove the old handleSelection call — it's redundant now
+                                        }}
+                                      />
                                     )}
 
                                     {/* Specific Column Renderings */}
                                     {cell.column.id === "leadtype" && (
                                       <span
-                                        className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
-                                          ? "bg-[#fff0f6] text-[#c41d7f]"
-                                          : "bg-[#e6f4ff] text-[#0958d9]"
-                                          }`}
+                                        className={`text-sm rounded-md px-3 py-1 ${
+                                          row.original.leadtype === "People"
+                                            ? "bg-[#fff0f6] text-[#c41d7f]"
+                                            : "bg-[#e6f4ff] text-[#0958d9]"
+                                        }`}
                                       >
                                         {row.original.leadtype === "People"
                                           ? "Individual"
@@ -1848,15 +1870,12 @@ const Leads = () => {
                               <Td className="flex items-center gap-x-3">
                                 {/* KYC Button */}
 
-                                
                                 {/* This is the KYC Component below commented */}
                                 {/* <FaUserShield size={20}
                                   onClick={() => {
                                     setDataId(row.original?._id);
                                     dispatch(openKYCDrawer());
                                   }} className="flex items-center justify-center text-blue-500" /> */}
-
-
 
                                 {/* Schedule Demo */}
                                 <FaCalendarAlt
@@ -1881,13 +1900,17 @@ const Leads = () => {
                                   <MenuList>
                                     <MenuItem
                                       icon={<MdOutlineVisibility />}
-                                      onClick={() => showDetailsHandler(row.original?._id)}
+                                      onClick={() =>
+                                        showDetailsHandler(row.original?._id)
+                                      }
                                     >
                                       View
                                     </MenuItem>
                                     <MenuItem
                                       icon={<MdEdit />}
-                                      onClick={() => editHandler(row.original?._id)}
+                                      onClick={() =>
+                                        editHandler(row.original?._id)
+                                      }
                                     >
                                       Edit
                                     </MenuItem>
@@ -1903,7 +1926,6 @@ const Leads = () => {
                                   </MenuList>
                                 </Menu>
                               </Td>
-
                             </Tr>
                           );
                         })}
@@ -2038,7 +2060,8 @@ const Leads = () => {
           <ModalCloseButton />
           <ModalBody>
             <Box bg="red.100" color="red.700" p={3} mb={4} borderRadius="md">
-              Create in Nimbus Dashboard first (Manage Templates), get verified, then enter EXACT details here. Use ( #var# ) for placeholders.
+              Create in Nimbus Dashboard first (Manage Templates), get verified,
+              then enter EXACT details here. Use ( #var# ) for placeholders.
             </Box>
 
             <Input
@@ -2057,7 +2080,7 @@ const Leads = () => {
 
             <Input
               placeholder="Template ID (Numeric from Nimbus, e.g., 17071716548492)"
-              type="text"  // String for long IDs
+              type="text" // String for long IDs
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
               mb={4}

@@ -392,7 +392,9 @@ const ProductCategory = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
@@ -441,7 +443,7 @@ const ProductCategory = () => {
                                 className="bg-blue-400"
                                 fontSize="15px"
                                 fontWeight="700"
-                                color="black"                               
+                                color="black"
                                 borderLeft="1px solid #d7d7d7"
                                 borderRight="1px solid #d7d7d7"
                               >

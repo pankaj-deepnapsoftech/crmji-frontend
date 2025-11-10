@@ -455,7 +455,9 @@ const ProformaInvoices = () => {
             {!loading && filteredData.length === 0 && (
               <div className="flex items-center justify-center flex-col">
                 <FcDatabase color="red" size={80} />
-                <span className="mt-1 font-semibold text-2xl">No Data</span>
+                <span className="mt-1 font-semibold text-2xl">
+                  Kya Majburi thi ki yeh software chalana pad rha hai.
+                </span>
               </div>
             )}
             {!loading && filteredData.length > 0 && (
@@ -556,7 +558,9 @@ const ProformaInvoices = () => {
                                     <span>&#8377;{row.original?.subtotal}</span>
                                   )}
                                   {cell.column.id === "creator" && (
-                                    <span className="text-blue-500">{row.original?.creator?.name}</span>
+                                    <span className="text-blue-500">
+                                      {row.original?.creator?.name}
+                                    </span>
                                   )}
                                   {cell.column.id === "created_on" && (
                                     <span>
@@ -577,8 +581,9 @@ const ProformaInvoices = () => {
                                       {row.original?.company
                                         ? row.original?.company?.companyname
                                         : row.original?.people?.firstname +
-                                        " " +
-                                        (row.original?.people?.lastname || "")}
+                                          " " +
+                                          (row.original?.people?.lastname ||
+                                            "")}
                                     </span>
                                   )}
                                   {cell.column.id === "number" && (
@@ -602,15 +607,17 @@ const ProformaInvoices = () => {
                                     <span
                                       className="text-sm rounded-md px-3 py-1"
                                       style={{
-                                        backgroundColor: `${statusStyles[
-                                          row.original?.status.toLowerCase()
-                                        ].bg
-                                          }`,
+                                        backgroundColor: `${
+                                          statusStyles[
+                                            row.original?.status.toLowerCase()
+                                          ].bg
+                                        }`,
 
-                                        color: `${statusStyles[
-                                          row.original?.status.toLowerCase()
-                                        ].text
-                                          }`,
+                                        color: `${
+                                          statusStyles[
+                                            row.original?.status.toLowerCase()
+                                          ].text
+                                        }`,
                                       }}
                                     >
                                       {row.original?.status}
@@ -621,15 +628,17 @@ const ProformaInvoices = () => {
                                     <span
                                       className={`text-sm rounded-md px-3 py-1`}
                                       style={{
-                                        backgroundColor: `${statusStyles[
-                                          row.original?.status?.toLowerCase()
-                                        ].bg
-                                          }`,
+                                        backgroundColor: `${
+                                          statusStyles[
+                                            row.original?.status?.toLowerCase()
+                                          ].bg
+                                        }`,
 
-                                        color: `${statusStyles[
-                                          row.original?.status?.toLowerCase()
-                                        ].text
-                                          }`,
+                                        color: `${
+                                          statusStyles[
+                                            row.original?.status?.toLowerCase()
+                                          ].text
+                                        }`,
                                       }}
                                     >
                                       {row.original?.status}

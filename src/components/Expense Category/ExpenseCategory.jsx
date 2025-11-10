@@ -399,7 +399,9 @@ const ExpenseCategory = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
@@ -481,7 +483,9 @@ const ExpenseCategory = () => {
                                       cell.column.id !== "created_on" &&
                                       cell.render("Cell")}
                                     {cell.column.id === "creator" && (
-                                      <span className="text-blue-500">{row.original?.creator?.name}</span>
+                                      <span className="text-blue-500">
+                                        {row.original?.creator?.name}
+                                      </span>
                                     )}
                                     {cell.column.id === "created_on" && (
                                       <span className="text-gray-600">
@@ -490,8 +494,6 @@ const ExpenseCategory = () => {
                                         )}
                                       </span>
                                     )}
-
-                                    
 
                                     {cell.column.id === "description" && (
                                       <span className="text-gray-600">

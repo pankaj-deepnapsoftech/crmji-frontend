@@ -449,7 +449,9 @@ const Payments = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
@@ -468,10 +470,11 @@ const Payments = () => {
                                 return (
                                   <Th
                                     className={`text-sm font-semibold text-left py-3 px-4
-                    ${column?.id === "customer"
-                                        ? "sticky top-0 left-[-2px] bg-blue-400"
-                                        : ""
-                                      }
+                    ${
+                      column?.id === "customer"
+                        ? "sticky top-0 left-[-2px] bg-blue-400"
+                        : ""
+                    }
                     border-b-2 border-gray-200`}
                                     {...column?.getHeaderProps(
                                       column?.getSortByToggleProps()
@@ -510,10 +513,11 @@ const Payments = () => {
                               {row?.cells?.map((cell) => {
                                 return (
                                   <Td
-                                    className={`py-3 px-4 ${cell?.column?.id === "customer"
-                                      ? "sticky top-0 left-[-2px] "
-                                      : ""
-                                      }`}
+                                    className={`py-3 px-4 ${
+                                      cell?.column?.id === "customer"
+                                        ? "sticky top-0 left-[-2px] "
+                                        : ""
+                                    }`}
                                     fontWeight="600"
                                     {...cell?.getCellProps()}
                                   >
@@ -527,14 +531,15 @@ const Payments = () => {
 
                                     {cell?.column?.id === "customer" && (
                                       <span>
-                                        {row?.original?.invoice?.customer?.people
-                                          ? row?.original?.invoice?.customer?.people
-                                            .firstname +
-                                          " " +
-                                          (row?.original?.invoice?.customer
-                                            ?.people.lastname || "")
+                                        {row?.original?.invoice?.customer
+                                          ?.people
+                                          ? row?.original?.invoice?.customer
+                                              ?.people.firstname +
+                                            " " +
+                                            (row?.original?.invoice?.customer
+                                              ?.people.lastname || "")
                                           : row?.original?.invoice?.customer
-                                            ?.company?.companyname}
+                                              ?.company?.companyname}
                                       </span>
                                     )}
 
@@ -542,23 +547,27 @@ const Payments = () => {
                                       <span>{ind + 1}</span>
                                     )}
                                     {cell?.column?.id === "creator" && (
-                                      <span className="text-blue-500">{row?.original?.creator?.name}</span>
+                                      <span className="text-blue-500">
+                                        {row?.original?.creator?.name}
+                                      </span>
                                     )}
                                     {cell?.column?.id === "created_on" && (
                                       <span>
-                                        {moment(row?.original?.createdAt).format(
-                                          "DD/MM/YYYY"
-                                        )}
+                                        {moment(
+                                          row?.original?.createdAt
+                                        ).format("DD/MM/YYYY")}
                                       </span>
                                     )}
                                     {cell?.column?.id === "amount" && (
-                                      <span>&#8377;{row?.original?.amount}</span>
+                                      <span>
+                                        &#8377;{row?.original?.amount}
+                                      </span>
                                     )}
                                     {cell?.column?.id === "date" && (
                                       <span>
-                                        {moment(row?.original?.createdAt).format(
-                                          "DD/MM/YYYY"
-                                        )}
+                                        {moment(
+                                          row?.original?.createdAt
+                                        ).format("DD/MM/YYYY")}
                                       </span>
                                     )}
                                   </Td>
@@ -582,7 +591,9 @@ const Payments = () => {
                                 <MdEdit
                                   className="hover:scale-110 transition-all duration-300 ease-in-out text-orange-500 hover:text-orange-600"
                                   size={20}
-                                  onClick={() => editHandler(row?.original?._id)}
+                                  onClick={() =>
+                                    editHandler(row?.original?._id)
+                                  }
                                 />
                                 {/* Removed delete icon for now */}
                               </Td>

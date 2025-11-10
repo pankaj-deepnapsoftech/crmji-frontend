@@ -55,6 +55,7 @@ import AdminDeleteAlert from "../ui/AdminDeleteAlert";
 import { checkAccess } from "../../utils/checkAccess";
 import { Link } from "react-router-dom";
 import EmployeeDrawer from "../ui/Drawers/Add Drawers/EmployeeDrawer";
+import { BiCard, BiTable } from "react-icons/bi";
 
 const columns = [
   {
@@ -290,6 +291,15 @@ const Admins = () => {
               </div>
             </div>
 
+            <div className="flex justify-end gap-x-2 mb-4">
+              <button>
+                <BiTable />
+              </button>
+              <button>
+                <BiCard />
+              </button>
+            </div>
+
             <div>
               {editAdminsDrawerIsOpened && (
                 <ClickMenu
@@ -334,7 +344,9 @@ const Admins = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    Kya Majburi thi ki yeh software chalana pad rha hai.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
@@ -479,6 +491,24 @@ const Admins = () => {
                       </Tbody>
                     </Table>
                   </TableContainer>
+
+                  <div className="border rounded-sm p-2 mt-4 w-96">
+                    <div className="flex justify-between items-center">
+                      <div className="bg-yellow-500 text-yellow-800 text-center rounded-md w-20">
+                        UI001
+                      </div>
+                      <div className="bg-green-500 text-green-800 text-center rounded-md w-20">
+                        Verfied
+                      </div>
+                    </div>
+                    <div className="my-1">Name: Deepak Sharma</div>
+                    <div className="my-1">Designation: Office Assistant</div>
+                    <div className="my-1">Phone: 8851220023</div>
+                    <div className="my-1">Email: dsharmaportal@gmail.com</div>
+                    <div className="bg-blue-500 text-blue-800 text-center rounded-md w-20">
+                      Verfied
+                    </div>
+                  </div>
 
                   <div className="w-[max-content] m-auto my-7">
                     <button

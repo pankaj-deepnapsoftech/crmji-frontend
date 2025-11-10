@@ -525,7 +525,7 @@ const DocumentCenter = () => {
                     </div>
                 ) : (
                     <div className="text-center text-gray-500 py-10 text-lg">
-                        No data found.
+                        Kya Majburi thi ki yeh software chalana pad rha hai.
                     </div>
                 )}
             </div>

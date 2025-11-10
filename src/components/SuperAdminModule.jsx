@@ -134,8 +134,12 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{moduleName} Module</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage and export {moduleName.toLowerCase()} data by admin</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              {moduleName} Module
+            </h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
+              Manage and export {moduleName.toLowerCase()} data by admin
+            </p>
           </div>
           <button
             onClick={handleLogout}
@@ -160,7 +164,8 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                 <option value="">Choose an admin...</option>
                 {admins.map((admin) => (
                   <option key={admin._id} value={admin._id}>
-                    {admin.name} ({admin.role}) - {admin.organization?.name || 'N/A'}
+                    {admin.name} ({admin.role}) -{" "}
+                    {admin.organization?.name || "N/A"}
                   </option>
                 ))}
               </select>
@@ -185,32 +190,41 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
             </h2>
             {selectedAdmin && data.length > 0 && (
               <div className="text-xs sm:text-sm text-gray-600">
-                Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}
+                Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of{" "}
+                {data.length}
               </div>
             )}
           </div>
-          
+
           {!selectedAdmin ? (
             <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
               <div className="text-3xl sm:text-4xl mb-4">👤</div>
-              <p className="text-base sm:text-lg font-medium">Select an Admin</p>
-              <p className="text-xs sm:text-sm">Choose an admin from the dropdown above to view {moduleName.toLowerCase()} data</p>
+              <p className="text-base sm:text-lg font-medium">
+                Select an Admin
+              </p>
+              <p className="text-xs sm:text-sm">
+                Choose an admin from the dropdown above to view{" "}
+                {moduleName.toLowerCase()} data
+              </p>
             </div>
           ) : loading ? (
             <div className="flex justify-center items-center h-32">
               <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : data.length > 0 ? (
-            <div 
-              className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100" 
-              style={{ 
-                maxWidth: '100%', 
-                width: '100%',
-                overflowX: 'auto',
-                overflowY: 'visible'
+            <div
+              className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+              style={{
+                maxWidth: "100%",
+                width: "100%",
+                overflowX: "auto",
+                overflowY: "visible",
               }}
             >
-              <table className="divide-y divide-gray-200" style={{ minWidth: '800px', width: '100%' }}>
+              <table
+                className="divide-y divide-gray-200"
+                style={{ minWidth: "800px", width: "100%" }}
+              >
                 <thead className="bg-gray-50">
                   <tr>
                     {columns.map((column, index) => (
@@ -227,8 +241,13 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                   {currentData.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       {columns.map((column, colIndex) => (
-                        <td key={colIndex} className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">
-                          {column.render ? column.render(item) : item[column.key]}
+                        <td
+                          key={colIndex}
+                          className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900"
+                        >
+                          {column.render
+                            ? column.render(item)
+                            : item[column.key]}
                         </td>
                       ))}
                     </tr>
@@ -239,8 +258,13 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
           ) : (
             <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
               <div className="text-3xl sm:text-4xl mb-4">📭</div>
-              <p className="text-base sm:text-lg font-medium">No Data Found</p>
-              <p className="text-xs sm:text-sm">No {moduleName.toLowerCase()} data found for the selected admin.</p>
+              <p className="text-base sm:text-lg font-medium">
+                Kya Majburi thi ki yeh software chalana pad rha hai.
+              </p>
+              <p className="text-xs sm:text-sm">
+                No {moduleName.toLowerCase()} Kya Majburi thi ki yeh software
+                chalana pad rha hai.
+              </p>
             </div>
           )}
 
@@ -257,8 +281,8 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                     disabled={currentPage === 1}
                     className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md ${
                       currentPage === 1
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     Previous
@@ -268,8 +292,8 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                     disabled={currentPage === totalPages}
                     className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md ${
                       currentPage === totalPages
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     Next
