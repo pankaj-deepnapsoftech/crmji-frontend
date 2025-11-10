@@ -21,13 +21,13 @@ const UserDetailsMenu = ({
         <div className="pl-2">
           <p className="text-lg font-semibold mb-1">{name}
           <Badge ml="1" colorScheme="red" rounded={'6px'}>
-            {role === 'Admin' ? 'Employee' : 'Super Admin'}
+            {role === 'Admin' ? 'Employee' : 'Super Admin'} 
           </Badge></p>
           <p className="mt-[-4px] font-semibold">{email}</p>
         </div>
       </div>
       <div
-        className="cursor-pointer px-3 py-1 rounded-md hover:bg-[#e3e3e3] mt-2 font-semibold text-lg flex items-center gap-x-2 border-b"
+        className="cursor-pointer px-3 py-1 rounded-md hover:bg-[#e3e3e3] mt-2 font-semibold text-lg flex items-center gap-x-2 border-b"  
         onClick={logoutHandler}
       >
         <span>

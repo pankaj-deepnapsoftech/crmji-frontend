@@ -246,6 +246,8 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
                 )}
               </div>
             </div>
+            
+            
             <div className="bg-white border best-plan min-w-[25rem]">
               <div className="px-5 py-10 text-white bg-[#428d1b]">
                 <div className="subscription-font text-3xl font-medium text-center">
