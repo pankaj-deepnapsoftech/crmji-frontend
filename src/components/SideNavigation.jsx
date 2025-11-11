@@ -34,7 +34,6 @@ import { useContext } from "react";
 import { TbReport } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import { IoSettingsSharp } from "react-icons/io5";
-import { FaLock } from "react-icons/fa";
 import { checkAccess } from "../utils/checkAccess";
 import { MdAutorenew } from "react-icons/md";
 import { FaDatabase } from "react-icons/fa6";
