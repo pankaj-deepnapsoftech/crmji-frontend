@@ -5,7 +5,9 @@ import {
   MdEdit,
   MdDeleteOutline,
   MdOutlineVisibility,
+  MdMoreVert,
 } from "react-icons/md";
+import { BiTable, BiCard } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import {
   closeAddPeoplesDrawer,
@@ -32,6 +34,10 @@ import {
   Th,
   Td,
   TableContainer,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import { usePagination, useSortBy, useTable } from "react-table";
 import ClickMenu from "../ui/ClickMenu";
@@ -362,6 +368,7 @@ const Peoples = () => {
   const [dataId, setDataId] = useState();
   const [loading, setLoading] = useState(true);
   const [searchKey, setSearchKey] = useState("");
+  const [viewMode, setViewMode] = useState("table"); // "table" or "card"
 
   const [peopleDeleteId, setPeopleDeleteId] = useState();
 
@@ -690,14 +697,6 @@ const Peoples = () => {
                 >
                   Download Sample CSV
                 </Button>
-                {/* <textarea
-                  className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
-                  rows="1"
-                  width="220px"
-                  placeholder="Search"
-                  value={searchKey}
-                  onChange={(e) => setSearchKey(e.target.value)}
-                /> */}
                 <Button
                   fontSize={{ base: "14px", md: "14px" }}
                   paddingX={{ base: "10px", md: "12px" }}
@@ -736,6 +735,31 @@ const Peoples = () => {
               </div>
             </div>
 
+            <div className="flex justify-end gap-x-2 mb-4">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "table"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Table View"
+              >
+                <BiTable size={20} />
+              </button>
+              <button
+                onClick={() => setViewMode("card")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "card"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Card View"
+              >
+                <BiCard size={20} />
+              </button>
+            </div>
+
             <div>
               {showBulkPreview && bulkPreviewRows.length > 0 && (
                 <div className="mb-4 border rounded p-2">
@@ -759,7 +783,7 @@ const Peoples = () => {
                               key={key}
                               className="border px-2 py-1 text-left bg-gray-50"
                             >
-                              {key} 
+                              {key}
                             </th>
                           ))}
                         </tr>
@@ -845,129 +869,275 @@ const Peoples = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    className="shadow-lg rounded-lg bg-white"
-                  >
-                    <Table variant="simple" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr
-                              {...hg.getHeaderGroupProps()}
-                              className="border-b-2 border-gray-300"
-                            >
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    className={`text-transform: capitalize font-size: 15px font-weight: 700 
-                                    text-center border-r border-gray-300 py-3 px-4 cursor-pointer bg-blue-400
-                                     ${
-                                    column.id === "uniqueId"
-                                      ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,1)]"
-                                      : ""
-                                  }
-                                    
-                                    `}
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                  >
-                                    <div className="flex items-center justify-center text-white">
-                                      {column.render("Header")}
-                                      {column.isSorted && (
-                                        <span className="ml-1 text-xs">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </Th>
-                                );
-                              })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 sticky top-0 z-10">
-                                <p className="text-white"> Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
-
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
-
-                          return (
-                            <Tr
-                              className="hover:bg-gray-100 hover:cursor-pointer text-base text-gray-700 transition duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={`
-                    ${
-                      cell.column.id === "uniqueId"
-                        ? "sticky top-0 left-[-2px] z-20 bg-gray-50"
-                        : ""
-                    }
-                    text-center
-                    border-b border-gray-200
-                     border-l border-r 
-                    p-3
-                  `}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id === "creator" ? (
-                                      <span className="text-blue-500 text-semibold">
-                                        {row.original.creator}
-                                      </span>
-                                    ) : cell.column.id === "created_on" &&
-                                      row.original?.createdAt ? (
-                                      <span>
-                                        {moment(row.original?.createdAt).format(
-                                          "DD/MM/YYYY"
+                  {viewMode === "table" ? (
+                    // Table View
+                    <>
+                      <TableContainer
+                        maxHeight="600px"
+                        overflowY="auto"
+                        className="shadow-lg rounded-lg bg-white"
+                      >
+                        <Table variant="striped" {...getTableProps()}>
+                          <Thead className="bg-blue-400 text-lg font-semibold text-gray-800 sticky top-0 z-10">
+                            {headerGroups.map((hg) => {
+                              return (
+                                <Tr
+                                  {...hg.getHeaderGroupProps()}
+                                  className="shadow-md"
+                                >
+                                  {hg.headers.map((column) => {
+                                    return (
+                                      <Th
+                                        className={`
+                                        text-transform: capitalize
+                                        font-size: 15px
+                                        font-weight: 700
+                                        border-b-2 border-gray-300
+                                        
+                                        text-center
+                                        bg-blue-400
+                                      `}
+                                        borderLeft="1px solid #d7d7d7"
+                                        borderRight="1px solid #d7d7d7"
+                                        {...column.getHeaderProps(
+                                          column.getSortByToggleProps()
                                         )}
-                                      </span>
-                                    ) : (
-                                      cell.render("Cell")
-                                    )}
-                                  </Td>
-                                );
-                              })}
+                                      >
+                                        <div className="flex items-center justify-center text-white">
+                                          {column.render("Header")}
+                                          {column.isSorted && (
+                                            <span className="ml-1 text-xs">
+                                              {column.isSortedDesc ? (
+                                                <FaCaretDown />
+                                              ) : (
+                                                <FaCaretUp />
+                                              )}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </Th>
+                                    );
+                                  })}
+                                  <Th className="p-3 text-center bg-blue-400 text-white sticky top-0 z-10">
+                                    <p className="text-white">Actions</p>
+                                  </Th>
+                                </Tr>
+                              );
+                            })}
+                          </Thead>
 
-                              <Td className="flex justify-center items-center gap-x-3 p-3">
-                                <MdOutlineVisibility
-                                  className="text-blue-500 hover:scale-110 transition-transform duration-200"
-                                  size={20}
-                                  onClick={() =>
-                                    showDetailsHandler(row.original?._id)
-                                  }
-                                />
-                                <MdEdit
-                                  className="text-yellow-500 hover:scale-110 transition-transform duration-200"
-                                  size={20}
-                                  onClick={() => editHandler(row.original?._id)}
-                                />
-                                <MdDeleteOutline
-                                  className="text-red-500 hover:scale-110 transition-transform duration-200"
-                                  size={20}
-                                  onClick={() => {
-                                    setPeopleDeleteId(row.original?._id);
-                                    confirmDeleteHandler();
-                                  }}
-                                />
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                          <Tbody {...getTableBodyProps()}>
+                            {page.map((row) => {
+                              prepareRow(row);
+
+                              return (
+                                <Tr
+                                  className="hover:bg-gray-100 hover:cursor-pointer text-base text-gray-700 transition duration-300 ease-in-out"
+                                  {...row.getRowProps()}
+                                >
+                                  {row.cells.map((cell) => {
+                                    return (
+                                      <Td
+                                        className={`
+                        ${
+                          cell.column.id === "uniqueId"
+                            ? "sticky top-0 left-[-2px] "
+                            : ""
+                        }
+                         text-center
+                        border-b border-gray-200
+                      `}
+                                        {...cell.getCellProps()}
+                                      >
+                                        {cell.column.id !== "verified" &&
+                                          cell.column.id !== "createdAt" &&
+                                          cell.render("Cell")}
+                                        {cell.column.id === "verified" && (
+                                          <span
+                                            className={`text-sm rounded-md px-3 py-1 ${
+                                              row.original.verified
+                                                ? "bg-green-500 text-white"
+                                                : "bg-red-500 text-white"
+                                            }`}
+                                          >
+                                            {row.original.verified
+                                              ? "Verified"
+                                              : "Not Verified"}
+                                          </span>
+                                        )}
+                                        {cell.column.id === "createdAt" && (
+                                          <span>
+                                            {moment(
+                                              row.original.createdAt
+                                            ).format("DD/MM/YYYY")}
+                                          </span>
+                                        )}
+                                      </Td>
+                                    );
+                                  })}
+                                  <Td className="p-3 text-center">
+                                    <Menu>
+                                      <MenuButton
+                                        as={Button}
+                                        variant="ghost"
+                                        size="sm"
+                                        rightIcon={<MdMoreVert />}
+                                        className="hover:bg-gray-100"
+                                      ></MenuButton>
+                                      <MenuList>
+                                        <MenuItem
+                                          icon={<MdOutlineVisibility />}
+                                          onClick={() =>
+                                            showDetailsHandler(
+                                              row.original?._id
+                                            )
+                                          }
+                                        >
+                                          View Details
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdEdit />}
+                                          onClick={() =>
+                                            editHandler(row.original?._id)
+                                          }
+                                        >
+                                          Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdDeleteOutline />}
+                                          onClick={() => {
+                                            setPeopleDeleteId(
+                                              row.original?._id
+                                            );
+                                            confirmDeleteHandler();
+                                          }}
+                                        >
+                                          Delete
+                                        </MenuItem>
+                                      </MenuList>
+                                    </Menu>
+                                  </Td>
+                                </Tr>
+                              );
+                            })}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
+                    </>
+                  ) : (
+                    // Card View
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {page.map((row) => {
+                        prepareRow(row);
+                        const person = row.original;
+                        return (
+                          <div
+                            key={person._id}
+                            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 p-4"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                                  {person.firstname} {person.lastname}
+                                </h3>
+                                <p className="text-sm text-gray-500 mb-2">
+                                  ID: {person.uniqueId}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-3 mb-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Status:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {person.status}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Phone:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {person.phone}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Email:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {person.email}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Verification:
+                                </span>
+                                <span
+                                  className={`text-xs rounded-md px-2 py-1 ${
+                                    person.verified
+                                      ? "bg-green-500 text-white"
+                                      : "bg-red-500 text-white"
+                                  }`}
+                                >
+                                  {person.verified
+                                    ? "Verified"
+                                    : "Not Verified"}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Created By:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {person.creator}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-center space-x-2 pt-3 border-t border-gray-200">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="blue"
+                                onClick={() => showDetailsHandler(person._id)}
+                                leftIcon={<MdOutlineVisibility />}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="orange"
+                                onClick={() => editHandler(person._id)}
+                                leftIcon={<MdEdit />}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="red"
+                                onClick={() => {
+                                  onOpen();
+                                  setPeopleDeleteId(person._id);
+                                }}
+                                leftIcon={<MdDeleteOutline />}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   <div className="w-[max-content] m-auto my-7">
                     <button
