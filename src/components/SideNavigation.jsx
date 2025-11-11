@@ -28,6 +28,7 @@ import {
   FaFileLines,
   FaPeopleGroup,
   FaMessage,
+  FaLock,
 } from "react-icons/fa6";
 import { useContext } from "react";
 import { TbReport } from "react-icons/tb";
@@ -90,66 +91,13 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           <MdClose className="cursor-pointer" size={25}/>
         </div>
       )}
-      <ul className="text-lg font-semibold overflow-x-hidden overflow-y-auto">
-        <NavLink
-          end={true}
-          to=""
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            isMenuOpen && setIsMenuOpen(false);
-          }}
-        >
-          <li
-            className="flex gap-x-2 pl-3 pr-9 pt-8  rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            onClick={() => changeOnlineStatus(false)}
-          >
-            <span>
-              <MdOutlineSpeed size={23}/>
-            </span>
-            <span>Dashboard</span>
-            {!checkAccess(auth, "dashboard")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
-              </span>
-            )}
-          </li>
-        </NavLink>
-
-        <NavLink
-          to="admins"
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            isMenuOpen && setIsMenuOpen(false);
-          }}
-        >
-          <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            onClick={() => changeOnlineStatus(false)}
-          >
-            <span>
-              <FaPeopleGroup size={23} />
-            </span>
-            <span>Users</span>
-            {!checkAccess(auth, "admin")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
-              </span>
-            )}
-          </li>
-        </NavLink>
-
-        {/* <NavLink
-          to="chats"
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            if (isMenuOpen) {
-              setIsMenuOpen(false);
+      <ul className="text-sm font-bold overflow-x-hidden overflow-y-auto">
+        {checkAccess(auth, "dashboard")?.isAllowed && (
+          <NavLink
+            end={true}
+            to=""
+            className={({ isActive }) =>
+              isActive ? "text-[#1640d6]" : "text-black"
             }
             onClick={() => {
               isMenuOpen && setIsMenuOpen(false);
@@ -201,13 +149,12 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               }
             }}
           >
-            <span>
-              <MdGroups size={25} />
-            </span>
-            <span>Meetings</span>
-            {!checkAccess(auth, "lead")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
+            <li
+              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+              onClick={() => changeOnlineStatus(true)}
+            >
+              <span>
+                <FaMessage />
               </span>
               <span>Chat</span>
             </li>
