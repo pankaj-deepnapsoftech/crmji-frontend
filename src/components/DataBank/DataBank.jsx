@@ -197,7 +197,7 @@ const DataBank = () => {
     showBulkAssignDrawerIsOpened,
   } = useSelector((state) => state.misc);
 
-  const { role, ...auth } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const { isAllowed, msg } = checkAccess(auth, "databank");
 
   const statusStyles = {

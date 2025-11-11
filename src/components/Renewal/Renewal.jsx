@@ -146,7 +146,7 @@ const Renewals = () => {
     editPeoplesDrawerIsOpened,
     showDetailsPeoplesDrawerIsOpened,
   } = useSelector((state) => state.misc);
-  const { role, ...auth } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const { isAllowed, msg } = checkAccess(auth, "renewals");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
