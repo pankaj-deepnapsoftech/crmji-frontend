@@ -74,11 +74,15 @@ const columns = [
     },
   },
   {
+    Header: "Designation",
+    accessor: "designation",
+  },
+  {
     Header: "Phone",
     accessor: "phone",
   },
   {
-    Header: "Verification Status",
+    Header: "Verification ",
     accessor: "verified",
   },
 ];
@@ -187,7 +191,8 @@ const Admins = () => {
           d?.name?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.employeeId?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
-          d?.email?.toLowerCase().includes(searchKey.toLowerCase())
+          d?.email?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.designation?.toLowerCase().includes(searchKey.toLowerCase())
       );
       setFilteredData(searchedData);
     } else {

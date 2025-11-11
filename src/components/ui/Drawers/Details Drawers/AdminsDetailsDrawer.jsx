@@ -76,7 +76,7 @@ const AdminDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
               </div>
 
               <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
-                <p>Is Verified</p>
+                <p> Verification</p>
                 <p className={`font-normal ${details?.verified ? "text-green-600" : "text-red-500"}`}>
                   {details?.verified ? "Verified" : "Not Verified"}
                 </p>
