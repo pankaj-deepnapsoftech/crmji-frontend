@@ -861,7 +861,15 @@ const Peoples = () => {
                               {hg.headers.map((column) => {
                                 return (
                                   <Th
-                                    className="text-transform: capitalize font-size: 15px font-weight: 700 text-center border-r border-gray-300 py-3 px-4 cursor-pointer bg-blue-400"
+                                    className={`text-transform: capitalize font-size: 15px font-weight: 700 
+                                    text-center border-r border-gray-300 py-3 px-4 cursor-pointer bg-blue-400
+                                     ${
+                                    column.id === "uniqueId"
+                                      ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,1)]"
+                                      : ""
+                                  }
+                                    
+                                    `}
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}

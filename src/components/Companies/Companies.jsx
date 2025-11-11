@@ -479,9 +479,6 @@ const Companies = () => {
           <div>
             <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
               <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                {/* <span className="mr-2">
-                  <MdArrowBack />
-                </span> */}
                 Corporate List
               </div>
 
@@ -698,22 +695,15 @@ const Companies = () => {
                               {hg.headers.map((column) => {
                                 return (
                                   <Th
-                                    className={`
-                    ${
-                      column.id === "companyname"
-                        ? "sticky top-0 left-[-2px] bg-blue-400"
-                        : ""
-                    }
-                    whitespace-nowrap
-                    text-transform: capitalize
-                    font-size: 15px
-                    font-weight: 700
-                    text-center
-                    border-r border-gray-300
-                    py-3
-                    px-4
-                    hover:bg-blue-200 cursor-pointer
-                  `}
+                                    className={`text-transform: capitalize font-size: 15px font-weight: 700 
+                                    text-center border-r border-gray-300 py-3 px-4 cursor-pointer bg-blue-400
+                                    ${
+                                      column.id === "uniqueId"
+                                        ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,1)]"
+                                        : ""
+                                    }
+                                    
+                                    `}
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}
@@ -752,17 +742,16 @@ const Companies = () => {
                             >
                               {row.cells.map((cell) => {
                                 return (
-                                  <Td
+                                 <Td
                                     className={`
                     ${
-                      cell.column.id === "companyname"
-                        ? "sticky top-0 left-[-2px] bg-white"
+                      cell.column.id === "uniqueId"
+                        ? "sticky top-0 left-[-1px] z-20 bg-gray-50"
                         : ""
                     }
-                    whitespace-nowrap
                     text-center
                     border-b border-gray-200
-                   
+                     border-l border-r 
                     p-3
                   `}
                                     {...cell.getCellProps()}
