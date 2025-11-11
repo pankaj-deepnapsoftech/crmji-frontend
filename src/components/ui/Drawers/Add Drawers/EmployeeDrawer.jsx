@@ -93,12 +93,12 @@ const EmployeeDrawer = ({ fetchAllEmployees, closeDrawerHandler }) => {
     >
       <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
         <BiX onClick={closeDrawerHandler} size="26px" />
-        User
+        Employee
       </h1>
 
       <div className="mt-8 px-5">
         <h2 className="text-2xl font-bold py-5 text-center mb-6 border-y bg-blue-200 rounded-lg shadow-md">
-          Add New User
+          Add New Employee
         </h2>
 
         <form onSubmit={registerHandler} className="space-y-5">
