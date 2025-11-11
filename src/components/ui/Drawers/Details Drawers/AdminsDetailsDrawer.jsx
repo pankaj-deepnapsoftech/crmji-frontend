@@ -58,12 +58,12 @@ const AdminDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
     >
       <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
         <BiX onClick={closeDrawerHandler} size="26px" />
-        Employee
+        User
       </h1>
 
       <div className="mt-8 px-5">
         <h2 className="text-3xl bg-blue-200 font-bold py-5 text-center mb-8 border-y border-gray-200  rounded-md shadow-md">
-          Employee Details
+          User
         </h2>
 
         {isLoading ? (

@@ -58,7 +58,7 @@ const Header = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
           {!auth?.id && (
             <Link to={"/crm"}>
               <button className="subscription-font px-4 py-2 border border-white rounded-full bg-white text-black ease-in-out duration-500 hover:bg-transparent hover:text-white">
-                Employee Login
+                User Login
               </button>
             </Link>
           )}
@@ -121,7 +121,7 @@ const Header = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
             {!auth?.id && (
               <Link to={"/crm"}>
                 <button className="subscription-font px-4 py-2 border border-white rounded-full bg-white text-black ease-in-out duration-500 hover:bg-transparent hover:text-white">
-                  Employee Login
+                  User Login
                 </button>
               </Link>
             )}

@@ -249,7 +249,7 @@ const Admins = () => {
                 {/* <span className="mr-2">
                   <MdArrowBack />
                 </span> */}
-                Employee List
+                User List
               </div>
 
               <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
@@ -278,7 +278,7 @@ const Admins = () => {
                   color="white"
                   backgroundColor="#1640d6"
                 >
-                  Add New Employee
+                  Add New User
                 </Button>
                 <Select
                   onChange={(e) => setPageSize(e.target.value)}
@@ -520,7 +520,7 @@ const Admins = () => {
                     </>
                   ) : (
                     // Card View
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {page.map((row) => {
                         prepareRow(row);
                         const user = row.original;

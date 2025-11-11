@@ -379,9 +379,7 @@ const Login = () => {
                   <span>
                     <FaStarOfLife size="6px" color="red" />
                   </span>
-                  {useEmployeeId
-                    ? "Employee ID or Email"
-                    : "Email or Employee ID"}
+                  {useEmployeeId ? "User ID or Email" : "Email or User ID"}
                 </label>
                 <div className="relative w-[100%]">
                   <div className="absolute top-[18px] left-[7px] text-base">
@@ -398,9 +396,7 @@ const Login = () => {
                     className="w-[100%] outline-none text-base pl-7 pr-2 py-2 border rounded mt-2 border-[#d9d9d9] rounded-[10px] hover:border-[#1640d6] cursor-pointer"
                     type="text"
                     placeholder={
-                      useEmployeeId
-                        ? "Employee ID or Email"
-                        : "Email or Employee ID"
+                      useEmployeeId ? "User ID or Email" : "Email or User ID"
                     }
                   />
                 </div>
@@ -409,9 +405,7 @@ const Login = () => {
                 className="mt-2 text-xs text-right cursor-pointer text-[#1640d6]"
                 onClick={() => setUseEmployeeId(!useEmployeeId)}
               >
-                {useEmployeeId
-                  ? "Use Email instead"
-                  : "Use Employee ID instead"}
+                {useEmployeeId ? "Use Email instead" : "Use User ID instead"}
               </div>
               <div className="mt-4 flex flex-col items-start text-sm">
                 <label className="flex gap-x-1 items-center font-bold text-sm text-[rgba(0, 0, 0, 0.88)]">

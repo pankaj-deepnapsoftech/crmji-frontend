@@ -124,7 +124,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             <span>
               <FaPeopleGroup />
             </span>
-            <span>Employee</span>
+            <span>User</span>
             {!checkAccess(auth, "admin")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />
@@ -133,7 +133,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           </li>
         </NavLink>
 
-        <NavLink
+        {/* <NavLink
           to="chats"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
@@ -158,7 +158,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </li>
-        </NavLink>
+        </NavLink> */}
 
         <div
           onClick={() => setShowProspectsSubmenu((prev) => !prev)}
@@ -392,8 +392,9 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           </li>
         </NavLink>
 
-        { // This is the Assigned Lead component
-        /* <NavLink
+        {
+          // This is the Assigned Lead component
+          /* <NavLink
           to="assigned-leads"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
@@ -416,8 +417,8 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </li>
-        </NavLink> */}
-
+        </NavLink> */
+        }
 
         <NavLink
           to="customers"
@@ -443,32 +444,6 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             )}
           </li>
         </NavLink>
-        <NavLink
-          to="renewals"
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            isMenuOpen && setIsMenuOpen(false);
-          }}
-        >
-          <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            onClick={() => changeOnlineStatus(false)}
-          >
-            <span>
-              <MdAutorenew />
-            </span>
-            <span>Renewals</span>
-
-            {!checkAccess(auth, "renewals")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
-              </span>
-            )}
-          </li>
-        </NavLink>
-        {/* Products Dropdown */}
         <div className="relative">
           <li
             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
@@ -566,7 +541,6 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           )}
         </div>
 
-        {/* Invoices and Payments Dropdown */}
         <div className="relative">
           <li
             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
@@ -664,6 +638,34 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           )}
         </div>
 
+        <NavLink
+          to="renewals"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <MdAutorenew />
+            </span>
+            <span>Renewals</span>
+
+            {!checkAccess(auth, "renewals")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
+        {/* Products Dropdown */}
+
+        {/* Invoices and Payments Dropdown */}
 
         {/* <NavLink
           to="expenses"
@@ -912,7 +914,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             <span>
               <GrConfigure />
             </span>
-            <span>CRM Configuration</span>
+            <span>Integrations</span>
             {!checkAccess(auth, "website configuration")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />
@@ -926,4 +928,3 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
 };
 
 export default SideNavigation;
-
