@@ -207,6 +207,8 @@ const Checkout = () => {
     }
   }, []);
 
+
+
   return (
     <div className="my-32 mx-auto p-4 w-[90%] md:w-[50rem]">
       <h1 className="subscription-font text-[#24243e] mb-4 text-4xl text-center">
@@ -227,21 +229,37 @@ const Checkout = () => {
             features of this plan
           </span>
           <div className="border-t border-[#a5a5a5] w-[70%] md:w-[40rem] mt-3 pt-1 flex flex-col items-end">
-            <span className="subscription-font text-xl py-2">
-              {" "}
-              ₹{amount.toFixed(2)}/- Per user
-            </span>
-            <span className="subscription-font text-xl py-2">
-              {" "}
-              {employeeCount} User x ₹{amount.toFixed(2)}/- Per user
-            </span>
-            <div className="border-t border-[#a5a5a5] w-[70%] md:w-[40rem] flex justify-end">
-              <span className="subscription-font text-xl font-bold py-2">
-                {" "}
-                = ₹{((employeeCount || 0) * amount).toFixed(2)}/- Only
+              <span className="subscription-font text-xl py-2">
+                ₹{amount.toFixed(2)}/- Per user
               </span>
+              <span className="subscription-font text-xl py-2">
+                {employeeCount} User × ₹{amount.toFixed(2)}/- Per user
+              </span>
+
+              {/* GST Section */}
+              {(() => {
+                const subtotal = (employeeCount || 0) * amount;
+                const gst = subtotal * 0.18;
+                const total = subtotal + gst;
+
+                return (
+                  <>
+                    <span className="subscription-font text-lg py-1 text-gray-700">
+                      Subtotal: ₹{subtotal.toFixed(2)}
+                    </span>
+                    <span className="subscription-font text-lg py-1 text-gray-700">
+                      + 18% GST: ₹{gst.toFixed(2)}
+                    </span>
+
+                    <div className="border-t border-[#a5a5a5] w-[70%] md:w-[40rem] flex justify-end mt-2">
+                      <span className="subscription-font text-xl font-bold py-2 text-green-700">
+                        = ₹{total.toFixed(2)}/- Only
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
-          </div>
         </div>
 
         <div className=" w-[30rem] px-2 gap-2 py-2 flex">

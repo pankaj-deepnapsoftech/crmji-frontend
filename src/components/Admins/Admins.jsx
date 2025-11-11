@@ -66,19 +66,20 @@ const columns = [
     Header: "User ID",
     accessor: "employeeId",
     Cell: ({ row }) => {
-      // Extract the number part from the original employeeId (last 3 digits)
-      const originalId = row.original.employeeId || "";
-      const numberPart = originalId.slice(-3) || "001";
-
-      return `UI${numberPart}`;
+      // Display employeeId directly (already in UI001, UI002 format from backend)
+      return row.original.employeeId || "N/A";
     },
+  },
+  {
+    Header: "Designation",
+    accessor: "designation",
   },
   {
     Header: "Phone",
     accessor: "phone",
   },
   {
-    Header: "Verification Status",
+    Header: "Verification ",
     accessor: "verified",
   },
 ];
@@ -187,7 +188,8 @@ const Admins = () => {
           d?.name?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.employeeId?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
-          d?.email?.toLowerCase().includes(searchKey.toLowerCase())
+          d?.email?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.designation?.toLowerCase().includes(searchKey.toLowerCase())
       );
       setFilteredData(searchedData);
     } else {
@@ -247,7 +249,7 @@ const Admins = () => {
                 {/* <span className="mr-2">
                   <MdArrowBack />
                 </span> */}
-                Users List
+                Employee List
               </div>
 
               <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
@@ -276,7 +278,7 @@ const Admins = () => {
                   color="white"
                   backgroundColor="#1640d6"
                 >
-                  Add New User
+                  Add New Employee
                 </Button>
                 <Select
                   onChange={(e) => setPageSize(e.target.value)}
@@ -522,9 +524,7 @@ const Admins = () => {
                       {page.map((row) => {
                         prepareRow(row);
                         const user = row.original;
-                        const userId = user.employeeId
-                          ? `UI${user.employeeId.slice(-3)}`
-                          : "UI001";
+                        const userId = user.employeeId || "N/A";
 
                         return (
                           <div
