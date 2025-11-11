@@ -194,7 +194,7 @@ const Invoices = () => {
   };
 
   console.log(data);
-  
+
   const deleteHandler = async (id) => {
     try {
       const baseUrl = process.env.REACT_APP_BACKEND_URL;
@@ -294,7 +294,11 @@ const Invoices = () => {
           d?.status?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.paymentstatus?.toLowerCase().includes(searchKey.toLowerCase()) ||
           (d?.customer?.people
-            ? (d?.customer?.people?.firstname + " " + d?.customer?.people?.lastname)
+            ? (
+                d?.customer?.people?.firstname +
+                " " +
+                d?.customer?.people?.lastname
+              )
                 .toLowerCase()
                 .includes(searchKey.toLowerCase())
             : d.customer.company.companyname
@@ -462,7 +466,9 @@ const Invoices = () => {
             {!loading && filteredData.length === 0 && (
               <div className="flex items-center justify-center flex-col">
                 <FcDatabase color="red" size={80} />
-                <span className="mt-1 font-semibold text-2xl">No Data</span>
+                <span className="mt-1 font-semibold text-2xl">
+                  No data found.
+                </span>
               </div>
             )}
             {!loading && filteredData.length > 0 && (
@@ -550,7 +556,9 @@ const Invoices = () => {
                                     <span>&#8377;{row.original.subtotal}</span>
                                   )}
                                   {cell?.column?.id === "creator" && (
-                                    <span className="text-blue-500">{row.original.creator.name}</span>
+                                    <span className="text-blue-500">
+                                      {row.original.creator.name}
+                                    </span>
                                   )}
                                   {cell?.column?.id === "created_on" && (
                                     <span>

@@ -146,7 +146,7 @@ const Renewals = () => {
     editPeoplesDrawerIsOpened,
     showDetailsPeoplesDrawerIsOpened,
   } = useSelector((state) => state.misc);
-  const { role, ...auth } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const { isAllowed, msg } = checkAccess(auth, "renewals");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -708,7 +708,9 @@ const Renewals = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    No data found.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (

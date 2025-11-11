@@ -34,6 +34,7 @@ import { useContext } from "react";
 import { TbReport } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import { IoSettingsSharp } from "react-icons/io5";
+import { FaLock } from "react-icons/fa";
 import { checkAccess } from "../utils/checkAccess";
 import { MdAutorenew } from "react-icons/md";
 import { FaDatabase } from "react-icons/fa6";
@@ -92,250 +93,100 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
         </div>
       )}
       <ul className="text-sm font-bold overflow-x-hidden overflow-y-auto">
-        {checkAccess(auth, "dashboard")?.isAllowed && (
-          <NavLink
-            end={true}
-            to=""
-            className={({ isActive }) =>
-              isActive ? "text-[#1640d6]" : "text-black"
-            }
-            onClick={() => {
-              isMenuOpen && setIsMenuOpen(false);
-            }}
+        <NavLink
+          end={true}
+          to=""
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
           >
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-              onClick={() => changeOnlineStatus(false)}
-            >
-              <span>
-                <MdOutlineSpeed />
+            <span>
+              <MdOutlineSpeed />
+            </span>
+            <span>Dashboard</span>
+            {!checkAccess(auth, "dashboard")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
               </span>
-              <span>Dashboard</span>
-            </li>
-          </NavLink>
-        )}
-
-        {checkAccess(auth, "admin")?.isAllowed && (
-          <NavLink
-            to="admins"
-            className={({ isActive }) =>
-              isActive ? "text-[#1640d6]" : "text-black"
-            }
-            onClick={() => {
-              isMenuOpen && setIsMenuOpen(false);
-            }}
-          >
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-              onClick={() => changeOnlineStatus(false)}
-            >
-              <span>
-                <FaPeopleGroup />
-              </span>
-              <span>Users</span>
-            </li>
-          </NavLink>
-        )}
-
-        {checkAccess(auth, "admin")?.isAllowed && (
-          <NavLink
-            to="chats"
-            className={({ isActive }) =>
-              isActive ? "text-[#1640d6]" : "text-black"
-            }
-            onClick={() => {
-              if (isMenuOpen) {
-                setIsMenuOpen(false);
-              }
-            }}
-          >
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-              onClick={() => changeOnlineStatus(true)}
-            >
-              <span>
-                <FaMessage />
-              </span>
-              <span>Chat</span>
-            </li>
-          </NavLink>
-        )}
-
-        {(checkAccess(auth, "people")?.isAllowed ||
-          checkAccess(auth, "company")?.isAllowed) && (
-          <>
-            <div
-              onClick={() => setShowProspectsSubmenu((prev) => !prev)}
-              className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            >
-              <div className="flex gap-x-2">
-                <span>
-                  <MdOutlinePeople />
-                </span>
-                <span>Prospects</span>
-              </div>
-              <MdKeyboardArrowDown />
-            </div>
-            {showProspectsSubmenu && (
-              <div>
-                {checkAccess(auth, "people")?.isAllowed && (
-                  <NavLink
-                    to="individuals"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>Individuals</span>
-                    </li>
-                  </NavLink>
-                )}
-                {checkAccess(auth, "company")?.isAllowed && (
-                  <NavLink
-                    to="corporates"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>Corporates</span>
-                    </li>
-                  </NavLink>
-                )}
-              </div>
             )}
-          </>
-        )}
+          </li>
+        </NavLink>
 
-        {checkAccess(auth, "lead")?.isAllowed && (
-          <>
-            <div
-              onClick={() => setShowLeadsSubmenu((prev) => !prev)}
-              className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            >
-              <div className="flex gap-x-2">
-                <span>
-                  <MdLeaderboard />
-                </span>
-                <span>Leads</span>
-              </div>
-              <MdKeyboardArrowDown />
-            </div>
-            {showLeadsSubmenu && (
-              <div>
-                <NavLink
-                  to="leads"
-                  className={({ isActive }) =>
-                    isActive ? "text-[#1640d6]" : "text-black"
-                  }
-                  onClick={() => {
-                    isMenuOpen && setIsMenuOpen(false);
-                  }}
-                >
-                  <li
-                    className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                    onClick={() => changeOnlineStatus(false)}
-                  >
-                    <span>All Leads</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to="indiamart-leads"
-                  className={({ isActive }) =>
-                    isActive ? "text-[#1640d6]" : "text-black"
-                  }
-                  onClick={() => {
-                    isMenuOpen && setIsMenuOpen(false);
-                  }}
-                >
-                  <li
-                    className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                    onClick={() => changeOnlineStatus(false)}
-                  >
-                    <span>Indiamart Leads</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to="justdial-leads"
-                  className={({ isActive }) =>
-                    isActive ? "text-[#1640d6]" : "text-black"
-                  }
-                  onClick={() => {
-                    isMenuOpen && setIsMenuOpen(false);
-                  }}
-                >
-                  <li
-                    className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                    onClick={() => changeOnlineStatus(false)}
-                  >
-                    <span>JustDial Leads</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to="facebook-leads"
-                  className={({ isActive }) =>
-                    isActive ? "text-[#1640d6]" : "text-black"
-                  }
-                  onClick={() => {
-                    isMenuOpen && setIsMenuOpen(false);
-                  }}
-                >
-                  <li
-                    className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                    onClick={() => changeOnlineStatus(false)}
-                  >
-                    <span>Facebook Leads</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to="instagram-leads"
-                  className={({ isActive }) =>
-                    isActive ? "text-[#1640d6]" : "text-black"
-                  }
-                  onClick={() => {
-                    isMenuOpen && setIsMenuOpen(false);
-                  }}
-                >
-                  <li
-                    className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                    onClick={() => changeOnlineStatus(false)}
-                  >
-                    <span>Instagram Leads</span>
-                  </li>
-                </NavLink>
-                <NavLink
-                  to="google-leads"
-                  className={({ isActive }) =>
-                    isActive ? "text-[#1640d6]" : "text-black"
-                  }
-                  onClick={() => {
-                    isMenuOpen && setIsMenuOpen(false);
-                  }}
-                >
-                  <li
-                    className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                    onClick={() => changeOnlineStatus(false)}
-                  >
-                    <span>Google Leads</span>
-                  </li>
-                </NavLink>
-              </div>
+        <NavLink
+          to="admins"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <FaPeopleGroup />
+            </span>
+            <span>User</span>
+            {!checkAccess(auth, "admin")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
             )}
+          </li>
+        </NavLink>
 
+        {/* <NavLink
+          to="chats"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            if (isMenuOpen) {
+              setIsMenuOpen(false);
+            }
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(true)}
+          >
+            <span>
+              <FaMessage />
+            </span>
+            <span>Chat</span>
+            {!checkAccess(auth, "admin")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink> */}
+
+        <div
+          onClick={() => setShowProspectsSubmenu((prev) => !prev)}
+          className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+        >
+          <div className="flex gap-x-2">
+            <span>
+              <MdOutlinePeople />
+            </span>
+            <span>Prospects</span>
+          </div>
+          <MdKeyboardArrowDown />
+        </div>
+        {showProspectsSubmenu && (
+          <div>
             <NavLink
-              to="meeting"
+              to="individuals"
               className={({ isActive }) =>
                 isActive ? "text-[#1640d6]" : "text-black"
               }
@@ -344,20 +195,217 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               }}
             >
               <li
-                className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
                 onClick={() => changeOnlineStatus(false)}
               >
-                <span>
-                  <MdLeaderboard />
-                </span>
-                <span>Meetings</span>
+                <span>Individuals</span>
+                {!checkAccess(auth, "people")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
               </li>
             </NavLink>
-          </>
+            <NavLink
+              to="corporates"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>Corporates</span>
+                {!checkAccess(auth, "company")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+          </div>
         )}
 
-        { // This is the Assigned Lead component
-        /* <NavLink
+        <div
+          onClick={() => setShowLeadsSubmenu((prev) => !prev)}
+          className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+        >
+          <div className="flex gap-x-2">
+            <span>
+              <MdLeaderboard />
+            </span>
+            <span>Leads</span>
+            {!checkAccess(auth, "lead")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </div>
+          <MdKeyboardArrowDown />
+        </div>
+        {showLeadsSubmenu && (
+          <div>
+            <NavLink
+              to="leads"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>All Leads</span>
+                {!checkAccess(auth, "lead")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+            <NavLink
+              to="indiamart-leads"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>Indiamart Leads</span>
+                {!checkAccess(auth, "lead")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+            <NavLink
+              to="justdial-leads"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>JustDial Leads</span>
+                {!checkAccess(auth, "lead")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+            <NavLink
+              to="facebook-leads"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>Facebook Leads</span>
+                {!checkAccess(auth, "lead")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+            <NavLink
+              to="instagram-leads"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>Instagram Leads</span>
+                {!checkAccess(auth, "lead")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+            <NavLink
+              to="google-leads"
+              className={({ isActive }) =>
+                isActive ? "text-[#1640d6]" : "text-black"
+              }
+              onClick={() => {
+                isMenuOpen && setIsMenuOpen(false);
+              }}
+            >
+              <li
+                className="flex gap-x-2 pl-6 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+                onClick={() => changeOnlineStatus(false)}
+              >
+                <span>Google Leads</span>
+                {!checkAccess(auth, "lead")?.isAllowed && (
+                  <span className="mt-1">
+                    <FaLock size="12" color="#b1b1b1" />
+                  </span>
+                )}
+              </li>
+            </NavLink>
+          </div>
+        )}
+
+        <NavLink
+          to="meeting"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <MdLeaderboard />
+            </span>
+            <span>Meetings</span>
+            {!checkAccess(auth, "lead")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
+
+        {
+          // This is the Assigned Lead component
+          /* <NavLink
           to="assigned-leads"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
@@ -380,236 +428,226 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </li>
-        </NavLink> */}
+        </NavLink> */
+        }
 
-
-        {checkAccess(auth, "customer")?.isAllowed && (
-          <NavLink
-            to="customers"
-            className={({ isActive }) =>
-              isActive ? "text-[#1640d6]" : "text-black"
-            }
+        <NavLink
+          to="customers"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <MdHeadphones />
+            </span>
+            <span>Customers</span>
+            {!checkAccess(auth, "customer")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
+        <div className="relative">
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
             onClick={() => {
-              isMenuOpen && setIsMenuOpen(false);
+              setShowProductsSubmenu(!showProductsSubmenu);
+              changeOnlineStatus(false);
             }}
           >
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-              onClick={() => changeOnlineStatus(false)}
-            >
-              <span>
-                <MdHeadphones />
-              </span>
-              <span>Customers</span>
-            </li>
-          </NavLink>
-        )}
-        {checkAccess(auth, "renewals")?.isAllowed && (
-          <NavLink
-            to="renewals"
-            className={({ isActive }) =>
-              isActive ? "text-[#1640d6]" : "text-black"
-            }
+            <span>
+              <MdOutlineProductionQuantityLimits />
+            </span>
+            <span>Products</span>
+            <span className="ml-auto">
+              {showProductsSubmenu ? <FaChevronDown /> : <FaChevronRight />}
+            </span>
+          </li>
+
+          {showProductsSubmenu && (
+            <div className="ml-4 mt-1 space-y-1">
+              <NavLink
+                to="offers"
+                className={({ isActive }) =>
+                  isActive ? "text-[#1640d6]" : "text-black"
+                }
+                onClick={() => {
+                  isMenuOpen && setIsMenuOpen(false);
+                }}
+              >
+                <li
+                  className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
+                  onClick={() => changeOnlineStatus(false)}
+                >
+                  <span>
+                    <MdLocalOffer />
+                  </span>
+                  <span>Offers</span>
+                  {!checkAccess(auth, "offer")?.isAllowed && (
+                    <span className="mt-1">
+                      <FaLock size="12" color="#b1b1b1" />
+                    </span>
+                  )}
+                </li>
+              </NavLink>
+
+              <NavLink
+                to="products"
+                className={({ isActive }) =>
+                  isActive ? "text-[#1640d6]" : "text-black"
+                }
+                onClick={() => {
+                  isMenuOpen && setIsMenuOpen(false);
+                }}
+              >
+                <li
+                  className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
+                  onClick={() => changeOnlineStatus(false)}
+                >
+                  <span>
+                    <MdOutlineProductionQuantityLimits />
+                  </span>
+                  <span>Products</span>
+                  {!checkAccess(auth, "product")?.isAllowed && (
+                    <span className="mt-1">
+                      <FaLock size="12" color="#b1b1b1" />
+                    </span>
+                  )}
+                </li>
+              </NavLink>
+
+              <NavLink
+                to="products-category"
+                className={({ isActive }) =>
+                  isActive ? "text-[#1640d6]" : "text-black"
+                }
+                onClick={() => {
+                  isMenuOpen && setIsMenuOpen(false);
+                }}
+              >
+                <li
+                  className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
+                  onClick={() => changeOnlineStatus(false)}
+                >
+                  <span>
+                    <MdOutlineCategory />
+                  </span>
+                  <span>Products Category</span>
+                  {!checkAccess(auth, "category")?.isAllowed && (
+                    <span className="mt-1">
+                      <FaLock size="12" color="#b1b1b1" />
+                    </span>
+                  )}
+                </li>
+              </NavLink>
+            </div>
+          )}
+        </div>
+
+        <div className="relative">
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
             onClick={() => {
-              isMenuOpen && setIsMenuOpen(false);
+              setShowInvoicesSubmenu(!showInvoicesSubmenu);
+              changeOnlineStatus(false);
             }}
           >
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-              onClick={() => changeOnlineStatus(false)}
-            >
-              <span>
-                <MdAutorenew />
-              </span>
-              <span>Renewals</span>
-            </li>
-          </NavLink>
-        )}
-        {/* Products Dropdown */}
-        {(checkAccess(auth, "offer")?.isAllowed ||
-          checkAccess(auth, "product")?.isAllowed ||
-          checkAccess(auth, "category")?.isAllowed) && (
-          <div className="relative">
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
-              onClick={() => {
-                setShowProductsSubmenu(!showProductsSubmenu);
-                changeOnlineStatus(false);
-              }}
-            >
-              <span>
-                <MdOutlineProductionQuantityLimits />
-              </span>
-              <span>Products</span>
-              <span className="ml-auto">
-                {showProductsSubmenu ? <FaChevronDown /> : <FaChevronRight />}
-              </span>
-            </li>
+            <span>
+              <FaFileInvoice />
+            </span>
+            <span>Invoices and Payments</span>
+            <span className="ml-auto">
+              {showInvoicesSubmenu ? <FaChevronDown /> : <FaChevronRight />}
+            </span>
+          </li>
 
-            {showProductsSubmenu && (
-              <div className="ml-4 mt-1 space-y-1">
-                {checkAccess(auth, "offer")?.isAllowed && (
-                  <NavLink
-                    to="offers"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>
-                        <MdLocalOffer />
-                      </span>
-                      <span>Offers</span>
-                    </li>
-                  </NavLink>
-                )}
+          {showInvoicesSubmenu && (
+            <div className="ml-4 mt-1 space-y-1">
+              <NavLink
+                to="invoices"
+                className={({ isActive }) =>
+                  isActive ? "text-[#1640d6]" : "text-black"
+                }
+                onClick={() => {
+                  isMenuOpen && setIsMenuOpen(false);
+                }}
+              >
+                <li
+                  className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
+                  onClick={() => changeOnlineStatus(false)}
+                >
+                  <span>
+                    <FaFileInvoice />
+                  </span>
+                  <span>Invoices</span>
+                  {!checkAccess(auth, "invoice")?.isAllowed && (
+                    <span className="mt-1">
+                      <FaLock size="12" color="#b1b1b1" />
+                    </span>
+                  )}
+                </li>
+              </NavLink>
 
-                {checkAccess(auth, "product")?.isAllowed && (
-                  <NavLink
-                    to="products"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>
-                        <MdOutlineProductionQuantityLimits />
-                      </span>
-                      <span>Products</span>
-                    </li>
-                  </NavLink>
-                )}
+              <NavLink
+                to="proforma-invoices"
+                className={({ isActive }) =>
+                  isActive ? "text-[#1640d6]" : "text-black"
+                }
+                onClick={() => {
+                  isMenuOpen && setIsMenuOpen(false);
+                }}
+              >
+                <li
+                  className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
+                  onClick={() => changeOnlineStatus(false)}
+                >
+                  <span>
+                    <FaFileLines />
+                  </span>
+                  <span>Proforma Invoices</span>
+                  {!checkAccess(auth, "proforma-invoice")?.isAllowed && (
+                    <span className="mt-1">
+                      <FaLock size="12" color="#b1b1b1" />
+                    </span>
+                  )}
+                </li>
+              </NavLink>
 
-                {checkAccess(auth, "category")?.isAllowed && (
-                  <NavLink
-                    to="products-category"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>
-                        <MdOutlineCategory />
-                      </span>
-                      <span>Products Category</span>
-                    </li>
-                  </NavLink>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Invoices and Payments Dropdown */}
-        {(checkAccess(auth, "invoice")?.isAllowed ||
-          checkAccess(auth, "proforma-invoice")?.isAllowed ||
-          checkAccess(auth, "payment")?.isAllowed) && (
-          <div className="relative">
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
-              onClick={() => {
-                setShowInvoicesSubmenu(!showInvoicesSubmenu);
-                changeOnlineStatus(false);
-              }}
-            >
-              <span>
-                <FaFileInvoice />
-              </span>
-              <span>Invoices and Payments</span>
-              <span className="ml-auto">
-                {showInvoicesSubmenu ? <FaChevronDown /> : <FaChevronRight />}
-              </span>
-            </li>
-
-            {showInvoicesSubmenu && (
-              <div className="ml-4 mt-1 space-y-1">
-                {checkAccess(auth, "invoice")?.isAllowed && (
-                  <NavLink
-                    to="invoices"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>
-                        <FaFileInvoice />
-                      </span>
-                      <span>Invoices</span>
-                    </li>
-                  </NavLink>
-                )}
-
-                {checkAccess(auth, "proforma-invoice")?.isAllowed && (
-                  <NavLink
-                    to="proforma-invoices"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>
-                        <FaFileLines />
-                      </span>
-                      <span>Proforma Invoices</span>
-                    </li>
-                  </NavLink>
-                )}
-
-                {checkAccess(auth, "payment")?.isAllowed && (
-                  <NavLink
-                    to="payments"
-                    className={({ isActive }) =>
-                      isActive ? "text-[#1640d6]" : "text-black"
-                    }
-                    onClick={() => {
-                      isMenuOpen && setIsMenuOpen(false);
-                    }}
-                  >
-                    <li
-                      className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
-                      onClick={() => changeOnlineStatus(false)}
-                    >
-                      <span>
-                        <MdOutlinePayment />
-                      </span>
-                      <span>Payments</span>
-                    </li>
-                  </NavLink>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+              <NavLink
+                to="payments"
+                className={({ isActive }) =>
+                  isActive ? "text-[#1640d6]" : "text-black"
+                }
+                onClick={() => {
+                  isMenuOpen && setIsMenuOpen(false);
+                }}
+              >
+                <li
+                  className="flex gap-x-2 pl-3 pr-9 py-2 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[14px]"
+                  onClick={() => changeOnlineStatus(false)}
+                >
+                  <span>
+                    <MdOutlinePayment />
+                  </span>
+                  <span>Payments</span>
+                  {!checkAccess(auth, "payment")?.isAllowed && (
+                    <span className="mt-1">
+                      <FaLock size="12" color="#b1b1b1" />
+                    </span>
+                  )}
+                </li>
+              </NavLink>
+            </div>
+          )}
+        </div>
 
         <NavLink
           to="renewals"
@@ -625,7 +663,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             onClick={() => changeOnlineStatus(false)}
           >
             <span>
-              <MdAutorenew size={23} />
+              <MdAutorenew />
             </span>
             <span>Renewals</span>
 
@@ -636,9 +674,9 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             )}
           </li>
         </NavLink>
-        
-       
+        {/* Products Dropdown */}
 
+        {/* Invoices and Payments Dropdown */}
 
         {/* <NavLink
           to="expenses"
@@ -690,27 +728,30 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           </li>
         </NavLink> */}
 
-        {checkAccess(auth, "report")?.isAllowed && (
-          <NavLink
-            to="report"
-            className={({ isActive }) =>
-              isActive ? "text-[#1640d6]" : "text-black"
-            }
-            onClick={() => {
-              isMenuOpen && setIsMenuOpen(false);
-            }}
+        <NavLink
+          to="report"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
           >
-            <li
-              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-              onClick={() => changeOnlineStatus(false)}
-            >
-              <span>
-                <TbReport />
+            <span>
+              <TbReport />
+            </span>
+            <span>Report</span>
+            {!checkAccess(auth, "report")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
               </span>
-              <span>Report</span>
-            </li>
-          </NavLink>
-        )}
+            )}
+          </li>
+        </NavLink>
 
         {/* <NavLink
             to="support"
@@ -775,973 +816,126 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
         </NavLink> */}
 
         {checkAccess(auth, "databank")?.isAllowed && (
-          <>
-            <NavLink
-              to="databank"
-              className={({ isActive }) =>
-                isActive ? "text-[#1640d6]" : "text-black"
-              }
-              onClick={() => {
-                isMenuOpen && setIsMenuOpen(false);
-              }}
+          <NavLink
+            to="databank"
+            className={({ isActive }) =>
+              isActive ? "text-[#1640d6]" : "text-black"
+            }
+            onClick={() => {
+              isMenuOpen && setIsMenuOpen(false);
+            }}
+          >
+            <li
+              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+              onClick={() => changeOnlineStatus(false)}
             >
-              <li
-                className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                onClick={() => changeOnlineStatus(false)}
-              >
-                <span>
-                  <FaDatabase />
-                </span>
-                <span>Archive</span>
-              </li>
-            </NavLink>
-
-            <NavLink
-              to="document-center"
-              className={({ isActive }) =>
-                isActive ? "text-[#1640d6]" : "text-black"
-              }
-              onClick={() => {
-                isMenuOpen && setIsMenuOpen(false);
-              }}
-            >
-              <li
-                className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                onClick={() => changeOnlineStatus(false)}
-              >
-                <span>
-                  <GrDocumentStore />
-                </span>
-                <span>Media Center</span>
-              </li>
-            </NavLink>
-          </>
+              <span>
+                <FaDatabase />
+              </span>
+              <span>Archive</span>
+            </li>
+          </NavLink>
         )}
 
-        {checkAccess(auth, "website configuration")?.isAllowed && (
-          <>
-            <NavLink
-              to="settings"
-              className={({ isActive }) =>
-                isActive ? "text-[#1640d6]" : "text-black"
-              }
-              onClick={() => {
-                isMenuOpen && setIsMenuOpen(false);
-              }}
+        {checkAccess(auth, "databank")?.isAllowed && (
+          <NavLink
+            to="document-center"
+            className={({ isActive }) =>
+              isActive ? "text-[#1640d6]" : "text-black"
+            }
+            onClick={() => {
+              isMenuOpen && setIsMenuOpen(false);
+            }}
+          >
+            <li
+              className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+              onClick={() => changeOnlineStatus(false)}
             >
-              <li
-                className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                onClick={() => changeOnlineStatus(false)}
-              >
-                <span>
-                  <IoSettingsSharp />
-                </span>
-                <span>Settings</span>
-              </li>
-            </NavLink>
-
-            <NavLink
-              to="website-configuration"
-              className={({ isActive }) =>
-                isActive ? "text-[#1640d6]" : "text-black"
-              }
-              onClick={() => {
-                isMenuOpen && setIsMenuOpen(false);
-              }}
-            >
-              <li
-                className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-                onClick={() => changeOnlineStatus(false)}
-              >
-                <span>
-                  <GrConfigure />
-                </span>
-                <span>CRM Configuration</span>
-              </li>
-            </NavLink>
-          </>
+              <span>
+                <GrDocumentStore />
+              </span>
+              <span>Media Center</span>
+            </li>
+          </NavLink>
         )}
+
+        {/* <NavLink
+          to="data-export"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <FaDatabase />
+            </span>
+            <span>Data Export</span>
+            {!checkAccess(auth, "data-export")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink> */}
+
+        <NavLink
+          to="settings"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <IoSettingsSharp />
+            </span>
+            <span>Settings</span>
+            {!checkAccess(auth, "website configuration")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
+
+        <NavLink
+          to="website-configuration"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <GrConfigure />
+            </span>
+            <span>Integrations</span>
+            {!checkAccess(auth, "website configuration")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
       </ul>
     </div>
   );
 };
 
 export default SideNavigation;
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdLocalOffer />
-
-//             </span>
-
-//             <span>Offers</span>
-
-//             {!checkAccess(auth, "offer")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="invoices"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <FaFileInvoice />
-
-//             </span>
-
-//             <span>Invoices</span>
-
-//             {!checkAccess(auth, "invoice")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="proforma-invoices"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <FaFileLines />
-
-//             </span>
-
-//             <span>Proforma Invoices</span>
-
-//             {!checkAccess(auth, "proforma-invoice")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="payments"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdOutlinePayment />
-
-//             </span>
-
-//             <span>Payments</span>
-
-//             {!checkAccess(auth, "payment")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="products"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdOutlineProductionQuantityLimits />
-
-//             </span>
-
-//             <span>Products</span>
-
-//             {!checkAccess(auth, "product")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="products-category"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdOutlineCategory />
-
-//             </span>
-
-//             <span>Products Category</span>
-
-//             {!checkAccess(auth, "category")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="expenses"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdAttachMoney />
-
-//             </span>
-
-//             <span>Expenses</span>
-
-//             {!checkAccess(auth, "expense")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="expenses-category"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdOutlineCategory />
-
-//             </span>
-
-//             <span>Expenses Category</span>
-
-//             {!checkAccess(auth, "expense-category")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="report"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <TbReport />
-
-//             </span>
-
-//             <span>Report</span>
-
-//             {!checkAccess(auth, "report")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         {/* <NavLink
-
-//             to="support"
-
-//             className={({ isActive }) =>
-
-//               isActive ? "text-[#1640d6]" : "text-black"
-
-//             }
-
-//             onClick={() => {
-
-//               isMenuOpen && setIsMenuOpen(false);
-
-//             }}
-
-//           >
-
-//             <li className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]">
-
-//               <span>
-
-//                 <MdSupportAgent />
-
-//               </span>
-
-//               <span>Support</span>
-
-//               {!checkAccess(auth, 'support')?.isAllowed && <span className="mt-1"><FaLock size="12" color="#b1b1b1" /></span>}
-
-//             </li>
-
-//           </NavLink> */}
-
-
-
-//         {/* <NavLink
-
-//             to="assigned-support"
-
-//             className={({ isActive }) =>
-
-//               isActive ? "text-[#1640d6]" : "text-black"
-
-//             }
-
-//             onClick={() => {
-
-//               isMenuOpen && setIsMenuOpen(false);
-
-//             }}
-
-//           >
-
-//             <li className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]">
-
-//               <span>
-
-//                 <MdSupportAgent />
-
-//               </span>
-
-//               <span>Assigned Support</span>
-
-//               {!checkAccess(auth, 'support')?.isAllowed && <span className="mt-1"><FaLock size="12" color="#b1b1b1" /></span>}
-
-//             </li>
-
-//           </NavLink> */}
-
-
-
-//         <NavLink
-
-//           to="emails"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdOutlineMarkEmailRead />
-
-//             </span>
-
-//             <span>Email Database</span>
-
-
-
-//             {!checkAccess(auth, "emails")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-//         <NavLink
-
-//           to="renewals"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <MdAutorenew />
-
-//             </span>
-
-//             <span>Renewals</span>
-
-
-
-//             {!checkAccess(auth, "renewals")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-//         <NavLink
-
-//           to="databank"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <FaDatabase />
-
-//             </span>
-
-//             <span>Data Bank</span>
-
-
-
-//             {!checkAccess(auth, "databank")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="document-center"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <GrDocumentStore />
-
-//             </span>
-
-//             <span>Document Center</span>
-
-
-
-//             {!checkAccess(auth, "databank")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="data-export"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <FaDatabase />
-
-//             </span>
-
-//             <span>Data Export</span>
-
-//             {!checkAccess(auth, "data-export")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="settings"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <IoSettingsSharp />
-
-//             </span>
-
-//             <span>Settings</span>
-
-//             {!checkAccess(auth, "website configuration")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-
-
-//         <NavLink
-
-//           to="website-configuration"
-
-//           className={({ isActive }) =>
-
-//             isActive ? "text-[#1640d6]" : "text-black"
-
-//           }
-
-//           onClick={() => {
-
-//             isMenuOpen && setIsMenuOpen(false);
-
-//           }}
-
-//         >
-
-//           <li
-
-//             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-
-//             onClick={() => changeOnlineStatus(false)}
-
-//           >
-
-//             <span>
-
-//               <GrConfigure />
-
-//             </span>
-
-//             <span>CRM Configuration</span>
-
-//             {!checkAccess(auth, "website configuration")?.isAllowed && (
-
-//               <span className="mt-1">
-
-//                 <FaLock size="12" color="#b1b1b1" />
-
-//               </span>
-
-//             )}
-
-//           </li>
-
-//         </NavLink>
-
-//       </ul>
-
-//     </div>
-
-//   );
-
-// };
-
-
-
-// export default SideNavigation;
-
-

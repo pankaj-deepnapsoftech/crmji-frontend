@@ -358,9 +358,6 @@ const AssignedLeads = () => {
     }
   }, [searchKey]);
 
-
-
-
   return (
     <>
       {!isAllowed && (
@@ -550,7 +547,9 @@ const AssignedLeads = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    No data found.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (

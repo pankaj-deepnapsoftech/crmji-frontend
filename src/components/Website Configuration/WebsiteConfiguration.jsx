@@ -276,7 +276,7 @@ const WebsiteConfiguration = () => {
             {/* <span className="mr-2">
               <MdArrowBack />
             </span> */}
-            CRM Configuration
+            Integrations
           </div>
 
           <div className="mt-5">

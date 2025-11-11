@@ -182,12 +182,12 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
     >
       <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
         <BiX onClick={closeDrawerHandler} size="26px" />
-        Employee
+        User
       </h1>
 
       <div className="mt-8 px-5">
         <h2 className="text-2xl font-bold py-5 text-center mb-6 border-y bg-blue-200 rounded-lg shadow-md">
-          Edit Employee Access
+          Edit User Access
         </h2>
 
         {isLoading && <Loading />}

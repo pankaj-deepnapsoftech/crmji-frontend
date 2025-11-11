@@ -173,7 +173,7 @@ function App() {
         </Routes>
 
         {/* Floating Chat Widget - Shows on all pages when user is logged in */}
-        {user?.id && <FloatingChat />}
+        {/* {user?.id && <FloatingChat />} */}
       </BrowserRouter>
     </div>
   );

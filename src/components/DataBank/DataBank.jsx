@@ -133,8 +133,6 @@ const columns = [
     Header: "Lead Category",
     accessor: "leadCategory",
   },
-
-
 ];
 
 const DataBank = () => {
@@ -199,7 +197,7 @@ const DataBank = () => {
     showBulkAssignDrawerIsOpened,
   } = useSelector((state) => state.misc);
 
-  const { role, ...auth } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const { isAllowed, msg } = checkAccess(auth, "databank");
 
   const statusStyles = {
@@ -299,10 +297,16 @@ const DataBank = () => {
       }
 
       // Filter leads where dataBank is true and merge archived Individuals/Companies from response
-      const dataBankLeads = (data.leads || []).filter((lead) => lead.dataBank === true);
+      const dataBankLeads = (data.leads || []).filter(
+        (lead) => lead.dataBank === true
+      );
       const archivedIndividuals = data.archivedIndividuals || [];
       const archivedCompanies = data.archivedCompanies || [];
-      const merged = [...dataBankLeads, ...archivedIndividuals, ...archivedCompanies];
+      const merged = [
+        ...dataBankLeads,
+        ...archivedIndividuals,
+        ...archivedCompanies,
+      ];
       setData(merged);
       setFilteredData(merged);
       setLeadLength(merged.length);
@@ -616,7 +620,9 @@ const DataBank = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    No data found.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (

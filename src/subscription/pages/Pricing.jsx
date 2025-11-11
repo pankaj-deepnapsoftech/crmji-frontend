@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useCookies } from "react-cookie";
 
 export const RequsetSupport = async (name, mobile, employeeCount) => {
-  const description = `I want to know about One Time Payment Plan of CRM Software for ${employeeCount} employees`;
+  const description = `I want to know about One Time Payment Plan of CRM Software for ${employeeCount} User`;
   const purpose = "purchase";
   const dataTosend = { description, purpose, name, mobile };
   try {
@@ -86,7 +86,9 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
             {/*  */}
             <div className="bg-white border trial-plan min-w-[25rem]">
               <div className="px-5 py-10 text-white bg-gray-400">
-                <div className="subscription-font text-3xl font-medium text-center">FREE</div>
+                <div className="subscription-font text-3xl font-medium text-center">
+                  FREE
+                </div>
                 <div className="subscription-font text-lg font-light text-center">
                   Free Trial for 7 days
                 </div>
@@ -94,7 +96,7 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
               <ul className="leading-8 font-light py-5 px-5">
                 <li className="subscription-font flex gap-2 items-center">
                   <FcCheckmark />
-                  Employee Access Management
+                  User Access Management
                 </li>
                 <li className="subscription-font subscription-font flex gap-2 items-center">
                   <FcCheckmark />
@@ -144,7 +146,9 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
               <div className="px-2 py-2">
                 {id ? (
                   <button
-                    onClick={() => activateTrialHandler(cookies?.organization_access_token)}
+                    onClick={() =>
+                      activateTrialHandler(cookies?.organization_access_token)
+                    }
                     className="subscription-font w-full py-2 border border-gray-400 rounded-md text-lg bg-gray-400 text-white hover:bg-transparent ease-in-out duration-300 hover:text-gray-400 disabled:cursor-not-allowed"
                     disabled={account?.trial_started}
                   >
@@ -165,7 +169,9 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
             {/*  */}
             <div className="bg-white border economical-plan min-w-[25rem]">
               <div className="px-5 py-10 text-white bg-[#ff4c4c]">
-                <div className="subscription-font text-3xl font-medium text-center">₹ 1000/-</div>
+                <div className="subscription-font text-3xl font-medium text-center">
+                  ₹ 1000/-
+                </div>
                 <div className="subscription-font text-lg font-light text-center">
                   Per User Billed Monthly
                 </div>
@@ -173,7 +179,7 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
               <ul className="leading-8 font-light py-5 px-5">
                 <li className="subscription-font flex gap-2 items-center">
                   <FcCheckmark />
-                  Employee Access Management
+                  User Access Management
                 </li>
                 <li className="subscription-font flex gap-2 items-center">
                   <FcCheckmark />
@@ -246,6 +252,7 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
                 )}
               </div>
             </div>
+
             <div className="bg-white border best-plan min-w-[25rem]">
               <div className="px-5 py-10 text-white bg-[#428d1b]">
                 <div className="subscription-font text-3xl font-medium text-center">
@@ -258,7 +265,7 @@ const Pricing = ({ showAuthenticationMenu, setShowAuthenticationMenu }) => {
               <ul className="leading-8 font-light py-5 px-5">
                 <li className="subscription-font flex gap-2 items-center">
                   <FcCheckmark />
-                  Employee Access Management
+                  User Access Management
                 </li>
                 <li className="subscription-font flex gap-2 items-center">
                   <FcCheckmark />

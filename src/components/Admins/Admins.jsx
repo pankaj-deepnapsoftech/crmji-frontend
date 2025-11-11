@@ -55,6 +55,7 @@ import AdminDeleteAlert from "../ui/AdminDeleteAlert";
 import { checkAccess } from "../../utils/checkAccess";
 import { Link } from "react-router-dom";
 import EmployeeDrawer from "../ui/Drawers/Add Drawers/EmployeeDrawer";
+import { BiCard, BiTable } from "react-icons/bi";
 
 const columns = [
   {
@@ -65,19 +66,20 @@ const columns = [
     Header: "User ID",
     accessor: "employeeId",
     Cell: ({ row }) => {
-      // Extract the number part from the original employeeId (last 3 digits)
-      const originalId = row.original.employeeId || "";
-      const numberPart = originalId.slice(-3) || "001";
-
-      return `UI${numberPart}`;
+      // Display employeeId directly (already in UI001, UI002 format from backend)
+      return row.original.employeeId || "N/A";
     },
+  },
+  {
+    Header: "Designation",
+    accessor: "designation",
   },
   {
     Header: "Phone",
     accessor: "phone",
   },
   {
-    Header: "Verification Status",
+    Header: "Verification ",
     accessor: "verified",
   },
 ];
@@ -89,6 +91,7 @@ const Admins = () => {
   const [dataId, setDataId] = useState();
   const [loading, setLoading] = useState(true);
   const [searchKey, setSearchKey] = useState("");
+  const [viewMode, setViewMode] = useState("table"); // "table" or "card"
 
   const [deleteEmployeeSelectedId, setDeleteEmployeeSelectedId] = useState();
 
@@ -96,7 +99,7 @@ const Admins = () => {
   const cancelRef = useRef();
 
   const dispatch = useDispatch();
-  const { role, ...auth } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const { isAllowed, msg } = checkAccess(auth, "admin");
 
   const {
@@ -185,7 +188,8 @@ const Admins = () => {
           d?.name?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.employeeId?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
-          d?.email?.toLowerCase().includes(searchKey.toLowerCase())
+          d?.email?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.designation?.toLowerCase().includes(searchKey.toLowerCase())
       );
       setFilteredData(searchedData);
     } else {
@@ -245,7 +249,7 @@ const Admins = () => {
                 {/* <span className="mr-2">
                   <MdArrowBack />
                 </span> */}
-                Users List
+                User List
               </div>
 
               <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
@@ -288,6 +292,31 @@ const Admins = () => {
                   <option value={100000}>All</option>
                 </Select>
               </div>
+            </div>
+
+            <div className="flex justify-end gap-x-2 mb-4">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "table"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Table View"
+              >
+                <BiTable size={20} />
+              </button>
+              <button
+                onClick={() => setViewMode("card")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "card"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Card View"
+              >
+                <BiCard size={20} />
+              </button>
             </div>
 
             <div>
@@ -334,152 +363,266 @@ const Admins = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    No data found.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    className="shadow-lg rounded-lg bg-white"
-                  >
-                    <Table variant="striped" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-lg font-semibold text-gray-800 sticky top-0 z-10">
-                        {headerGroups.map((hg) => (
-                          <Tr
-                            {...hg.getHeaderGroupProps()}
-                            className="shadow-md"
-                          >
-                            {hg.headers.map((column) => (
-                              <Th
-                                className={`
-                                text-transform: capitalize
-                                font-size: 15px
-                                font-weight: 700
-                                border-b-2 border-gray-300
-                                p-3
-                                text-center
-                                bg-blue-400
-                              `}
-                                borderLeft="1px solid #d7d7d7"
-                                borderRight="1px solid #d7d7d7"
-                                {...column.getHeaderProps(
-                                  column.getSortByToggleProps()
-                                )}
+                  {viewMode === "table" ? (
+                    // Table View
+                    <>
+                      <TableContainer
+                        maxHeight="600px"
+                        overflowY="auto"
+                        className="shadow-lg rounded-lg bg-white"
+                      >
+                        <Table variant="striped" {...getTableProps()}>
+                          <Thead className="bg-blue-400 text-lg font-semibold text-gray-800 sticky top-0 z-10">
+                            {headerGroups.map((hg) => (
+                              <Tr
+                                {...hg.getHeaderGroupProps()}
+                                className="shadow-md"
                               >
-                                <div className="flex items-center justify-center text-white">
-                                  {column.render("Header")}
-                                  {column.isSorted && (
-                                    <span className="ml-1 text-xs">
-                                      {column.isSortedDesc ? (
-                                        <FaCaretDown />
-                                      ) : (
-                                        <FaCaretUp />
+                                {hg.headers.map((column) => (
+                                  <Th
+                                    className={`
+                                    text-transform: capitalize
+                                    font-size: 15px
+                                    font-weight: 700
+                                    border-b-2 border-gray-300
+                                    p-3
+                                    text-center
+                                    bg-blue-400
+                                  `}
+                                    borderLeft="1px solid #d7d7d7"
+                                    borderRight="1px solid #d7d7d7"
+                                    {...column.getHeaderProps(
+                                      column.getSortByToggleProps()
+                                    )}
+                                  >
+                                    <div className="flex items-center justify-center text-white">
+                                      {column.render("Header")}
+                                      {column.isSorted && (
+                                        <span className="ml-1 text-xs">
+                                          {column.isSortedDesc ? (
+                                            <FaCaretDown />
+                                          ) : (
+                                            <FaCaretUp />
+                                          )}
+                                        </span>
                                       )}
-                                    </span>
-                                  )}
-                                </div>
-                              </Th>
+                                    </div>
+                                  </Th>
+                                ))}
+                                <Th className="p-3 text-center bg-blue-400 text-white sticky top-0 z-10">
+                                  <p className="text-white">Actions</p>
+                                </Th>
+                              </Tr>
                             ))}
-                            <Th className="p-3 text-center bg-blue-400 text-white sticky top-0 z-10">
-                              <p className="text-white">Actions</p>
-                            </Th>
-                          </Tr>
-                        ))}
-                      </Thead>
+                          </Thead>
 
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
-                          return (
-                            <Tr
-                              className="hover:bg-gray-100 hover:cursor-pointer text-base text-gray-700 transition duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => (
-                                <Td
-                                  className={`
-                  ${
-                    cell.column.id === "name" ? "sticky top-0 left-[-2px] " : ""
-                  }
-                  p-3 text-center
-                  border-b border-gray-200
-                `}
-                                  {...cell.getCellProps()}
+                          <Tbody {...getTableBodyProps()}>
+                            {page.map((row) => {
+                              prepareRow(row);
+                              return (
+                                <Tr
+                                  className="hover:bg-gray-100 hover:cursor-pointer text-base text-gray-700 transition duration-300 ease-in-out"
+                                  {...row.getRowProps()}
                                 >
-                                  {cell.column.id !== "verified" &&
-                                    cell.column.id !== "createdAt" &&
-                                    cell.render("Cell")}
-                                  {cell.column.id === "verified" && (
-                                    <span
-                                      className={`text-sm rounded-md px-3 py-1 ${
-                                        row.original.verified
-                                          ? "bg-green-500 text-white"
-                                          : "bg-red-500 text-white"
-                                      }`}
+                                  {row.cells.map((cell) => (
+                                    <Td
+                                      className={`
+                      ${
+                        cell.column.id === "name"
+                          ? "sticky top-0 left-[-2px] "
+                          : ""
+                      }
+                      p-3 text-center
+                      border-b border-gray-200
+                    `}
+                                      {...cell.getCellProps()}
                                     >
-                                      {row.original.verified
-                                        ? "Verified"
-                                        : "Not Verified"}
-                                    </span>
-                                  )}
-                                  {cell.column.id === "createdAt" && (
-                                    <span>
-                                      {moment(row.original.createdAt).format(
-                                        "DD/MM/YYYY"
+                                      {cell.column.id !== "verified" &&
+                                        cell.column.id !== "createdAt" &&
+                                        cell.render("Cell")}
+                                      {cell.column.id === "verified" && (
+                                        <span
+                                          className={`text-sm rounded-md px-3 py-1 ${
+                                            row.original.verified
+                                              ? "bg-green-500 text-white"
+                                              : "bg-red-500 text-white"
+                                          }`}
+                                        >
+                                          {row.original.verified
+                                            ? "Verified"
+                                            : "Not Verified"}
+                                        </span>
                                       )}
-                                    </span>
-                                  )}
-                                </Td>
-                              ))}
-                              <Td className="p-3 text-center">
-                                <Menu>
-                                  <MenuButton
-                                    as={Button}
-                                    variant="ghost"
-                                    size="sm"
-                                    rightIcon={<MdMoreVert />}
-                                    className="hover:bg-gray-100"
-                                  ></MenuButton>
-                                  <MenuList>
-                                    <MenuItem
-                                      icon={<MdOutlineVisibility />}
-                                      onClick={() =>
-                                        showDetailsHandler(row.original?._id)
-                                      }
-                                    >
-                                      View Details
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdEdit />}
-                                      onClick={() =>
-                                        editHandler(row.original?._id)
-                                      }
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdDeleteOutline />}
-                                      onClick={() => {
-                                        onOpen();
-                                        setDeleteEmployeeSelectedId(
-                                          row.original?._id
-                                        );
-                                      }}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </MenuList>
-                                </Menu>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                                      {cell.column.id === "createdAt" && (
+                                        <span>
+                                          {moment(
+                                            row.original.createdAt
+                                          ).format("DD/MM/YYYY")}
+                                        </span>
+                                      )}
+                                    </Td>
+                                  ))}
+                                  <Td className="p-3 text-center">
+                                    <Menu>
+                                      <MenuButton
+                                        as={Button}
+                                        variant="ghost"
+                                        size="sm"
+                                        rightIcon={<MdMoreVert />}
+                                        className="hover:bg-gray-100"
+                                      ></MenuButton>
+                                      <MenuList>
+                                        <MenuItem
+                                          icon={<MdOutlineVisibility />}
+                                          onClick={() =>
+                                            showDetailsHandler(
+                                              row.original?._id
+                                            )
+                                          }
+                                        >
+                                          View Details
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdEdit />}
+                                          onClick={() =>
+                                            editHandler(row.original?._id)
+                                          }
+                                        >
+                                          Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdDeleteOutline />}
+                                          onClick={() => {
+                                            onOpen();
+                                            setDeleteEmployeeSelectedId(
+                                              row.original?._id
+                                            );
+                                          }}
+                                        >
+                                          Delete
+                                        </MenuItem>
+                                      </MenuList>
+                                    </Menu>
+                                  </Td>
+                                </Tr>
+                              );
+                            })}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
+                    </>
+                  ) : (
+                    // Card View
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {page.map((row) => {
+                        prepareRow(row);
+                        const user = row.original;
+                        const userId = user.employeeId || "N/A";
 
+                        return (
+                          <div
+                            key={user._id}
+                            className="border rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
+                          >
+                            <div className="flex justify-between items-center mb-3">
+                              <div className="bg-yellow-500 text-yellow-800 text-center rounded-md px-3 py-1 text-sm font-semibold">
+                                {userId}
+                              </div>
+                              <div
+                                className={`text-center rounded-md px-3 py-1 text-sm font-semibold ${
+                                  user.verified
+                                    ? "bg-green-500 text-white"
+                                    : "bg-red-500 text-white"
+                                }`}
+                              >
+                                {user.verified ? "Verified" : "Not Verified"}
+                              </div>
+                            </div>
+
+                            {/* User Information */}
+                            <div className="space-y-2 mb-4">
+                              <div className="font-semibold text-lg text-gray-800">
+                                {user.name}
+                              </div>
+                              <div className="text-gray-600">
+                                <span className="font-medium">
+                                  Designation:
+                                </span>{" "}
+                                {user.designation || "N/A"}
+                              </div>
+                              <div className="text-gray-600">
+                                <span className="font-medium">Phone:</span>{" "}
+                                {user.phone || "N/A"}
+                              </div>
+                              <div className="text-gray-600">
+                                <span className="font-medium">Email:</span>{" "}
+                                {user.email || "N/A"}
+                              </div>
+                              <div className="text-gray-600">
+                                <span className="font-medium">
+                                  Permissions:
+                                </span>{" "}
+                                {user.permissions?.length > 0
+                                  ? user.permissions.join(", ")
+                                  : "N/A"}
+                              </div>
+                              {user.createdAt && (
+                                <div className="bg-blue-100 text-blue-800 text-center rounded-md py-1 text-sm">
+                                  <span className="font-medium">
+                                    Joining Date:
+                                  </span>{" "}
+                                  {moment(user.createdAt).format("DD/MM/YYYY")}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-center space-x-2 pt-3 border-t border-gray-200">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="blue"
+                                onClick={() => showDetailsHandler(user._id)}
+                                leftIcon={<MdOutlineVisibility />}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="orange"
+                                onClick={() => editHandler(user._id)}
+                                leftIcon={<MdEdit />}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="red"
+                                onClick={() => {
+                                  onOpen();
+                                  setDeleteEmployeeSelectedId(user._id);
+                                }}
+                                leftIcon={<MdDeleteOutline />}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Pagination */}
                   <div className="w-[max-content] m-auto my-7">
                     <button
                       className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"

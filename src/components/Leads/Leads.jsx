@@ -125,6 +125,74 @@ const Leads = () => {
 
   const [isAllSelected, setIsAllSelected] = useState(false);
 
+  // canonical list of selected lead ids and handlers must be defined before columns
+  const [selectedIds, setSelectedIds] = useState([]); // canonical list of selected lead ids
+  const selectOneHandler = (e, id) => {
+    if (e.target.checked) {
+      setSelectedIds((prev) => {
+        const updated = [...prev, id];
+        // If all rows on current page are selected, mark header as checked
+        const currentPageIds = filteredData
+          .slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
+          .map((d) => d._id);
+        const allSelected = currentPageIds.every((pid) =>
+          updated.includes(pid)
+        );
+        setIsAllSelected(allSelected);
+        return updated;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const updated = prev.filter((pid) => pid !== id);
+        setIsAllSelected(false); // unchecking any box resets the header checkbox
+        return updated;
+      });
+    }
+  };
+
+  const selectAllHandler = () => {
+    const select = !isAllSelected;
+    setIsAllSelected(select);
+
+    const currentPageData = filteredData.slice(
+      pageIndex * pageSize,
+      pageIndex * pageSize + pageSize
+    );
+
+    if (select) {
+      const ids = currentPageData.map((d) => d._id);
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...ids])));
+    } else {
+      // remove only current page's IDs from selectedIds
+      const pageIds = currentPageData.map((d) => d._id);
+      setSelectedIds((prev) => prev.filter((id) => !pageIds.includes(id)));
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedIds || selectedIds.length === 0) {
+      setSelectedUsers([]);
+      setBulkSMSMobiles([]);
+      setBulkName([]);
+      setDataInfo([]);
+      return;
+    }
+
+    const selectedRows = filteredData.filter((d) =>
+      selectedIds.includes(d._id)
+    );
+
+    const users = selectedRows.map((d) => ({
+      id: d._id,
+      phone: d.phone,
+      name: d.name,
+    }));
+    setSelectedUsers(users);
+    setBulkSMSMobiles(selectedRows.map((d) => d.phone));
+    setBulkName(selectedRows.map((d) => d.name));
+    setDataInfo(selectedRows.map((d) => d._id));
+  }, [selectedIds, filteredData]);
+
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -144,18 +212,32 @@ const Leads = () => {
   const [templateLang, setTemplateLang] = useState("en");
   const [bulkName, setBulkName] = useState([]);
 
-  const { isOpen: isTemplateModalOpen, onOpen: openTemplateModal, onClose: closeTemplateModal } = useDisclosure();
-  const [entityId, setEntityId] = useState('1001558230000012624');
+  const {
+    isOpen: isTemplateModalOpen,
+    onOpen: openTemplateModal,
+    onClose: closeTemplateModal,
+  } = useDisclosure();
+  const [entityId, setEntityId] = useState("1001558230000012624");
 
-  const [templateId, setTemplateId] = useState('');
-  const [templateText, setTemplateText] = useState('');
+  const [templateId, setTemplateId] = useState("");
+  const [templateText, setTemplateText] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false); // For loading state on save
 
   // Table columns: hide Created On, Created By, Assigned, Source, Follow-up Date/Reason, PRC QT from main table.
   // Add a View button to open details drawer where these fields are shown.
   const columns = useMemo(
     () => [
-      { Header: "", accessor: "select" },
+      {
+        Header: () => (
+          <input
+            type="checkbox"
+            checked={isAllSelected}
+            onChange={selectAllHandler}
+            className="cursor-pointer"
+          />
+        ),
+        accessor: "select",
+      },
       { Header: "Type", accessor: "leadtype" },
       { Header: "Name", accessor: "name" },
       { Header: "Lead Category", accessor: "leadCategory" },
@@ -179,7 +261,7 @@ const Leads = () => {
         ),
       },
     ],
-    [dispatch]
+    [dispatch, isAllSelected]
   );
 
   const {
@@ -342,7 +424,6 @@ const Leads = () => {
     }
   };
 
-
   const fetchLeadSummary = async () => {
     setData([]);
     setFilteredData([]);
@@ -441,71 +522,7 @@ const Leads = () => {
     dispatch(openSendSMSDrawer());
   };
 
-  const selectAllHandler = () => {
-    const select = !isAllSelected;
-    setIsAllSelected(select);
-    const rows = Array.from(document.getElementsByName("select")).slice(
-      pageIndex * pageSize,
-      pageIndex * pageSize + pageSize
-    );
-    rows.forEach((e) => {
-      e.checked = select;
-    });
-
-    if (select) {
-      const reqData = filteredData.slice(
-        pageIndex * pageSize,
-        pageIndex * pageSize + pageSize
-      );
-      const bulkSMSMobilesArr = reqData.map((data) => data.phone);
-      setBulkSMSMobiles((prev) => [...prev, ...bulkSMSMobilesArr]);
-
-      const bulkSMSNameArr = reqData.map((data) => data.name);
-      setBulkName((prev) => [...prev, ...bulkSMSNameArr]);
-
-      const selectedUsersArr = reqData.map(({ phone, name }) => ({
-        phone,
-        name,
-      }));
-
-      setSelectedUsers((prevSelected) => [
-        ...prevSelected,
-        ...selectedUsersArr,
-      ]);
-    } else {
-      const reqData = filteredData.slice(
-        pageIndex * pageSize,
-        pageIndex * pageSize + pageSize
-      );
-      const deselectedPhones = reqData.map((data) => data.phone);
-      setBulkSMSMobiles((prev) =>
-        prev.filter((mobile) => !deselectedPhones.includes(mobile))
-      );
-      setBulkName((prev) =>
-        prev.filter(
-          (userName) => !reqData.some((data) => data.name === userName)
-        )
-      );
-
-      setSelectedUsers((prevSelected) =>
-        prevSelected.filter((user) => !deselectedPhones.includes(user.phone))
-      );
-    }
-  };
-
-  const selectOneHandler = (e, phone, name) => {
-    if (e.target.checked) {
-      setBulkSMSMobiles((prev) => [...prev, phone]);
-      setSelectedUsers((prevSelected) => [...prevSelected, { phone, name }]);
-      setBulkName((prev) => [...prev, name]);
-    } else {
-      setBulkSMSMobiles((prev) => prev.filter((mobile) => mobile !== phone));
-      setBulkName((prev) => prev.filter((userName) => userName !== name));
-      setSelectedUsers((prevSelected) =>
-        prevSelected.filter((user) => user.phone !== phone)
-      );
-    }
-  };
+  const [showBulkButtons, setShowBulkButtons] = useState(false);
 
   const bulkAssignHandler = async (e) => {
     const rows = document.getElementsByName("select");
@@ -1080,13 +1097,16 @@ const Leads = () => {
   };
   const handleSaveTemplate = async () => {
     if (!templateId || isNaN(templateId) || !templateText) {
-      toast.error("TemplateID must be numeric and both TemplateID and Text are required.");
+      toast.error(
+        "TemplateID must be numeric and both TemplateID and Text are required."
+      );
       return;
     }
 
     setSavingTemplate(true);
     try {
-      const response = await fetch(baseURL + "sms/template", { // Adjust endpoint to your actual backend route for adding templates
+      const response = await fetch(baseURL + "sms/template", {
+        // Adjust endpoint to your actual backend route for adding templates
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1108,10 +1128,10 @@ const Leads = () => {
       toast.success("Template added successfully");
       closeTemplateModal();
       // Reset fields
-      setEntityId('');
-      setTemplateName('');
-      setTemplateId('');
-      setTemplateText('');
+      setEntityId("");
+      setTemplateName("");
+      setTemplateId("");
+      setTemplateText("");
       // Optionally: Fetch and refresh a list of templates if you add a table below the form
     } catch (err) {
       toast.error(err.message);
@@ -1261,191 +1281,192 @@ const Leads = () => {
                 </div>
               </div>
 
-              <div className="mt-2 md:mt-0 flex flex-wrap justify-start gap-y-2 gap-x-3 w-full">
-                {/*  select all handler */}
+              <div className="mt-3 md:mt-0 flex flex-wrap justify-start gap-3 w-full">
+                {/* Add New Lead */}
                 <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 130 }}
-                  onClick={selectAllHandler}
-                  color="#ffffff"
-                  backgroundColor="#1640d6"
-                  borderColor="#1640d6"
-                >
-                  {isAllSelected ? "Unselect All" : "Select All"}
-                </Button>
-                <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 130 }}
-                  onClick={bulkSMSHandler}
-                  rightIcon={<FaSms size={28} />}
-                  color="#ffffff"
-                  backgroundColor="#1640d6"
-                  borderColor="#1640d6"
-                >
-                  Bulk SMS
-                </Button>
-                <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 130 }}
-                  onClick={() => {
-                    bulkAssignHandler();
-                  }}
-                  rightIcon={<MdAssignmentInd size={28} />}
-                  color="#ffffff"
-                  backgroundColor="#1640d6"
-                  borderColor="#1640d6"
-                >
-                  Bulk Assign
-                </Button>
-                {role === "Super Admin" && (
-                  <Button
-                    fontSize={{ base: "12px", md: "14px" }}
-                    paddingX={{ base: "8px", md: "12px" }}
-                    paddingY={{ base: "2px", md: "3px" }}
-                    width={{ base: "100%", md: 150 }}
-                    onClick={() => {
-                      bulkDownloadHandler();
-                    }}
-                    rightIcon={<FaFileCsv size={28} />}
-                    color="#ffffff"
-                    backgroundColor="#1640d6"
-                    borderColor="#1640d6"
-                  >
-                    Bulk Download
-                  </Button>
-                )}
-                <div className="w-full md:w-auto">
-                  <Button
-                    fontSize={{ base: "12px", md: "14px" }}
-                    paddingX={{ base: "8px", md: "12px" }}
-                    paddingY={{ base: "2px", md: "3px" }}
-                    width={{ base: "100%", md: 200 }}
-                    color="white"
-                    backgroundColor="#1640d6"
-                    rightIcon={<FaFileCsv size={28} />}
-                    onClick={() => setToggleBulkUpload((prev) => !prev)}
-                  >
-                    Bulk Upload
-                  </Button>
-                  {toggleBulkUpload && (
-                    <>
-                      <div className="mt-2">
-                        <a href={sampleCSV}>
-                          <Button
-                            fontSize={{ base: "12px", md: "14px" }}
-                            paddingX={{ base: "8px", md: "12px" }}
-                            paddingY={{ base: "2px", md: "3px" }}
-                            width={{ base: "100%", md: 200 }}
-                            color="#1640d6"
-                            borderColor="#1640d6"
-                            variant="outline"
-                          >
-                            Download Sample CSV
-                          </Button>
-                        </a>
-                      </div>
-                      <div className="mt-2">
-                        <form onSubmit={bulkUploadHandler}>
-                          <input
-                            ref={csvRef}
-                            className="mr-1 p-1 rounded-md outline-none border border-[#8B8B8B] w-full md:w-60"
-                            type="file"
-                            accept=".csv"
-                          />
-                          <Button
-                            isDisabled={bulkUploading}
-                            isLoading={bulkUploading}
-                            fontSize={{ base: "12px", md: "14px" }}
-                            paddingX={{ base: "8px", md: "12px" }}
-                            paddingY={{ base: "2px", md: "3px" }}
-                            width={{ base: "100%", md: 100 }}
-                            color="white"
-                            backgroundColor="#1640d6"
-                            type="submit"
-                          >
-                            Upload
-                          </Button>
-                        </form>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 200 }}
-                  onClick={whatsappHandler}
-                  color="white"
-                  rightIcon={<IoLogoWhatsapp size={28} />}
-                  backgroundColor="#1640d6"
-                >
-                  Bulk Whatsapp
-                </Button>
-                <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 200 }}
+                  fontSize={{ base: "13px", md: "14px" }}
+                  px={{ base: "5px", md: "10px" }}
+                  py={{ base: "6px", md: "8px" }}
+                  w={{ base: "100%", md: "auto" }}
+                  colorScheme="blue"
+                  variant="solid"
+                  boxShadow="sm"
+                  _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
                   onClick={addLeadsHandler}
-                  color="white"
-                  backgroundColor="#1640d6"
                 >
                   Add New Lead
                 </Button>
+
+                {/* Bulk buttons (visible only when 2 or more selected) */}
+                {selectedUsers.length >= 2 && (
+                  <>
+                    <Button
+                      fontSize={{ base: "13px", md: "14px" }}
+                      px={{ base: "5px", md: "10px" }}
+                      py={{ base: "6px", md: "8px" }}
+                      w={{ base: "100%", md: "auto" }}
+                      colorScheme="yellow"
+                      variant="solid"
+                      boxShadow="sm"
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "md",
+                      }}
+                      onClick={bulkSMSHandler}
+                    >
+                      Bulk SMS
+                    </Button>
+
+                    <Button
+                      fontSize={{ base: "13px", md: "14px" }}
+                      px={{ base: "5px", md: "10px" }}
+                      py={{ base: "6px", md: "8px" }}
+                      w={{ base: "100%", md: "auto" }}
+                      colorScheme="whatsapp"
+                      variant="solid"
+                      boxShadow="sm"
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "md",
+                      }}
+                      onClick={whatsappHandler}
+                    >
+                      Bulk WhatsApp
+                    </Button>
+
+                    <Button
+                      fontSize={{ base: "13px", md: "14px" }}
+                      px={{ base: "5px", md: "10px" }}
+                      py={{ base: "6px", md: "8px" }}
+                      w={{ base: "100%", md: "auto" }}
+                      colorScheme="orange"
+                      variant="solid"
+                      boxShadow="sm"
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "md",
+                      }}
+                      onClick={bulkAssignHandler}
+                    >
+                      Bulk Assign
+                    </Button>
+
+                    {role === "Super Admin" && (
+                      <Button
+                        fontSize={{ base: "13px", md: "14px" }}
+                        px={{ base: "5px", md: "10px" }}
+                        py={{ base: "6px", md: "8px" }}
+                        w={{ base: "100%", md: "auto" }}
+                        colorScheme="teal"
+                        variant="solid"
+                        boxShadow="sm"
+                        _hover={{
+                          transform: "translateY(-1px)",
+                          boxShadow: "md",
+                        }}
+                        onClick={bulkDownloadHandler}
+                      >
+                        Bulk Download
+                      </Button>
+                    )}
+
+                    {/* Bulk Upload */}
+                    <div className="w-full md:w-auto">
+                      <Button
+                        fontSize={{ base: "13px", md: "14px" }}
+                        px={{ base: "5px", md: "10px" }}
+                        py={{ base: "6px", md: "8px" }}
+                        w={{ base: "100%", md: "auto" }}
+                        colorScheme="cyan"
+                        variant="solid"
+                        boxShadow="sm"
+                        _hover={{
+                          transform: "translateY(-1px)",
+                          boxShadow: "md",
+                        }}
+                        onClick={() => setToggleBulkUpload((prev) => !prev)}
+                      >
+                        Bulk Upload
+                      </Button>
+
+                      {toggleBulkUpload && (
+                        <div className="mt-2 space-y-2">
+                          <a href={sampleCSV}>
+                            <Button
+                              w={{ base: "100%", md: "200px" }}
+                              variant="outline"
+                              colorScheme="blue"
+                              _hover={{ bg: "blue.50" }}
+                            >
+                              Download Sample CSV
+                            </Button>
+                          </a>
+
+                          <form
+                            onSubmit={bulkUploadHandler}
+                            className="flex flex-col gap-2"
+                          >
+                            <input
+                              ref={csvRef}
+                              className="border border-gray-300 rounded-md p-2 text-sm focus:outline-blue-500"
+                              type="file"
+                              accept=".csv"
+                            />
+                            <Button
+                              isDisabled={bulkUploading}
+                              isLoading={bulkUploading}
+                              colorScheme="blue"
+                              type="submit"
+                              boxShadow="sm"
+                            >
+                              Upload
+                            </Button>
+                          </form>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Add to Archive */}
                 <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 200 }}
-                  color="white"
-                  backgroundColor="#1640d6"
+                  fontSize={{ base: "13px", md: "14px" }}
+                  px={{ base: "10px", md: "14px" }}
+                  py={{ base: "6px", md: "8px" }}
+                  w={{ base: "100%", md: "auto" }}
+                  colorScheme="gray"
+                  variant="solid"
+                  boxShadow="sm"
+                  _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
                   onClick={addtoDataBank}
                 >
                   Add to Archived
                 </Button>
+
+                {/* Add SMS Template */}
                 <Button
-                  fontSize={{ base: "12px", md: "14px" }}
-                  paddingX={{ base: "8px", md: "12px" }}
-                  paddingY={{ base: "2px", md: "3px" }}
-                  width={{ base: "100%", md: 150 }}
-                  color="white"
-                  backgroundColor="#1640d6"
+                  fontSize={{ base: "13px", md: "14px" }}
+                  px={{ base: "5px", md: "14px" }}
+                  py={{ base: "6px", md: "8px" }}
+                  w={{ base: "100%", md: "auto" }}
+                  colorScheme="pink"
+                  variant="solid"
+                  boxShadow="sm"
+                  _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
                   onClick={openTemplateModal}
                 >
                   Add SMS Template
                 </Button>
 
-                {/* {role === "Super Admin" && (
-                  <Button
-                    fontSize={{ base: "12px", md: "14px" }}
-                    paddingX={{ base: "8px", md: "12px" }}
-                    paddingY={{ base: "2px", md: "3px" }}
-                    width={{ base: "100%", md: "auto" }}
-                    onClick={() => {
-                      setDeleteAll(true);
-                      confirmDeleteHandler();
-                    }}
-                    color="white"
-                    backgroundColor="#e34949"
-                  >
-                    <MdDelete size={28} />
-                  </Button>
-                )} */}
+                {/* Page size select */}
                 <Select
-                  onChange={(e) => {
-                    const newSize = Number(e.target.value);
-                    setPageSize(newSize);
-                  }}
-                  value={pageSize} // Ensure this is controlled
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  value={pageSize}
                   width="80px"
-                  className="mt-2 md:mt-0"
+                  borderColor="gray.300"
+                  borderRadius="md"
+                  fontSize="14px"
+                  _hover={{ borderColor: "blue.400" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
@@ -1454,20 +1475,19 @@ const Leads = () => {
                   <option value={100000}>All</option>
                 </Select>
 
-                <div className="flex items-center gap-x-3">
+                {/* Date range filters */}
+                <div className="flex items-center gap-2">
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="p-2 border rounded-md"
-                    placeholder="Start Date"
+                    className="p-2 border border-gray-300 rounded-md text-sm focus:border-blue-400 focus:outline-none"
                   />
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="p-2 border rounded-md"
-                    placeholder="End Date"
+                    className="p-2 border border-gray-300 rounded-md text-sm focus:border-blue-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1629,7 +1649,9 @@ const Leads = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    No data found.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
@@ -1661,10 +1683,11 @@ const Leads = () => {
                                 return (
                                   <Th
                                     bg="blue.400"
-                                    className={`${column.id === "name"
-                                      ? "sticky top-0 left-[-2px]"
-                                      : ""
-                                      }`}
+                                    className={`${
+                                      column.id === "name"
+                                        ? "sticky top-0 left-[-2px]"
+                                        : ""
+                                    }`}
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}
@@ -1739,18 +1762,15 @@ const Leads = () => {
                                         name="select"
                                         type="checkbox"
                                         className="cursor-pointer"
+                                        checked={selectedIds.includes(
+                                          cell.row.original._id
+                                        )}
                                         onChange={(e) => {
                                           selectOneHandler(
                                             e,
-                                            cell.row.original.phone,
-                                            cell.row.original.name
+                                            cell.row.original._id
                                           );
-                                          handleSelection(
-                                            e,
-                                            e.target.value,
-                                            cell.row.original.phone,
-                                            cell.row.original.name
-                                          );
+                                          // remove the old handleSelection call — it's redundant now
                                         }}
                                       />
                                     )}
@@ -1758,10 +1778,11 @@ const Leads = () => {
                                     {/* Specific Column Renderings */}
                                     {cell.column.id === "leadtype" && (
                                       <span
-                                        className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
-                                          ? "bg-[#fff0f6] text-[#c41d7f]"
-                                          : "bg-[#e6f4ff] text-[#0958d9]"
-                                          }`}
+                                        className={`text-sm rounded-md px-3 py-1 ${
+                                          row.original.leadtype === "People"
+                                            ? "bg-[#fff0f6] text-[#c41d7f]"
+                                            : "bg-[#e6f4ff] text-[#0958d9]"
+                                        }`}
                                       >
                                         {row.original.leadtype === "People"
                                           ? "Individual"
@@ -1861,15 +1882,12 @@ const Leads = () => {
                               <Td className="flex items-center gap-x-3">
                                 {/* KYC Button */}
 
-                                
                                 {/* This is the KYC Component below commented */}
                                 {/* <FaUserShield size={20}
                                   onClick={() => {
                                     setDataId(row.original?._id);
                                     dispatch(openKYCDrawer());
                                   }} className="flex items-center justify-center text-blue-500" /> */}
-
-
 
                                 {/* Schedule Demo */}
                                 <FaCalendarAlt
@@ -1894,13 +1912,17 @@ const Leads = () => {
                                   <MenuList>
                                     <MenuItem
                                       icon={<MdOutlineVisibility />}
-                                      onClick={() => showDetailsHandler(row.original?._id)}
+                                      onClick={() =>
+                                        showDetailsHandler(row.original?._id)
+                                      }
                                     >
                                       View
                                     </MenuItem>
                                     <MenuItem
                                       icon={<MdEdit />}
-                                      onClick={() => editHandler(row.original?._id)}
+                                      onClick={() =>
+                                        editHandler(row.original?._id)
+                                      }
                                     >
                                       Edit
                                     </MenuItem>
@@ -1916,7 +1938,6 @@ const Leads = () => {
                                   </MenuList>
                                 </Menu>
                               </Td>
-
                             </Tr>
                           );
                         })}
@@ -2051,7 +2072,8 @@ const Leads = () => {
           <ModalCloseButton />
           <ModalBody>
             <Box bg="red.100" color="red.700" p={3} mb={4} borderRadius="md">
-              Create in Nimbus Dashboard first (Manage Templates), get verified, then enter EXACT details here. Use ( #var# ) for placeholders.
+              Create in Nimbus Dashboard first (Manage Templates), get verified,
+              then enter EXACT details here. Use ( #var# ) for placeholders.
             </Box>
 
             <Input
@@ -2070,7 +2092,7 @@ const Leads = () => {
 
             <Input
               placeholder="Template ID (Numeric from Nimbus, e.g., 17071716548492)"
-              type="text"  // String for long IDs
+              type="text" // String for long IDs
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
               mb={4}

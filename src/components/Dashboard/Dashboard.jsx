@@ -709,10 +709,14 @@ const Dashboard = () => {
                 }}
                 className="bg-white p-[18px] rounded-lg shadow-md border"
               >
-                <h3 className="text-lg font-semibold mb-4 text-gray-700">Date Range Filter</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                  Date Range Filter
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <FormControl>
-                    <FormLabel fontWeight="bold" fontSize="sm">From Date</FormLabel>
+                    <FormLabel fontWeight="bold" fontSize="sm">
+                      From Date
+                    </FormLabel>
                     <Input
                       backgroundColor="white"
                       value={startDate}
@@ -723,7 +727,9 @@ const Dashboard = () => {
                     />
                   </FormControl>
                   <FormControl>
-                    <FormLabel fontWeight="bold" fontSize="sm">To Date</FormLabel>
+                    <FormLabel fontWeight="bold" fontSize="sm">
+                      To Date
+                    </FormLabel>
                     <Input
                       backgroundColor="white"
                       value={endDate}
@@ -759,10 +765,14 @@ const Dashboard = () => {
                 }}
                 className="bg-white p-4 rounded-lg shadow-md border"
               >
-                <h3 className="text-lg font-semibold mb-4 text-gray-700">Quick Duration Filter</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                  Quick Duration Filter
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-bold text-sm block mb-2">Duration</label>
+                    <label className="font-bold text-sm block mb-2">
+                      Duration
+                    </label>
                     <Select
                       className="rounded"
                       options={durationOptionsList}
@@ -792,8 +802,10 @@ const Dashboard = () => {
 
           {role === "Super Admin" && (
             <div className="mb-6">
-              <div className="bg-white p-4 rounded-lg shadow-md border">
-                <h1 className="text-lg font-semibold mb-4 text-gray-700">Analyze Employee Performance</h1>
+              <div className="bg-white p-4 rounded-lg shadow-sm border">
+                <h1 className="text-lg font-semibold mb-4 text-gray-700">
+                  Analyze Employee Performance
+                </h1>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -802,13 +814,15 @@ const Dashboard = () => {
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                   <FormControl>
-                    <FormLabel fontWeight="bold" fontSize="sm">Employee Email</FormLabel>
+                    <FormLabel fontWeight="bold" fontSize="sm">
+                      User Email
+                    </FormLabel>
                     <Input
                       backgroundColor="white"
                       value={employeeEmail || ""}
                       onChange={(e) => setEmployeeEmail(e.target.value)}
                       type="email"
-                      placeholder="Type Employee's Email-id"
+                      placeholder="Type User's Email-id"
                       size="sm"
                     />
                   </FormControl>
@@ -837,11 +851,71 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          
+
           <Divider className="my-6" />
 
           {/* Stats Cards Grid */}
-          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+            <Link to="admins">
+              <Cards
+                label="Total User"
+                content={totalEmployees}
+                bg="from-indigo-500 to-purple-500"
+                Icon={RiUserStarLine}
+                iconColor="text-indigo-500"
+              />
+            </Link>
+
+            <Link to="individuals">
+              <Cards
+                label="Total Individuals"
+                content={totalPeople}
+                bg="from-orange-400 to-orange-600"
+                Icon={TbUsersGroup}
+                iconColor="text-orange-700"
+              />
+            </Link>
+
+            <Link to="corporates">
+              <Cards
+                label="Total Corporates"
+                content={totalCompanies}
+                bg="from-green-400 to-green-600"
+                Icon={RiUserStarLine}
+                iconColor="text-green-700"
+              />
+            </Link>
+
+            <Link to="leads">
+              <Cards
+                label="Total Bulk SMS"
+                content={totalSms}
+                bg="from-cyan-500 to-cyan-700"
+                Icon={MdOutlineSms}
+                iconColor="text-cyan-500"
+              />
+            </Link>
+
+            <Link to="leads">
+              <Cards
+                label="Total Whatsapp"
+                content={totalWhatsapp}
+                bg="from-rose-400 to-rose-500"
+                Icon={FaWhatsapp}
+                iconColor="text-rose-500"
+              />
+            </Link>
+
+            <Link to="leads">
+              <Cards
+                label="Total Email"
+                content={totalEmail}
+                bg="from-slate-400 to-slate-500"
+                Icon={AiOutlineMail}
+                iconColor="text-slate-500"
+              />
+            </Link>
+          </div>
 
           {/* Charts and Analytics Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -868,9 +942,6 @@ const Dashboard = () => {
               />
             </div>
           </div>
-
-          
-
         </div>
       )}
     </>

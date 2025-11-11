@@ -58,63 +58,66 @@ const AdminDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
     >
       <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
         <BiX onClick={closeDrawerHandler} size="26px" />
-        Employee
+        User
       </h1>
 
       <div className="mt-8 px-5">
         <h2 className="text-3xl bg-blue-200 font-bold py-5 text-center mb-8 border-y border-gray-200  rounded-md shadow-md">
-          Employee Details
+          User
         </h2>
 
         {isLoading ? (
           <Loading />
         ) : (
-          <div className="bg-gray-50 shadow-lg rounded-lg p-6 space-y-6">
-            <div className="font-bold text-lg text-gray-700">
-              <p>Name</p>
-              <p className="font-normal text-indigo-800">{details?.name}</p>
+            <div className="bg-gray-50 shadow-lg rounded-lg p-6 space-y-6 border border-gray-200">
+              <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
+                <p>Name</p>
+                <p className="font-normal text-indigo-800">{details?.name}</p>
+              </div>
+
+              <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
+                <p> Verification</p>
+                <p className={`font-normal ${details?.verified ? "text-green-600" : "text-red-500"}`}>
+                  {details?.verified ? "Verified" : "Not Verified"}
+                </p>
+              </div>
+
+              <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
+                <p>Designation</p>
+                <p className="font-normal text-indigo-800">{details?.designation}</p>
+              </div>
+
+              <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
+                <p>Phone</p>
+                <p className="font-normal text-indigo-800">{details?.phone}</p>
+              </div>
+
+              <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
+                <p>Email</p>
+                <p className="font-normal text-indigo-800">{details?.email}</p>
+              </div>
+
+              <div className="font-bold text-lg text-gray-700 border-b border-gray-300 pb-2">
+                <p>Joining Date</p>
+                <p className="font-normal text-indigo-800">
+                  {details?.createdAt ? new Date(details.createdAt).toLocaleDateString('en-GB') : 'N/A'}
+                </p>
+              </div>
+
+              <div className="font-bold text-lg text-gray-700">
+                <p>Permissions</p>
+                {details.allowedroutes.length === 0 ? (
+                  <span className="text-gray-500">No permissions granted.</span>
+                ) : (
+                  <ul className="list-disc pl-5 space-y-2">
+                    {details.allowedroutes.map((r, index) => (
+                      <li key={index} className="text-indigo-800">{r}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-            <div className="font-bold text-lg text-gray-700">
-              <p>IsVerified</p>
-              <p className={`font-normal ${details?.verified ? "text-green-600" : "text-red-500"}`}>
-                {details?.verified ? "Verified" : "Not Verified"}
-              </p>
-            </div>
-            <div className="font-bold text-lg text-gray-700">
-              <p>Designation</p>
-              <p className="font-normal text-indigo-800">
-                {details?.designation}
-              </p>
-            </div>
-            <div className="font-bold text-lg text-gray-700">
-              <p>Phone</p>
-              <p className="font-normal text-indigo-800">{details?.phone}</p>
-            </div>
-            <div className="font-bold text-lg text-gray-700">
-              <p>Email</p>
-              <p className="font-normal text-indigo-800">{details?.email}</p>
-            </div>
-            <div className="font-bold text-lg text-gray-700">
-              <p>Joining Date</p>
-              <p className="font-normal text-indigo-800">
-                {details?.createdAt ? new Date(details.createdAt).toLocaleDateString('en-GB') : 'N/A'}
-              </p>
-            </div>
-            <div>
-              <p className="font-bold text-lg text-gray-700">Permissions</p>
-              {details.allowedroutes.length === 0 ? (
-                <span className="text-gray-500">No permissions granted.</span>
-              ) : (
-                <ul className="list-disc pl-5 space-y-2">
-                  {details.allowedroutes.map((r, index) => (
-                    <li key={index} className="text-indigo-800">
-                      {r}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
+
         )}
       </div>
     </div>

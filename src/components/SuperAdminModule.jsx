@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downloadEndpoint }) => {
+const SuperAdminModule = ({
+  moduleName,
+  moduleData,
+  columns,
+  apiEndpoint,
+  downloadEndpoint,
+}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAdmin, setSelectedAdmin] = useState('');
+  const [selectedAdmin, setSelectedAdmin] = useState("");
   const [admins, setAdmins] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -14,43 +20,52 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
 
   useEffect(() => {
     // Check if Super Admin is logged in
-    const token = localStorage.getItem('superAdminToken');
+    const token = localStorage.getItem("superAdminToken");
     if (!token) {
-      navigate('/super-admin-login');
+      navigate("/super-admin-login");
       return;
     }
-    
+
     fetchAdmins();
   }, [navigate]);
 
   const fetchAdmins = async () => {
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
+      const baseURL =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:9003";
       const response = await axios.get(`${baseURL}super-admin/admins`, {
         withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('superAdminToken') || ''}`
-        }
+          Authorization: `Bearer ${
+            localStorage.getItem("superAdminToken") || ""
+          }`,
+        },
       });
       setAdmins(response.data.admins);
     } catch (error) {
-      console.error('Error fetching admins:', error);
-      toast.error('Failed to fetch admins data');
+      console.error("Error fetching admins:", error);
+      toast.error("Failed to fetch admins data");
     }
   };
 
   const fetchData = async (adminId) => {
     if (!adminId) return;
-    
+
     setLoading(true);
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
-      const response = await axios.get(`${baseURL}super-admin/${apiEndpoint}/${adminId}`, {
-        withCredentials: true,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('superAdminToken') || ''}`
+      const baseURL =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:9003";
+      const response = await axios.get(
+        `${baseURL}super-admin/${apiEndpoint}/${adminId}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("superAdminToken") || ""
+            }`,
+          },
         }
-      });
+      );
       setData(response.data[moduleData] || []);
     } catch (error) {
       console.error(`Error fetching ${moduleName.toLowerCase()}:`, error);
@@ -73,30 +88,43 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
 
   const handleDownload = async () => {
     if (!selectedAdmin) {
-      toast.error('Please select an admin first');
+      toast.error("Please select an admin first");
       return;
     }
 
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9003';
-      const response = await axios.get(`${baseURL}super-admin/${downloadEndpoint}/${selectedAdmin}`, {
-        withCredentials: true,
-        responseType: 'blob',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('superAdminToken') || ''}`
+      const baseURL =
+        process.env.REACT_APP_BACKEND_URL || "http://localhost:9003";
+      const response = await axios.get(
+        `${baseURL}super-admin/${downloadEndpoint}/${selectedAdmin}`,
+        {
+          withCredentials: true,
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("superAdminToken") || ""
+            }`,
+          },
         }
-      });
-      
+      );
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      const adminName = admins.find(admin => admin._id === selectedAdmin)?.name || 'admin';
-      link.setAttribute('download', `${moduleName.toLowerCase()}_${adminName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      const adminName =
+        admins.find((admin) => admin._id === selectedAdmin)?.name || "admin";
+      link.setAttribute(
+        "download",
+        `${moduleName.toLowerCase()}_${adminName.replace(
+          /[^a-zA-Z0-9]/g,
+          "_"
+        )}_${new Date().toISOString().split("T")[0]}.xlsx`
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success(`${moduleName} data exported successfully`);
     } catch (error) {
       console.error(`Error exporting ${moduleName.toLowerCase()}:`, error);
@@ -105,9 +133,9 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('superAdminToken');
-    navigate('/super-admin-login');
-    toast.success('Logged out successfully');
+    localStorage.removeItem("superAdminToken");
+    navigate("/super-admin-login");
+    toast.success("Logged out successfully");
   };
 
   // Pagination logic
@@ -134,8 +162,12 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{moduleName} Module</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage and export {moduleName.toLowerCase()} data by admin</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              {moduleName} Module
+            </h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
+              Manage and export {moduleName.toLowerCase()} data by admin
+            </p>
           </div>
           <button
             onClick={handleLogout}
@@ -160,7 +192,8 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                 <option value="">Choose an admin...</option>
                 {admins.map((admin) => (
                   <option key={admin._id} value={admin._id}>
-                    {admin.name} ({admin.role}) - {admin.organization?.name || 'N/A'}
+                    {admin.name} ({admin.role}) -{" "}
+                    {admin.organization?.name || "N/A"}
                   </option>
                 ))}
               </select>
@@ -185,32 +218,41 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
             </h2>
             {selectedAdmin && data.length > 0 && (
               <div className="text-xs sm:text-sm text-gray-600">
-                Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}
+                Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of{" "}
+                {data.length}
               </div>
             )}
           </div>
-          
+
           {!selectedAdmin ? (
             <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
               <div className="text-3xl sm:text-4xl mb-4">👤</div>
-              <p className="text-base sm:text-lg font-medium">Select an Admin</p>
-              <p className="text-xs sm:text-sm">Choose an admin from the dropdown above to view {moduleName.toLowerCase()} data</p>
+              <p className="text-base sm:text-lg font-medium">
+                Select an Admin
+              </p>
+              <p className="text-xs sm:text-sm">
+                Choose an admin from the dropdown above to view{" "}
+                {moduleName.toLowerCase()} data
+              </p>
             </div>
           ) : loading ? (
             <div className="flex justify-center items-center h-32">
               <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : data.length > 0 ? (
-            <div 
-              className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100" 
-              style={{ 
-                maxWidth: '100%', 
-                width: '100%',
-                overflowX: 'auto',
-                overflowY: 'visible'
+            <div
+              className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+              style={{
+                maxWidth: "100%",
+                width: "100%",
+                overflowX: "auto",
+                overflowY: "visible",
               }}
             >
-              <table className="divide-y divide-gray-200" style={{ minWidth: '800px', width: '100%' }}>
+              <table
+                className="divide-y divide-gray-200"
+                style={{ minWidth: "800px", width: "100%" }}
+              >
                 <thead className="bg-gray-50">
                   <tr>
                     {columns.map((column, index) => (
@@ -227,8 +269,13 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                   {currentData.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       {columns.map((column, colIndex) => (
-                        <td key={colIndex} className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">
-                          {column.render ? column.render(item) : item[column.key]}
+                        <td
+                          key={colIndex}
+                          className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900"
+                        >
+                          {column.render
+                            ? column.render(item)
+                            : item[column.key]}
                         </td>
                       ))}
                     </tr>
@@ -239,8 +286,10 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
           ) : (
             <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
               <div className="text-3xl sm:text-4xl mb-4">📭</div>
-              <p className="text-base sm:text-lg font-medium">No Data Found</p>
-              <p className="text-xs sm:text-sm">No {moduleName.toLowerCase()} data found for the selected admin.</p>
+              <p className="text-base sm:text-lg font-medium">No data found</p>
+              <p className="text-xs sm:text-sm">
+                No {moduleName.toLowerCase()} No data found
+              </p>
             </div>
           )}
 
@@ -257,8 +306,8 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                     disabled={currentPage === 1}
                     className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md ${
                       currentPage === 1
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     Previous
@@ -268,8 +317,8 @@ const SuperAdminModule = ({ moduleName, moduleData, columns, apiEndpoint, downlo
                     disabled={currentPage === totalPages}
                     className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md ${
                       currentPage === totalPages
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     Next

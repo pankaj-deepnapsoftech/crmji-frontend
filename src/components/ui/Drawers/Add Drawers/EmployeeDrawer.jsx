@@ -53,20 +53,33 @@ const EmployeeDrawer = ({ fetchAllEmployees, closeDrawerHandler }) => {
 
       const data = await response.json();
 
-      if (!data.success) {
-        throw new Error(data.message);
+      if (!response.ok || !data.success) {
+        // Check if error is related to user limit
+        const errorMessage = data.message || "Failed to create user. Please try again.";
+        if (errorMessage.includes("max limit") || errorMessage.includes("reached") || errorMessage.includes("limit")) {
+          throw new Error("LIMIT_REACHED");
+        }
+        throw new Error(errorMessage);
       }
+      
       if (data?.user?.employeeId) {
-        toast.success(`Employee created. ID: ${data.user.employeeId}. OTP sent to email.`);
+        toast.success(
+          `User created. ID: ${data.user.employeeId}. OTP sent to email.`
+        );
       } else {
         toast.success(
-          "Employee registration successful. OTP has been sent to the email id."
+          "User registration successful. OTP has been sent to the email id."
         );
       }
       fetchAllEmployees();
       closeDrawerHandler();
     } catch (err) {
-      toast.error(err.message);
+      // Show specific toast for user limit reached
+      if (err.message === "LIMIT_REACHED" || (err.message && (err.message.includes("max limit") || err.message.includes("reached") || err.message.includes("limit")))) {
+        toast.error("You have reached your user limit. Cannot create more users.");
+      } else {
+        toast.error(err.message || "Failed to create user. Please try again.");
+      }
     } finally {
       setRegistering(false);
     }
@@ -152,33 +165,35 @@ const EmployeeDrawer = ({ fetchAllEmployees, closeDrawerHandler }) => {
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
               Password
             </FormLabel>
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter Password"
-              className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
-            />
-            {!showPassword ? (
-              <IoEyeOffOutline
-                onClick={() => setShowPassword(true)}
-                size={20}
-                className="absolute top-[42px] right-3 cursor-pointer"
+            <div className="relative">
+              <Input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter Password"
+                className="rounded mt-2 border p-3 pr-10 focus:ring-2 focus:ring-blue-400"
               />
-            ) : (
-              <IoEyeOutline
-                onClick={() => setShowPassword(false)}
-                size={20}
-                className="absolute top-[42px] right-3 cursor-pointer"
-              />
-            )}
+              {!showPassword ? (
+                <IoEyeOffOutline
+                  onClick={() => setShowPassword(true)}
+                  size={20}
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+                />
+              ) : (
+                <IoEyeOutline
+                  onClick={() => setShowPassword(false)}
+                  size={20}
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+                />
+              )}
+            </div>
           </FormControl>
 
           {/* Submit Button */}
           <Button
             type="submit"
             className="mt-1 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
-           colorScheme="blue"
+            colorScheme="blue"
             isLoading={registering}
           >
             Submit

@@ -690,14 +690,14 @@ const Peoples = () => {
                 >
                   Download Sample CSV
                 </Button>
-                <textarea
+                {/* <textarea
                   className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
                   rows="1"
                   width="220px"
                   placeholder="Search"
                   value={searchKey}
                   onChange={(e) => setSearchKey(e.target.value)}
-                />
+                /> */}
                 <Button
                   fontSize={{ base: "14px", md: "14px" }}
                   paddingX={{ base: "10px", md: "12px" }}
@@ -759,7 +759,7 @@ const Peoples = () => {
                               key={key}
                               className="border px-2 py-1 text-left bg-gray-50"
                             >
-                              {key}
+                              {key} 
                             </th>
                           ))}
                         </tr>
@@ -838,7 +838,9 @@ const Peoples = () => {
               {!loading && filteredData.length === 0 && (
                 <div className="flex items-center justify-center flex-col">
                   <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">No Data</span>
+                  <span className="mt-1 font-semibold text-2xl">
+                    No data found.
+                  </span>
                 </div>
               )}
               {!loading && filteredData.length > 0 && (

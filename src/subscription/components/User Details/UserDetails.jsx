@@ -133,7 +133,7 @@ const UserDetails = ({ hideModal }) => {
             </p>
           </div>
           <div className="flex flex-col md:flex-row items-start flex-wrap md:items-center gap-2 md:gap-5 mb-2">
-            <p className="subscription-font w-[15rem]">Number of Employees</p>
+            <p className="subscription-font w-[15rem]">Number of User</p>
             <p className="subscription-font bg-[#d9d9d9] text-[#5c5c5c] py-1 px-5 rounded-sm w-[20rem]">
               {employeeCount}
             </p>
@@ -158,7 +158,7 @@ const UserDetails = ({ hideModal }) => {
             onClick={logoutHandler}
             className="subscription-font border rounded-sm py-1 px-8 bg-[#db4747] text-lg font-light text-white mr-2 disabled:cursor-not-allowed disabled:bg-white disabled:text-[#db4747]"
           >
-            {isLoggingOut ? 'Please wait...' : 'Logout'}
+            {isLoggingOut ? "Please wait..." : "Logout"}
           </button>
           {subscribed && (
             <button
@@ -166,7 +166,7 @@ const UserDetails = ({ hideModal }) => {
               onClick={cancelSubscriptionHandler}
               className="subscription-font border rounded-sm py-1 px-8 bg-[#db4747] text-lg font-light text-white disabled:cursor-not-allowed disabled:bg-white disabled:text-[#db4747]"
             >
-              {isCancelling ? 'Please wait...' : 'Cancel Subscription'}
+              {isCancelling ? "Please wait..." : "Cancel Subscription"}
             </button>
           )}
         </div>

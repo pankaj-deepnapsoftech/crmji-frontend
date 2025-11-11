@@ -190,7 +190,6 @@ const SupportEditDrawer = ({
         {isLoading && <Loading />}
         {!isLoading && (
           <form onSubmit={editSupportHandler}>
-
             <div className="mt-2 mb-5">
               <label className="font-bold">Status</label>
               <Select
@@ -213,7 +212,7 @@ const SupportEditDrawer = ({
                   required={statusId?.value === "assigned"}
                   className="rounded mt-2"
                   options={employeeOptionsList}
-                  placeholder="Select employee"
+                  placeholder="Select User"
                   value={assigned}
                   onChange={(d) => {
                     setAssigned(d);
