@@ -75,6 +75,10 @@ const columns = [
     accessor: "designation",
   },
   {
+    Header: "Email",
+    accessor: "email",
+  },
+  {
     Header: "Phone",
     accessor: "phone",
   },
@@ -392,7 +396,7 @@ const Admins = () => {
                                     font-size: 15px
                                     font-weight: 700
                                     border-b-2 border-gray-300
-                                    p-3
+                                    
                                     text-center
                                     bg-blue-400
                                   `}
@@ -439,7 +443,7 @@ const Admins = () => {
                           ? "sticky top-0 left-[-2px] "
                           : ""
                       }
-                      p-3 text-center
+                       text-center
                       border-b border-gray-200
                     `}
                                       {...cell.getCellProps()}
