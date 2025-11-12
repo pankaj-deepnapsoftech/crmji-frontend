@@ -130,7 +130,7 @@ const BulkAssignDrawer = ({
                 required={true}
                 className="rounded mt-2"
                 options={employeeOptionsList}
-                placeholder="Select employee"
+                placeholder="Select User"
                 value={assigned}
                 onChange={(d) => {
                   setAssigned(d);

@@ -75,6 +75,10 @@ const columns = [
     accessor: "designation",
   },
   {
+    Header: "Email",
+    accessor: "email",
+  },
+  {
     Header: "Phone",
     accessor: "phone",
   },
@@ -249,7 +253,7 @@ const Admins = () => {
                 {/* <span className="mr-2">
                   <MdArrowBack />
                 </span> */}
-                Employee List
+                User List
               </div>
 
               <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
@@ -278,7 +282,7 @@ const Admins = () => {
                   color="white"
                   backgroundColor="#1640d6"
                 >
-                  Add New Employee
+                  Add New User
                 </Button>
                 <Select
                   onChange={(e) => setPageSize(e.target.value)}
@@ -392,18 +396,27 @@ const Admins = () => {
                                     font-size: 15px
                                     font-weight: 700
                                     border-b-2 border-gray-300
-                                    p-3
                                     text-center
                                     bg-blue-400
+                                     ${
+                                    column.id === "name"
+                                      ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,0.2)]"
+                                      : ""
+                                  }
+
                                   `}
                                     borderLeft="1px solid #d7d7d7"
                                     borderRight="1px solid #d7d7d7"
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
+                                    {...column.getHeaderProps(column.getSortByToggleProps()
                                     )}
                                   >
-                                    <div className="flex items-center justify-center text-white">
+                                    <div className={`flex items-center justify-center text-white
+                                       ${
+                                        column.id === "name" ? "justify-start" : "justify-center"
+                                      }
+                                      `}>
                                       {column.render("Header")}
+
                                       {column.isSorted && (
                                         <span className="ml-1 text-xs">
                                           {column.isSortedDesc ? (
@@ -432,18 +445,18 @@ const Admins = () => {
                                   {...row.getRowProps()}
                                 >
                                   {row.cells.map((cell) => (
-                                    <Td
-                                      className={`
-                      ${
-                        cell.column.id === "name"
-                          ? "sticky top-0 left-[-2px] "
-                          : ""
-                      }
-                      p-3 text-center
-                      border-b border-gray-200
-                    `}
-                                      {...cell.getCellProps()}
-                                    >
+                            <Td
+  className={`
+    ${
+      cell.column.id === "name"
+        ? "sticky left-0 z-[5] bg-white font-semibold text-left"
+        : "text-center"
+    }
+    border-b border-gray-200 whitespace-nowrap px-4 py-2
+  `}
+  {...cell.getCellProps()}
+>
+
                                       {cell.column.id !== "verified" &&
                                         cell.column.id !== "createdAt" &&
                                         cell.render("Cell")}
@@ -520,7 +533,7 @@ const Admins = () => {
                     </>
                   ) : (
                     // Card View
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {page.map((row) => {
                         prepareRow(row);
                         const user = row.original;

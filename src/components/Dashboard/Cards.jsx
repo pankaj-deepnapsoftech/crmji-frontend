@@ -1,25 +1,26 @@
 import React from "react";
 
-
 const Cards = ({ label, content, bg, Icon, iconColor }) => {
   return (
-    <div className={`bg-gradient-to-r ${bg} p-4 sm:p-6 rounded-xl shadow-lg w-full hover:shadow-xl transition-all duration-300 hover:scale-105`}>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
-          <Icon className={`${iconColor} text-xl sm:text-2xl`}/> 
-        </div>
-
-        <h3 className="text-white text-sm sm:text-base lg:text-lg font-semibold text-center sm:text-right leading-tight">
-          {label}
-        </h3>
+    <div
+      className={`bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.03] flex justify-between items-center h-[100px] sm:h-[120px]`}
+    >
+      {/* Left Text Section */}
+      <div className="flex flex-col justify-center">
+        <p className="text-xs sm:text-sm text-gray-600 font-medium">{label}</p>
+        <p className="font-bold text-lg sm:text-xl md:text-2xl mt-1 text-gray-800">
+          {content}
+        </p>
       </div>
 
-      <div className="mt-4 text-white text-2xl sm:text-3xl lg:text-4xl font-bold text-center sm:text-end">
-        {content}
+      {/* Right Icon Section */}
+      <div
+        className={`w-10 h-10 sm:w-12 sm:h-12 ${bg} rounded-full flex items-center justify-center shadow-sm`}
+      >
+        <Icon className={`${iconColor} text-lg sm:text-xl md:text-2xl`} />
       </div>
     </div>
   );
-
 };
 
 export default Cards;

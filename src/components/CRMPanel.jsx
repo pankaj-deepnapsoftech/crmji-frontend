@@ -67,29 +67,41 @@ const CRMPanel = () => {
 
   return (
     <div className="bg-[#f9fafc] min-h-[100vh] w-full px-4 py-3 realtive overflow-hidden relative" style={{ boxShadow: "0 0 20px 3px #96beee26" }}>
-      <Header />
+      <Header isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
 
-      {auth.role !== 'Super Admin' && auth.allowedroutes.length === 0 && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-bold text-[#ff6f6f]">
-          You do not have access to any of the routes. Contact your Super Admin for further action.
-        </div>}
+
       {(auth.role === 'Super Admin' || auth.allowedroutes.length > 0) &&
-      <div className="flex h-[89vh] overflow-auto">
-        <div className="z-20 bg-[#f9fafc] absolute top-[95px] left-10 block xl:hidden overflow-x-hidden overflow-y-auto" style={{overflowY: isMenuOpen ? 'auto' : 'hidden'}}>
-          {!isMenuOpen && <div className="text-lg bg-[#1640d6] text-white py-1 px-2 text-white text-3xl rounded-md" onClick={()=>setIsMenuOpen(true)}><MdMenu /></div>}
+  <div className="flex h-[89vh] overflow-auto">
 
-          {isMenuOpen && (
-            <div>
-              <SideNavigation isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-            </div>
-          )}
-        </div>
-        <div className="hidden xl:block overflow-x-hidden overflow-y-auto w-[230px]">
+    {/* ✅ Blur Background Overlay */}
+    {isMenuOpen && (
+      <div
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 xl:hidden"
+        onClick={() => setIsMenuOpen(false)}
+      ></div>
+    )}
+
+    {/* ✅ Mobile Sidebar */}
+    <div className="z-20 bg-[#f9fafc] absolute top-[95px] left-10 block xl:hidden overflow-x-hidden overflow-y-auto"
+         style={{ overflowY: isMenuOpen ? 'auto' : 'hidden' }}>
+      {isMenuOpen && (
+        <div>
           <SideNavigation isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
         </div>
-        <div className="flex-1 mt-[22px] px-1 py-5 md:px-10 md:py-3 overflow-auto">
-          <Outlet />
-        </div>
-      </div>}
+      )}
+    </div>
+
+    {/* ✅ Desktop Sidebar */}
+    <div className="hidden xl:block overflow-x-hidden overflow-y-auto w-[230px]">
+      <SideNavigation isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+    </div>
+
+    <div className="flex-1 mt-[22px] px-1 py-5 md:px-10 md:py-3 overflow-auto">
+      <Outlet />
+    </div>
+  </div>
+}
+
 
     </div>
   );

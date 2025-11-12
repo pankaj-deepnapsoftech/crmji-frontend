@@ -342,7 +342,7 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
                 required={statusId?.value === "Assigned"}
                 className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
                 options={employeeOptionsList}
-                placeholder="Select employee"
+                placeholder="Select User"
                 value={assigned}
                 onChange={(d) => {
                   setAssigned(d);
