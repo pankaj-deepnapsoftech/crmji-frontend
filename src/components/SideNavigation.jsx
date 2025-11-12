@@ -855,7 +855,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
               <span>Media Center</span>
             </li>
-          </NavLink>
+          </NavLink>  
         )}
 
         {/* <NavLink
