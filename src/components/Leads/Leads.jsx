@@ -209,9 +209,9 @@ const Leads = () => {
   const [components, setComponents] = useState([{ type: "text", text: "" }]);
   const [open, setOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
-  const [templateLang, setTemplateLang] = useState("en");
+  const [templateLang, setTemplateLang] = useState();
   const [bulkName, setBulkName] = useState([]);
-
+  const [temData, setTemData] = useState([])
   const {
     isOpen: isTemplateModalOpen,
     onOpen: openTemplateModal,
@@ -1084,7 +1084,6 @@ const Leads = () => {
     } else {
       setComponents([{ type: "text", text: "" }]);
       setTemplateName("");
-      setTemplateLang("en_US");
       setOpen(true);
     }
   };
@@ -1193,6 +1192,21 @@ const Leads = () => {
     }
   };
 
+  const fetchTemplate = async () => {
+    console.log("hey")
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}whatsapp/templates`)
+      setTemData(res?.data?.data)
+      console.log("temData", res)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchTemplate()
+  }, [])
+
   return (
     <>
       {!isAllowed && (
@@ -1298,7 +1312,7 @@ const Leads = () => {
                 </Button>
 
                 {/* Bulk buttons (visible only when 2 or more selected) */}
-                {selectedUsers.length >= 2 && (
+                {selectedUsers.length >= 1 && (
                   <>
                     <Button
                       fontSize={{ base: "13px", md: "14px" }}
@@ -1440,7 +1454,7 @@ const Leads = () => {
                   _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
                   onClick={addtoDataBank}
                 >
-                  Add to Archived
+                  Add to Archive
                 </Button>
 
                 {/* Add SMS Template */}
@@ -1475,7 +1489,7 @@ const Leads = () => {
                   <option value={100000}>All</option>
                 </Select>
 
-                {/* Date range filters */}
+
                 <div className="flex items-center gap-2">
                   <input
                     type="date"
@@ -1683,11 +1697,10 @@ const Leads = () => {
                                 return (
                                   <Th
                                     bg="blue.400"
-                                    className={`${
-                                      column.id === "name"
+                                    className={`${column.id === "name"
                                         ? "sticky top-0 left-[-2px]"
                                         : ""
-                                    }`}
+                                      }`}
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}
@@ -1778,11 +1791,10 @@ const Leads = () => {
                                     {/* Specific Column Renderings */}
                                     {cell.column.id === "leadtype" && (
                                       <span
-                                        className={`text-sm rounded-md px-3 py-1 ${
-                                          row.original.leadtype === "People"
+                                        className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
                                             ? "bg-[#fff0f6] text-[#c41d7f]"
                                             : "bg-[#e6f4ff] text-[#0958d9]"
-                                        }`}
+                                          }`}
                                       >
                                         {row.original.leadtype === "People"
                                           ? "Individual"
@@ -2022,18 +2034,39 @@ const Leads = () => {
           <ModalHeader>Bulk WhatsApp Sender</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Input
-              placeholder="Template Name"
+            <select
               value={templateName}
-              onChange={(e) => setTemplateName(e.target.value)}
-              mb={2}
-            />
+              onChange={(e) => {
+                const selectedName = e.target.value;
+                setTemplateName(selectedName);
+
+
+                const selectedTemplate = temData?.find(t => t.name === selectedName);
+
+
+                if (selectedTemplate) {
+                  setTemplateLang(selectedTemplate.language || "");
+                } else {
+                  setTemplateLang("");
+                }
+              }}
+              className="w-full px-4 py-2 mb-2 border border-gray-300 rounded-md bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-white transition-all duration-200"
+            >
+              <option value="">Select Template</option>
+              {temData?.map((t, index) => (
+                <option key={index} value={t?.name}>
+                  {t?.name}
+                </option>
+              ))}
+            </select>
+
             <Input
               placeholder="Template Language"
               value={templateLang}
               onChange={(e) => setTemplateLang(e.target.value)}
               mb={2}
             />
+
             {components.slice(1).map((component, index) => (
               <Input
                 key={index + 1}
