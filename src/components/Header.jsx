@@ -269,7 +269,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
       </div>
 
       <div className="flex gap-x-5 items-center">
-        {user?.isTrial &&
+            {user?.isTrial &&
           !user?.isTrialEnded &&
           (!user?.isSubscribed || user?.isSubscriptionEnded) && (
           <div>
