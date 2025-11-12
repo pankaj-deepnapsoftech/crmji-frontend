@@ -5,6 +5,8 @@ import {
   MdSupportAgent,
   MdKeyboardArrowDown,
   MdOutlineMarkEmailRead,
+  MdGroups,
+  MdOutlineArchive,
 } from "react-icons/md";
 import {
   MdOutlineSpeed,
@@ -26,18 +28,22 @@ import {
   FaFileLines,
   FaPeopleGroup,
   FaMessage,
+  FaLock,
 } from "react-icons/fa6";
 import { useContext } from "react";
 import { TbReport } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import { IoSettingsSharp } from "react-icons/io5";
-import { FaLock } from "react-icons/fa";
 import { checkAccess } from "../utils/checkAccess";
 import { MdAutorenew } from "react-icons/md";
 import { FaDatabase } from "react-icons/fa6";
 import { useState } from "react";
 import { SocketContext } from "../socket";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { FiMessageSquare } from "react-icons/fi";
+import logo from "../assets/images/logo/logo.png";
+import { IoIosSettings } from "react-icons/io";
+
 
 const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
   const socket = useContext(SocketContext);
@@ -72,13 +78,17 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
   };
 
   return (
-    <div className="px-3 py-3 w-[100vw] h-[100vh] md:h-auto fixed top-0 left-0 overflow-y-auto overflow-x-hidden bg-[#f9fafc] xl:relative">
+    <div className="px-3 py-3 w-[70vw] bottom-8 h-[100vh] md:h-auto 
+             fixed top-0 left-0 z-20 overflow-y-auto overflow-x-hidden 
+             bg-[#f9fafc] xl:relative">
       {isMenuOpen && (
+        
         <div
-          className="flex justify-end mr-5 text-lg"
+          className="flex justify-between mr-2 text-lg"
           onClick={() => setIsMenuOpen(false)}
         >
-          <MdClose />
+          <img src={logo} className="block xl:hidden w-[150px] items-center pr-[20px]" alt="logo" />
+          <MdClose className="cursor-pointer" size={25}/>
         </div>
       )}
       <ul className="text-sm font-bold overflow-x-hidden overflow-y-auto">
@@ -124,7 +134,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             <span>
               <FaPeopleGroup />
             </span>
-            <span>Users</span>
+            <span>User</span>
             {!checkAccess(auth, "admin")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />
@@ -133,7 +143,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           </li>
         </NavLink>
 
-        <NavLink
+        {/* <NavLink
           to="chats"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
@@ -158,7 +168,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </li>
-        </NavLink>
+        </NavLink> */}
 
         <div
           onClick={() => setShowProspectsSubmenu((prev) => !prev)}
@@ -392,8 +402,9 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           </li>
         </NavLink>
 
-        { // This is the Assigned Lead component
-        /* <NavLink
+        {
+          // This is the Assigned Lead component
+          /* <NavLink
           to="assigned-leads"
           className={({ isActive }) =>
             isActive ? "text-[#1640d6]" : "text-black"
@@ -416,8 +427,8 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
             )}
           </li>
-        </NavLink> */}
-
+        </NavLink> */
+        }
 
         <NavLink
           to="customers"
@@ -443,32 +454,6 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             )}
           </li>
         </NavLink>
-        <NavLink
-          to="renewals"
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            isMenuOpen && setIsMenuOpen(false);
-          }}
-        >
-          <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            onClick={() => changeOnlineStatus(false)}
-          >
-            <span>
-              <MdAutorenew />
-            </span>
-            <span>Renewals</span>
-
-            {!checkAccess(auth, "renewals")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
-              </span>
-            )}
-          </li>
-        </NavLink>
-        {/* Products Dropdown */}
         <div className="relative">
           <li
             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
@@ -566,7 +551,6 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           )}
         </div>
 
-        {/* Invoices and Payments Dropdown */}
         <div className="relative">
           <li
             className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px] cursor-pointer"
@@ -664,6 +648,34 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
           )}
         </div>
 
+        <NavLink
+          to="renewals"
+          className={({ isActive }) =>
+            isActive ? "text-[#1640d6]" : "text-black"
+          }
+          onClick={() => {
+            isMenuOpen && setIsMenuOpen(false);
+          }}
+        >
+          <li
+            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
+            onClick={() => changeOnlineStatus(false)}
+          >
+            <span>
+              <MdAutorenew />
+            </span>
+            <span>Renewals</span>
+
+            {!checkAccess(auth, "renewals")?.isAllowed && (
+              <span className="mt-1">
+                <FaLock size="12" color="#b1b1b1" />
+              </span>
+            )}
+          </li>
+        </NavLink>
+        {/* Products Dropdown */}
+
+        {/* Invoices and Payments Dropdown */}
 
         {/* <NavLink
           to="expenses"
@@ -843,7 +855,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
               </span>
               <span>Media Center</span>
             </li>
-          </NavLink>
+          </NavLink>  
         )}
 
         {/* <NavLink
@@ -912,7 +924,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             <span>
               <GrConfigure />
             </span>
-            <span>CRM Configuration</span>
+            <span>Integrations</span>
             {!checkAccess(auth, "website configuration")?.isAllowed && (
               <span className="mt-1">
                 <FaLock size="12" color="#b1b1b1" />
@@ -926,4 +938,3 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
 };
 
 export default SideNavigation;
-

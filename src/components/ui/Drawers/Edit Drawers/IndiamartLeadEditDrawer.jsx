@@ -67,7 +67,7 @@ const IndiamartLeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads
         e.preventDefault();
 
         if (statusId?.value === "Assigned" && assigned?.value === "") {
-            toast.error("Employee not assigned");
+            toast.error("User not assigned");
             return;
         }
         if (statusId?.value === "Follow Up" && (!followupDate || !followupReason || followupReason === '')) {
@@ -202,27 +202,27 @@ const IndiamartLeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads
     }, []);
 
     return (
-        <div
-            className="absolute overflow-auto h-[100vh] w-[90vw] md:w-[450px] bg-white right-0 top-0 z-10 py-3"
-            style={{
-                boxShadow:
-                    "rgba(0, 0, 0, 0.08) 0px 6px 16px 0px, rgba(0, 0, 0, 0.12) 0px 3px 6px -4px, rgba(0, 0, 0, 0.05) 0px 9px 28px 8px",
-            }}
-        >
-            <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
-                <BiX onClick={closeDrawerHandler} size="26px" />
-                Lead
-            </h1>
+      <div
+        className="absolute overflow-auto h-[100vh] w-[90vw] md:w-[450px] bg-white right-0 top-0 z-10 py-3"
+        style={{
+          boxShadow:
+            "rgba(0, 0, 0, 0.08) 0px 6px 16px 0px, rgba(0, 0, 0, 0.12) 0px 3px 6px -4px, rgba(0, 0, 0, 0.05) 0px 9px 28px 8px",
+        }}
+      >
+        <h1 className="px-4 flex gap-x-2 items-center text-xl py-3 border-b">
+          <BiX onClick={closeDrawerHandler} size="26px" />
+          Lead
+        </h1>
 
-            <div className="mt-8 px-5">
-                <h2 className="text-2xl font-semibold py-5 text-center mb-6 border-y bg-[#f9fafc]">
-                    Edit Lead
-                </h2>
+        <div className="mt-8 px-5">
+          <h2 className="text-2xl font-semibold py-5 text-center mb-6 border-y bg-[#f9fafc]">
+            Edit Lead
+          </h2>
 
-                {isLoading && <Loading />}
-                {!isLoading && (
-                    <form onSubmit={editLeadHandler}>
-                        {/* <div className="mt-2 mb-5">
+          {isLoading && <Loading />}
+          {!isLoading && (
+            <form onSubmit={editLeadHandler}>
+              {/* <div className="mt-2 mb-5">
                 <label className="font-bold">Type</label>
                 <Select
                   className="rounded mt-2"
@@ -238,61 +238,62 @@ const IndiamartLeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads
                 />
               </div> */}
 
-                        <div className="mt-2 mb-5">
-                            <label className="font-bold">Status</label>
-                            <Select
-                                className="rounded mt-2"
-                                options={statusOptionsList}
-                                placeholder="Select status"
-                                value={statusId}
-                                onChange={(d) => {
-                                    // setStatusLabel(d);
-                                    setStatusId(d);
-                                }}
-                                isSearchable={true}
-                            />
-                        </div>
+              <div className="mt-2 mb-5">
+                <label className="font-bold">Status</label>
+                <Select
+                  className="rounded mt-2"
+                  options={statusOptionsList}
+                  placeholder="Select status"
+                  value={statusId}
+                  onChange={(d) => {
+                    // setStatusLabel(d);
+                    setStatusId(d);
+                  }}
+                  isSearchable={true}
+                />
+              </div>
 
-                        {statusId?.value === "Assigned" && (
-                            <div className="mt-2 mb-5">
-                                <label className="font-bold">Assigned</label>
-                                <Select
-                                    required={statusId?.value === "Assigned"}
-                                    className="rounded mt-2"
-                                    options={employeeOptionsList}
-                                    placeholder="Select employee"
-                                    value={assigned}
-                                    onChange={(d) => {
-                                        setAssigned(d);
-                                    }}
-                                    isSearchable={true}
-                                />
-                            </div>
-                        )}
+              {statusId?.value === "Assigned" && (
+                <div className="mt-2 mb-5">
+                  <label className="font-bold">Assigned</label>
+                  <Select
+                    required={statusId?.value === "Assigned"}
+                    className="rounded mt-2"
+                    options={employeeOptionsList}
+                    placeholder="Select User"
+                    value={assigned}
+                    onChange={(d) => {
+                      setAssigned(d);
+                    }}
+                    isSearchable={true}
+                  />
+                </div>
+              )}
 
-                        {statusId?.value === 'Follow Up' && <>
-                            <div className="mt-2 mb-5">
-                                <label className="font-bold">Follow-up Date</label>
-                                <Input
-                                    type="date"
-                                    value={followupDate}
-                                    min={new Date().toISOString().substring(0, 10)}
-                                    onChange={(e) => setFollowupDate(e.target.value)}
-                                />
-                            </div>
+              {statusId?.value === "Follow Up" && (
+                <>
+                  <div className="mt-2 mb-5">
+                    <label className="font-bold">Follow-up Date</label>
+                    <Input
+                      type="date"
+                      value={followupDate}
+                      min={new Date().toISOString().substring(0, 10)}
+                      onChange={(e) => setFollowupDate(e.target.value)}
+                    />
+                  </div>
 
-                            <div className="mt-2 mb-5">
-                                <label className="font-bold">Follow-up Reason</label>
-                                <Input
-                                    type="text"
-                                    value={followupReason}
-                                    onChange={(e) => setFollowupReason(e.target.value)}
-                                />
-                            </div>
-                        </>
-                        }
+                  <div className="mt-2 mb-5">
+                    <label className="font-bold">Follow-up Reason</label>
+                    <Input
+                      type="text"
+                      value={followupReason}
+                      onChange={(e) => setFollowupReason(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
 
-                        {/* {(showSelectPeoples || !typeId) && (
+              {/* {(showSelectPeoples || !typeId) && (
                 <div className="mt-2 mb-5">
                   <label className="font-bold">Individual</label>
                   <Select
@@ -334,27 +335,27 @@ const IndiamartLeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads
                   />
                 </div>
               )} */}
-                        <FormControl className="mt-2 mb-5">
-                            <FormLabel fontWeight="bold">Remarks</FormLabel>
-                            <Textarea
-                                value={remarks}
-                                onChange={(e) => setRemarks(e.target.value)}
-                                resize="none"
-                            />
-                        </FormControl>
-                        <Button
-                            type="submit"
-                            className="mt-1"
-                            color="white"
-                            backgroundColor="#1640d6"
-                        >
-                            Submit
-                        </Button>
-                    </form>
-                )}
-            </div>
+              <FormControl className="mt-2 mb-5">
+                <FormLabel fontWeight="bold">Remarks</FormLabel>
+                <Textarea
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  resize="none"
+                />
+              </FormControl>
+              <Button
+                type="submit"
+                className="mt-1"
+                color="white"
+                backgroundColor="#1640d6"
+              >
+                Submit
+              </Button>
+            </form>
+          )}
         </div>
-    )
+      </div>
+    );
 }
 
 export default IndiamartLeadEditDrawer

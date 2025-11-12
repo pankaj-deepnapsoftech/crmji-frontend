@@ -63,10 +63,12 @@ const EmployeeDrawer = ({ fetchAllEmployees, closeDrawerHandler }) => {
       }
       
       if (data?.user?.employeeId) {
-        toast.success(`Employee created. ID: ${data.user.employeeId}. OTP sent to email.`);
+        toast.success(
+          `User created. ID: ${data.user.employeeId}. OTP sent to email.`
+        );
       } else {
         toast.success(
-          "Employee registration successful. OTP has been sent to the email id."
+          "User registration successful. OTP has been sent to the email id."
         );
       }
       fetchAllEmployees();
@@ -191,7 +193,7 @@ const EmployeeDrawer = ({ fetchAllEmployees, closeDrawerHandler }) => {
           <Button
             type="submit"
             className="mt-1 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
-           colorScheme="blue"
+            colorScheme="blue"
             isLoading={registering}
           >
             Submit

@@ -222,7 +222,7 @@ const Register = ({
                   id="employeeCount"
                   value={employeeCount}
                   onChange={(e) => setEmployeeCount(e.target.value)}
-                  placeholder="Number of Employees"
+                  placeholder="Number of User"
                   required
                 ></input>
               </div>

@@ -28,7 +28,7 @@ function AdminDeleteAlert({
   const [employeeOptionsList, setEmployeeOptionsList] = useState();
   const [assigned, setAssigned] = useState({
     value: "",
-    label: "Select Employee",
+    label: "Select User",
   });
   const [cookies] = useCookies();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -64,11 +64,11 @@ function AdminDeleteAlert({
 
   const assignToEmployee = async () => {
     if (!assigned?.value || assigned?.value === "") {
-      toast.error("Employee not selected");
+      toast.error("User not selected");
       return;
     }
     if (!deleteEmployeeSelectedId || deleteEmployeeSelectedId === "") {
-      toast.error("Employee for deletion is not selected");
+      toast.error("User for deletion is not selected");
       return;
     }
 
@@ -102,7 +102,7 @@ function AdminDeleteAlert({
 
   const deleteEmployee = async (id) => {
     if (!deleteEmployeeSelectedId || deleteEmployeeSelectedId === "") {
-      toast.error("Employee for deletion is not selected");
+      toast.error("User for deletion is not selected");
       return;
     }
     try {
@@ -152,7 +152,7 @@ function AdminDeleteAlert({
 
   useEffect(() => {
     setShowAssignForm(false);
-    setAssigned({value:'', label: 'Select Employee'});
+    setAssigned({ value: "", label: "Select User" });
   }, [isOpen]);
 
   return (
@@ -165,7 +165,7 @@ function AdminDeleteAlert({
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Employee
+              Delete User
             </AlertDialogHeader>
 
             <AlertDialogBody>
@@ -173,7 +173,7 @@ function AdminDeleteAlert({
                 <div>
                   Are you sure? You have to assign the Individuals, Corporates,
                   Customers, Proforma Invoices, Invoices and Payments to another
-                  employee, else all the Employee data will be deleted. You
+                  User, else all the User data will be deleted. You
                   can't undo this action afterwards.
                 </div>
               )}
