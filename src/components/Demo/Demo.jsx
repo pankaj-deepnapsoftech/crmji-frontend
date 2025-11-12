@@ -716,11 +716,10 @@ const Demo = () => {
                             {/* Lead Type Rendering */}
                             {cell.column.id === "leadtype" && (
                               <span
-                                className={`text-sm rounded-md px-3 py-1 ${
-                                  row.original.leadtype === "People"
-                                    ? "bg-[#fff0f6] text-[#c41d7f]"
-                                    : "bg-[#e6f4ff] text-[#0958d9]"
-                                }`}
+                                className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
+                                  ? "bg-[#fff0f6] text-[#c41d7f]"
+                                  : "bg-[#e6f4ff] text-[#0958d9]"
+                                  }`}
                               >
                                 {row.original.leadtype === "People"
                                   ? "Individual"
@@ -841,6 +840,38 @@ const Demo = () => {
                               }}
                             >
                               Edit
+                            </MenuItem>
+                            <MenuItem
+                              icon={<FaUserShield />}
+                              onClick={async () => {
+                                try {
+                                  const leadId = row.original?._id;
+                                  const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}lead/edit-schedule-demo`, {
+                                    method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      Authorization: `Bearer ${cookies?.access_token}`,
+                                    },
+                                    body: JSON.stringify({
+                                      leadId,
+                                      status: "Completed",
+                                      remark: remark || "Converted to customer from Scheduled Meetings",
+                                    }),
+                                  });
+                                  const result = await response.json();
+                                  if (result.success) {
+                                    toast.success(result.message || "Moved to Customer successfully");
+                                    await fetchScheduledDemoLeads();
+                                  } else {
+                                    toast.error(result.message || "Failed to move to Customer");
+                                  }
+                                } catch (error) {
+                                  console.error("Move to Customer error:", error);
+                                  toast.error(error.message || "Move to Customer failed");
+                                }
+                              }}
+                            >
+                              Move to Customer
                             </MenuItem>
                             <MenuItem
                               icon={<MdDeleteOutline />}
@@ -985,8 +1016,8 @@ const Demo = () => {
                   Date & Time:{" "}
                   {leadData.meeting?.meetingDateTime
                     ? moment(leadData.meeting.meetingDateTime).format(
-                        "DD/MM/YYYY HH:mm"
-                      )
+                      "DD/MM/YYYY HH:mm"
+                    )
                     : "Not Set"}
                 </Text>
                 <Text>Type: {leadData.meeting?.meetingType || "N/A"}</Text>
@@ -1009,11 +1040,14 @@ const Demo = () => {
                     }}
                     maxW="250px"
                   >
-                    <option value="Meeting Completed">Meeting Completed</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Loose">Loose</option>
-                    <option value="In Negotiation">In Negotiation</option>
-                    <option value="Scheduled Meeting">Scheduled Meeting</option>
+                    <option value="Reschedule">Reschedule</option>
+                    <option value="Back to Lead">Back to Lead</option>
+                    <option value="Meeting done">Meeting done</option>
+                    <option value="quotation sent">quotation sent</option>
+                    <option value="quotation approved">quotation approved</option>
+                    <option value="PO Received">PO Received</option>
+                    <option value="Invoice sent">Invoice sent</option>
+                    <option value="Payment Received">Payment Received</option>
                   </Select>
                 </Box>
 
