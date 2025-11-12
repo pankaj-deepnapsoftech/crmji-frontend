@@ -19,6 +19,7 @@ import {
   MdOutlineVisibility,
   MdMoreVert,
 } from "react-icons/md";
+import { BiTable, BiCard } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import {
   closeAddCompaniesDrawer,
@@ -226,6 +227,7 @@ const Companies = () => {
   const [dataId, setDataId] = useState();
   const [loading, setLoading] = useState(true);
   const [searchKey, setSearchKey] = useState("");
+  const [viewMode, setViewMode] = useState("table"); // "table" or "card"
 
   const dispatch = useDispatch();
 
@@ -302,7 +304,15 @@ const Companies = () => {
     state: { pageIndex, pageSize },
     pageCount,
     setPageSize,
-  } = useTable({ columns, data: filteredData }, useSortBy, usePagination);
+  } = useTable(
+    {
+      columns,
+      data: filteredData,
+      initialState: { pageSize: 5 },
+    },
+    useSortBy,
+    usePagination
+  );
 
   const {
     addCompaniesDrawerIsOpened,
@@ -557,6 +567,7 @@ const Companies = () => {
                   onChange={(e) => setPageSize(e.target.value)}
                   width="80px"
                 >
+                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={50}>50</option>
@@ -564,6 +575,31 @@ const Companies = () => {
                   <option value={100000}>All</option>
                 </Select>
               </div>
+            </div>
+
+            <div className="flex justify-end gap-x-2 mb-4">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "table"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Table View"
+              >
+                <BiTable size={20} />
+              </button>
+              <butCorporate Listton
+                onClick={() => setViewMode("card")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "card"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Card View"
+              >
+                <BiCard size={20} />
+              </butCorporate>
             </div>
 
             <div>
@@ -678,162 +714,267 @@ const Companies = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    overflowX="auto"
-                  >
-                    <Table
-                      variant="simple"
-                      {...getTableProps()}
-                      className="min-w-[1100px]"
-                    >
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr
-                              {...hg.getHeaderGroupProps()}
-                              className="border-b-2 border-gray-300"
-                            >
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    className={`
-                    ${
-                      column.id === "companyname"
-                        ? "sticky top-0 left-[-2px] bg-blue-400"
-                        : ""
-                    }
-                    whitespace-nowrap
-                    text-transform: capitalize
-                    font-size: 15px
-                    font-weight: 700
-                    text-center
-                    border-r border-gray-300
-                    py-3
-                    px-4
-                    hover:bg-blue-200 cursor-pointer
-                  `}
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                  >
-                                    <div className="flex items-center justify-center text-white">
-                                      {column.render("Header")}
-                                      {column.isSorted && (
-                                        <span className="ml-1 text-xs">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
+                  {viewMode === "table" ? (
+                    // Table View
+                    <>
+                      <TableContainer
+                        maxHeight="600px"
+                        overflowY="auto"
+                        className="shadow-lg rounded-lg bg-white"
+                      >
+                        <Table variant="striped" {...getTableProps()}>
+                          <Thead className="bg-blue-400 text-lg font-semibold text-gray-800 sticky top-0 z-10">
+                            {headerGroups.map((hg) => {
+                              return (
+                                <Tr
+                                  {...hg.getHeaderGroupProps()}
+                                  className="shadow-md"
+                                >
+                                  {hg.headers.map((column) => {
+                                    return (
+                                      <Th
+                                        className={`
+                                        text-transform: capitalize
+                                        font-size: 15px
+                                        font-weight: 700
+                                        border-b-2 border-gray-300
+                                        
+                                        text-center
+                                        bg-blue-400
+                                      `}
+                                        borderLeft="1px solid #d7d7d7"
+                                        borderRight="1px solid #d7d7d7"
+                                        {...column.getHeaderProps(
+                                          column.getSortByToggleProps()
+                                        )}
+                                      >
+                                        <div className="flex items-center justify-center text-white">
+                                          {column.render("Header")}
+                                          {column.isSorted && (
+                                            <span className="ml-1 text-xs">
+                                              {column.isSortedDesc ? (
+                                                <FaCaretDown />
+                                              ) : (
+                                                <FaCaretUp />
+                                              )}
+                                            </span>
                                           )}
-                                        </span>
-                                      )}
-                                    </div>
+                                        </div>
+                                      </Th>
+                                    );
+                                  })}
+                                  <Th className="p-3 text-center bg-blue-400 text-white sticky top-0 z-10">
+                                    <p className="text-white">Actions</p>
                                   </Th>
-                                );
-                              })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 whitespace-nowrap">
-                                <p className="text-white">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
+                                </Tr>
+                              );
+                            })}
+                          </Thead>
 
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
+                          <Tbody {...getTableBodyProps()}>
+                            {page.map((row) => {
+                              prepareRow(row);
 
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={`
-                    ${
-                      cell.column.id === "companyname"
-                        ? "sticky top-0 left-[-2px] bg-white"
-                        : ""
-                    }
-                    whitespace-nowrap
-                    text-center
-                    border-b border-gray-200
-                   
-                    p-3
-                  `}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "created_on" &&
-                                      cell.column.id !== "creator" &&
-                                      cell.render("Cell")}
-                                    {cell.column.id === "created_on" &&
-                                      row.original?.createdAt && (
-                                        <span>
-                                          {moment(
-                                            row.original?.createdAt
-                                          ).format("DD/MM/YYYY")}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "creator" && (
-                                      <span className="text-blue-500 text-semibold">
-                                        {row.original.creator.name}
-                                      </span>
-                                    )}
+                              return (
+                                <Tr
+                                  className="hover:bg-gray-100 hover:cursor-pointer text-base text-gray-700 transition duration-300 ease-in-out"
+                                  {...row.getRowProps()}
+                                >
+                                  {row.cells.map((cell) => {
+                                    return (
+                                      <Td
+                                        className={`
+                        ${
+                          cell.column.id === "companyname"
+                            ? "sticky top-0 left-[-2px] "
+                            : ""
+                        }
+                         text-center
+                        border-b border-gray-200
+                      `}
+                                        {...cell.getCellProps()}
+                                      >
+                                        {cell.column.id !== "verified" &&
+                                          cell.column.id !== "createdAt" &&
+                                          cell.render("Cell")}
+                                        {cell.column.id === "verified" && (
+                                          <span
+                                            className={`text-sm rounded-md px-3 py-1 ${
+                                              row.original.verified
+                                                ? "bg-green-500 text-white"
+                                                : "bg-red-500 text-white"
+                                            }`}
+                                          >
+                                            {row.original.verified
+                                              ? "Verified"
+                                              : "Not Verified"}
+                                          </span>
+                                        )}
+                                        {cell.column.id === "createdAt" && (
+                                          <span>
+                                            {moment(
+                                              row.original.createdAt
+                                            ).format("DD/MM/YYYY")}
+                                          </span>
+                                        )}
+                                      </Td>
+                                    );
+                                  })}
+                                  <Td className="p-3 text-center">
+                                    <Menu>
+                                      <MenuButton
+                                        as={Button}
+                                        variant="ghost"
+                                        size="sm"
+                                        rightIcon={<MdMoreVert />}
+                                        className="hover:bg-gray-100"
+                                      ></MenuButton>
+                                      <MenuList>
+                                        <MenuItem
+                                          icon={<MdOutlineVisibility />}
+                                          onClick={() =>
+                                            showDetailsHandler(
+                                              row.original?._id
+                                            )
+                                          }
+                                        >
+                                          View Details
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdEdit />}
+                                          onClick={() =>
+                                            editHandler(row.original?._id)
+                                          }
+                                        >
+                                          Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdDeleteOutline />}
+                                          onClick={() => {
+                                            setCompanyDeleteId(
+                                              row.original?._id
+                                            );
+                                            confirmDeleteHandler();
+                                          }}
+                                        >
+                                          Delete
+                                        </MenuItem>
+                                      </MenuList>
+                                    </Menu>
                                   </Td>
-                                );
-                              })}
+                                </Tr>
+                              );
+                            })}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
+                    </>
+                  ) : (
+                    // Card View
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {page.map((row) => {
+                        prepareRow(row);
+                        const company = row.original;
+                        return (
+                          <div
+                            key={company._id}
+                            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 p-6"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                                  {company.companyname}
+                                </h3>
+                                <p className="text-sm text-gray-500 mb-2">
+                                  ID: {company.uniqueId}
+                                </p>
+                              </div>
+                              <Menu>
+                                <MenuButton
+                                  as={Button}
+                                  variant="ghost"
+                                  size="sm"
+                                  rightIcon={<MdMoreVert />}
+                                  className="hover:bg-gray-100"
+                                ></MenuButton>
+                                <MenuList>
+                                  <MenuItem
+                                    icon={<MdOutlineVisibility />}
+                                    onClick={() =>
+                                      showDetailsHandler(company._id)
+                                    }
+                                  >
+                                    View Details
+                                  </MenuItem>
+                                  <MenuItem
+                                    icon={<MdEdit />}
+                                    onClick={() => editHandler(company._id)}
+                                  >
+                                    Edit
+                                  </MenuItem>
+                                  <MenuItem
+                                    icon={<MdDeleteOutline />}
+                                    onClick={() => {
+                                      setCompanyDeleteId(company._id);
+                                      confirmDeleteHandler();
+                                    }}
+                                  >
+                                    Delete
+                                  </MenuItem>
+                                </MenuList>
+                              </Menu>
+                            </div>
 
-                              <Td className="flex justify-center items-center p-3">
-                                {/* Actions Dropdown */}
-                                <Menu placement="bottom-end">
-                                  <MenuButton
-                                    as={IconButton}
-                                    icon={<MdMoreVert />}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="hover:bg-gray-100"
-                                  />
-                                  <Portal>
-                                    <MenuList zIndex={2000}>
-                                      <MenuItem
-                                        icon={<MdOutlineVisibility />}
-                                        onClick={() =>
-                                          showDetailsHandler(row.original?._id)
-                                        }
-                                      >
-                                        View
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdEdit />}
-                                        onClick={() =>
-                                          editHandler(row.original?._id)
-                                        }
-                                      >
-                                        Edit
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdDeleteOutline />}
-                                        onClick={() => {
-                                          setCompanyDeleteId(row.original?._id);
-                                          confirmDeleteHandler();
-                                        }}
-                                      >
-                                        Delete
-                                      </MenuItem>
-                                    </MenuList>
-                                  </Portal>
-                                </Menu>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Contact Person:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {company.contactPersonName}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Phone:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {company.phone}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Status:
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                  {company.status}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Verification:
+                                </span>
+                                <span
+                                  className={`text-xs rounded-md px-2 py-1 ${
+                                    company.verified
+                                      ? "bg-green-500 text-white"
+                                      : "bg-red-500 text-white"
+                                  }`}
+                                >
+                                  {company.verified
+                                    ? "Verified"
+                                    : "Not Verified"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   <div className="w-[max-content] m-auto my-7">
                     <button
