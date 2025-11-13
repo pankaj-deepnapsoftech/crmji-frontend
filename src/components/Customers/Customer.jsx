@@ -68,6 +68,18 @@ const columns = [
     accessor: "uniqueId",
   },
   {
+    Header: "Total Price",
+    accessor: "totalInvoiceAmount",
+    Cell: ({ value }) =>
+      typeof value === "number"
+        ? value.toLocaleString("en-IN", {
+            style: "currency",
+            currency: "INR",
+            minimumFractionDigits: 2,
+          })
+        : "₹0.00",
+  },
+  {
     Header: "Type",
     accessor: "customertype",
   },
