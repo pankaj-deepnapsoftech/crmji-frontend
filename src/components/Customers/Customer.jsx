@@ -7,6 +7,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Portal
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -366,11 +367,8 @@ const Customer = () => {
             </AlertDialog>
           </>
           <div>
-            <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
+            {/* <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
               <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                {/* <span className="mr-2">
-                  <MdArrowBack />
-                </span> */}
                 Customer List
               </div>
 
@@ -415,7 +413,62 @@ const Customer = () => {
                   Add New Customer
                 </Button> */}
               </div>
-            </div>
+            </div> */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
+  {/* Title */}
+  <div className="text-lg md:text-xl font-semibold text-gray-800">
+    Customer List
+  </div>
+
+  {/* Controls */}
+  <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
+    <textarea
+      className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
+      rows="1"
+      placeholder="Search"
+      value={searchKey}
+      onChange={(e) => setSearchKey(e.target.value)}
+    />
+
+    <Button
+      fontSize={{ base: "14px", md: "14px" }}
+      px={{ base: "10px", md: "12px" }}
+      py={{ base: "2px", md: "3px" }}
+      width={{ base: "full", sm: "auto" }}
+      onClick={fetchAllCustomers}
+      leftIcon={<MdOutlineRefresh />}
+      color="#1640d6"
+      borderColor="#1640d6"
+      variant="outline"
+    >
+      Refresh
+    </Button>
+
+    <Select
+      onChange={(e) => setPageSize(e.target.value)}
+      width={{ base: "full", sm: "80px" }}
+      className="text-sm"
+    >
+      <option value={5}>5</option>
+      <option value={10}>10</option>
+      <option value={20}>20</option>
+      <option value={50}>50</option>
+      <option value={100}>100</option>
+      <option value={100000}>All</option>
+    </Select>
+
+    <Button
+      onClick={addCustomersHandler}
+      color="white"
+      backgroundColor="#1640d6"
+      width={{ base: "full", sm: "auto" }}
+      _hover={{ backgroundColor: "#1035ad" }}
+    >
+      Add New Customer
+    </Button>
+  </div>
+</div>
+
 
             <div>
               {addCustomersDrawerIsOpened && (
@@ -653,6 +706,7 @@ const Customer = () => {
                                       setSelectedRowId(row.original?._id)
                                     }
                                   />
+                                  <Portal>
                                   <MenuList>
                                     <MenuItem
                                       icon={<MdOutlineVisibility />}
@@ -680,6 +734,7 @@ const Customer = () => {
                                       Delete
                                     </MenuItem>
                                   </MenuList>
+                                  </Portal>
                                 </Menu>
                               </Td>
                             </Tr>

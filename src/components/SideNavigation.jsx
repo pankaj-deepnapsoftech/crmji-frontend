@@ -79,7 +79,7 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
 
   return (
     <div className="px-3 py-3 w-[70vw] bottom-8 h-[100vh] md:h-auto 
-             fixed top-0 left-0 z-20 overflow-y-auto overflow-x-hidden 
+             fixed top-0 left-0 z-50 overflow-y-auto overflow-x-hidden 
              bg-[#f9fafc] xl:relative">
       {isMenuOpen && (
         
@@ -142,34 +142,6 @@ const SideNavigation = ({ isMenuOpen, setIsMenuOpen }) => {
             )}
           </li>
         </NavLink>
-
-        {/* <NavLink
-          to="chats"
-          className={({ isActive }) =>
-            isActive ? "text-[#1640d6]" : "text-black"
-          }
-          onClick={() => {
-            if (isMenuOpen) {
-              setIsMenuOpen(false);
-            }
-          }}
-        >
-          <li
-            className="flex gap-x-2 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
-            onClick={() => changeOnlineStatus(true)}
-          >
-            <span>
-              <FaMessage />
-            </span>
-            <span>Chat</span>
-            {!checkAccess(auth, "admin")?.isAllowed && (
-              <span className="mt-1">
-                <FaLock size="12" color="#b1b1b1" />
-              </span>
-            )}
-          </li>
-        </NavLink> */}
-
         <div
           onClick={() => setShowProspectsSubmenu((prev) => !prev)}
           className="cursor-pointer flex gap-x-12 pl-3 pr-9 py-3 rounded-lg hover:bg-[#e6efff] hover:text-[#1640d6] text-[15px]"
