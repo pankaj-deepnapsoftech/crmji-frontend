@@ -537,8 +537,9 @@ const Reports = () => {
       {isAllowed && (
         <div>
           <div>
-            <div className="w-fit mt-2 mb-2 mr-0 ml-auto">
+            {/* <div className="w-full md:w-fit mt-2 mb-2 mr-0 md:ml-auto flex md:block">
               <Input
+                width={{ base: "100%", md: "auto" }}
                 type="number"
                 min="2000"
                 max="2099"
@@ -546,8 +547,8 @@ const Reports = () => {
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
               />
-            </div>
-          </div>
+            </div> */}
+          </div>Invoices
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-2 gap-x-2">
             <div
               style={{ boxShadow: "0 0 20px 3px #96beee26" }}
@@ -606,17 +607,17 @@ const Reports = () => {
 
           <div>
             <div>
-              <div className="flex justify-between items-center mt-10">
-                <h1 className="text-2xl">Individuals Report</h1>
-                <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-10">
+                <h1 className="text-lg md:text-2xl">Individuals Report</h1>
+                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                   <Select
-                    className="w-[200px]"
+                    className="w-full md:w-[200px]"
                     options={monthOptions}
                     value={individualsSelectedMonth}
                     onChange={(e) => setIndividualsSelectedMonth(e)}
                   />
                   <Input
-                    width={200}
+                    width={{ base: "100%", md: "200px" }}
                     type="number"
                     min="2000"
                     max="2099"
@@ -625,10 +626,10 @@ const Reports = () => {
                     onChange={(e) => setIndividualsSelectedYear(e.target.value)}
                   />
                   <Button
-                    fontSize={{ base: "14px", md: "14px" }}
-                    paddingX={{ base: "10px", md: "12px" }}
-                    paddingY={{ base: "0", md: "3px" }}
-                    width={{ base: "-webkit-fill-available", md: 200 }}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    paddingX={{ base: "8px", md: "12px" }}
+                    paddingY={{ base: "2px", md: "3px" }}
+                    width={{ base: "100%", md: "auto" }}
                     onClick={getIndividualsReport}
                     color="white"
                     backgroundColor="#1640d6"
@@ -641,17 +642,17 @@ const Reports = () => {
               <Bar options={individualsOptions} data={individualsData} />
             </div>
             <div>
-              <div className="flex justify-between items-center mt-10">
-                <h1 className="text-2xl">Corporates Report</h1>
-                <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-10">
+                <h1 className="text-lg md:text-2xl">Corporates Report</h1>
+                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                   <Select
-                    className="w-[200px]"
+                    className="w-full md:w-[200px]"
                     options={monthOptions}
                     value={corporatesSelectedMonth}
                     onChange={(e) => setCorporatesSelectedMonth(e)}
                   />
                   <Input
-                    width={200}
+                    width={{ base: "100%", md: "200px" }}
                     type="number"
                     min="2000"
                     max="2099"
@@ -660,10 +661,10 @@ const Reports = () => {
                     onChange={(e) => setCorporatesSelectedYear(e.target.value)}
                   />
                   <Button
-                    fontSize={{ base: "14px", md: "14px" }}
-                    paddingX={{ base: "10px", md: "12px" }}
-                    paddingY={{ base: "0", md: "3px" }}
-                    width={{ base: "-webkit-fill-available", md: 200 }}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    paddingX={{ base: "8px", md: "12px" }}
+                    paddingY={{ base: "2px", md: "3px" }}
+                    width={{ base: "100%", md: "auto" }}
                     onClick={getCorporatesReport}
                     color="white"
                     backgroundColor="#1640d6"
@@ -676,17 +677,17 @@ const Reports = () => {
               <Bar options={corporatesOptions} data={corporatesData} />
             </div>
             <div>
-              <div className="flex justify-between items-center mt-10">
-                <h1 className="text-2xl">Leads Report</h1>
-                <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-10">
+                <h1 className="text-lg md:text-2xl">Leads Report</h1>
+                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                   <Select
-                    className="w-[200px]"
+                    className="w-full md:w-[200px]"
                     options={monthOptions}
                     value={leadsSelectedMonth}
                     onChange={(e) => setLeadsSelectedMonth(e)}
                   />
                   <Input
-                    width={200}
+                    width={{ base: "100%", md: "200px" }}
                     type="number"
                     min="2000"
                     max="2099"
@@ -695,10 +696,10 @@ const Reports = () => {
                     onChange={(e) => setLeadsSelectedYear(e.target.value)}
                   />
                   <Button
-                    fontSize={{ base: "14px", md: "14px" }}
-                    paddingX={{ base: "10px", md: "12px" }}
-                    paddingY={{ base: "0", md: "3px" }}
-                    width={{ base: "-webkit-fill-available", md: 200 }}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    paddingX={{ base: "8px", md: "12px" }}
+                    paddingY={{ base: "2px", md: "3px" }}
+                    width={{ base: "100%", md: "auto" }}
                     onClick={getLeadsReport}
                     color="white"
                     backgroundColor="#1640d6"
@@ -711,17 +712,17 @@ const Reports = () => {
               <Bar options={leadsOptions} data={leadsData} />
             </div>
             <div>
-              <div className="flex justify-between items-center mt-10">
-                <h1 className="text-2xl">Follow Up Leads Report</h1>
-                <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-10">
+                <h1 className="text-lg md:text-2xl">Follow Up Leads Report</h1>
+                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                   <Select
-                    className="w-[200px]"
+                    className="w-full md:w-[200px]"
                     options={monthOptions}
                     value={followupLeadsSelectedMonth}
                     onChange={(e) => setFollowupLeadsSelectedMonth(e)}
                   />
                   <Input
-                    width={200}
+                    width={{ base: "100%", md: "200px" }}
                     type="number"
                     min="2000"
                     max="2099"
@@ -732,10 +733,10 @@ const Reports = () => {
                     }
                   />
                   <Button
-                    fontSize={{ base: "14px", md: "14px" }}
-                    paddingX={{ base: "10px", md: "12px" }}
-                    paddingY={{ base: "0", md: "3px" }}
-                    width={{ base: "-webkit-fill-available", md: 200 }}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    paddingX={{ base: "8px", md: "12px" }}
+                    paddingY={{ base: "2px", md: "3px" }}
+                    width={{ base: "100%", md: "auto" }}
                     onClick={getFollowupLeadsReport}
                     color="white"
                     backgroundColor="#1640d6"
@@ -748,10 +749,11 @@ const Reports = () => {
               <Bar options={followupLeadsOptions} data={followupLeadsData} />
             </div>
             <div>
-              <div className="flex justify-between items-center mt-10">
-                <h1 className="text-2xl">Payment Report</h1>
-                <div className="w-fit">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-10">
+                <h1 className="text-lg md:text-2xl">Payment Report</h1>
+                <div className="w-full md:w-auto">
                   <Input
+                    width={{ base: "100%", md: "auto" }}
                     type="number"
                     min="2000"
                     max="2099"
@@ -765,10 +767,11 @@ const Reports = () => {
               <Bar options={paymentOptions} data={paymentData} />
             </div>
             <div>
-              <div className="flex justify-between items-center mt-10">
-                <h1 className="text-2xl">Expense Report</h1>
-                <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-10">
+                <h1 className="text-lg md:text-2xl">Expense Report</h1>
+                <div className="w-full md:w-auto">
                   <Input
+                    width={{ base: "100%", md: "auto" }}
                     type="number"
                     min="2000"
                     max="2099"
