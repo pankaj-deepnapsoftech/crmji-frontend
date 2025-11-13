@@ -518,7 +518,7 @@ const Products = () => {
                                     )}
                                     {cell.column.id === "stock" &&
                                       row.original.stock > 10 && (
-                                        <span className="text-gray-600 font-bold h-[30px] w-[30px] rounded-full 
+                                        <span className="text-gray-600 font-extrabold h-[30px] w-[30px] rounded-full 
                                         p-2 flex items-center justify-center">
                                           {row.original.stock}
                                         </span>
