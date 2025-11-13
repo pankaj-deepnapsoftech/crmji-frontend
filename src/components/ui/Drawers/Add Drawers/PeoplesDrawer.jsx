@@ -224,7 +224,7 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
                   value={customStatus}
                   onChange={(e) => setCustomStatus(e.target.value)}
                   placeholder="Add more status"
-                  disabled={statusOptions.length >= 6}
+                  disabled={statusOptions.length >= 10}
                 />
                 <Button
                   onClick={async (e) => {
@@ -232,8 +232,8 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
                     const val = customStatus.trim();
                     if (!val) return;
 
-                    if (statusOptions.length >= 6) {
-                      toast.error("Maximum 6 status options allowed");
+                    if (statusOptions.length >= 10) {
+                      toast.error("Maximum 10 status options allowed");
                       return;
                     }
 
@@ -251,7 +251,7 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
                     }
                     setCustomStatus("");
                   }}
-                  disabled={statusOptions.length >= 6}
+                  disabled={statusOptions.length >= 10}
                 >
                   Add
                 </Button>
