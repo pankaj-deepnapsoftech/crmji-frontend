@@ -40,8 +40,9 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Portal 
 } from "@chakra-ui/react";
-import { Table } from "@chakra-ui/react";
+import { Table  } from "@chakra-ui/react";
 import { FaCaretDown, FaCaretUp, FaDownload } from "react-icons/fa";
 import {
   MdContactPhone,
@@ -110,6 +111,7 @@ const Demo = () => {
   const [leadData, setLeadData] = useState([]);
   const [newStatus, setNewStatus] = useState("");
   const [remark, setRemark] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const statusStyles = {
     "scheduled meeting": {
@@ -420,12 +422,21 @@ const Demo = () => {
       return;
     }
 
+    if (newStatus === "Payment Received") {
+      const amt = Number(paymentAmount);
+      if (!amt || amt <= 0) {
+        toast.error("Please enter a valid payment amount");
+        return;
+      }
+    }
+
     setIsUpdating(true);
     try {
       console.log("Updating demo with:", {
         leadId: dataId,
         status: newStatus,
         remark,
+        paymentAmount,
       });
 
       const response = await fetch(`${baseURL}lead/edit-schedule-demo`, {
@@ -438,6 +449,7 @@ const Demo = () => {
           leadId: dataId,
           status: newStatus,
           remark: remark,
+          paymentAmount: newStatus === "Payment Received" ? Number(paymentAmount) : undefined,
         }),
       });
 
@@ -462,6 +474,7 @@ const Demo = () => {
 
         setNewStatus("");
         setRemark("");
+        setPaymentAmount("");
 
         setIsLeadModalOpen(false);
       } else {
@@ -600,29 +613,39 @@ const Demo = () => {
 
   return (
     <Box p={6}>
-      <div className="flex justify-between items-center mb-4">
-        <Heading size="md" mb={4}>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.05)] p-3">
+        <Heading
+          size={{ base: "sm", md: "md" }}
+          className="text-gray-800 font-semibold"
+        >
           Scheduled Meetings
         </Heading>
-        <div className="flex gap-3 items-center">
+
+        <div className="flex flex-wrap items-center gap-3">
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-300 px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 bg-white px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto transition-all"
           >
             <option value="all">All Status</option>
             <option value="scheduled meeting">Scheduled Meeting</option>
             <option value="meeting completed">Meeting Completed</option>
           </select>
 
+
           <button
-            className="border border-blue-700 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-700 hover:text-white transition-colors"
             onClick={fetchScheduledDemoLeads}
+            className="flex items-center justify-center gap-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-200 w-full sm:w-auto"
           >
-            Refresh
+          
+            <span>Refresh</span>
           </button>
         </div>
       </div>
+
+
+
       {data.length === 0 ? (
         <Text color="gray.500" textAlign="center" mt={8}>
           No scheduled meetings found.
@@ -762,6 +785,7 @@ const Demo = () => {
                       {/* Actions */}
                       <Td>
                         <Menu>
+                          
                           <MenuButton
                             as={IconButton}
                             aria-label="Options"
@@ -770,6 +794,7 @@ const Demo = () => {
                             size="sm"
                             onClick={() => setSelectedRowId(row.original?._id)}
                           />
+                          <Portal>
                           <MenuList>
                             <MenuItem
                               icon={<MdOutlineVisibility />}
@@ -885,8 +910,12 @@ const Demo = () => {
                               Delete
                             </MenuItem>
                           </MenuList>
+                          </Portal>
                         </Menu>
                       </Td>
+
+
+
                     </Tr>
                   );
                 })}
@@ -1035,8 +1064,10 @@ const Demo = () => {
                   <Select
                     value={newStatus}
                     onChange={(e) => {
-                      setNewStatus(e.target.value);
-                      console.log("New Status:", e.target.value);
+                      const val = e.target.value;
+                      setNewStatus(val);
+                      if (val !== "Payment Received") setPaymentAmount("");
+                      console.log("New Status:", val);
                     }}
                     maxW="250px"
                   >
@@ -1049,6 +1080,24 @@ const Demo = () => {
                     <option value="Invoice sent">Invoice sent</option>
                     <option value="Payment Received">Payment Received</option>
                   </Select>
+
+                  {/* Payment Amount (Shown only when Payment Received) */}
+                  {newStatus === "Payment Received" && (
+                    <Box mt={4}>
+                      <Text fontWeight="bold" mb={1}>
+                        Enter Payment Amount:
+                      </Text>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g. 5000"
+                        value={paymentAmount}
+                        onChange={(e) => setPaymentAmount(e.target.value)}
+                        maxW="250px"
+                      />
+                    </Box>
+                  )}
                 </Box>
 
                 {/* Remark */}

@@ -351,9 +351,6 @@ const Offers = () => {
           <div>
             <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
               <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                {/* <span className="mr-2">
-                  <MdArrowBack />
-                </span> */}
                 Offer List
               </div>
 
@@ -517,7 +514,8 @@ const Offers = () => {
 
                         return (
                           <Tr
-                            className="relative hover:bg-gray-100 hover:cursor-pointer text-base transition-all duration-300 ease-in-out"
+                            className="relative hover:bg-gray-100 hover:cursor-pointer 
+                            text-base transition-all duration-300 ease-in-out"
                             {...row.getRowProps()}
                           >
                             {row.cells.map((cell) => {
@@ -527,7 +525,8 @@ const Offers = () => {
                                     cell.column.id === "lead"
                                       ? "sticky top-0 left-[-2px]"
                                       : ""
-                                  } font-semibold text-sm text-gray-700 px-4 py-3 border-l border-r border-[#e0e0e0]`}
+                                  } font-semibold text-sm text-gray-700 bg-white
+                                   px-4 py-3 border-l border-r border-[#e0e0e0]`}
                                   {...cell.getCellProps()}
                                 >
                                   {cell.column.id === "lead" &&
