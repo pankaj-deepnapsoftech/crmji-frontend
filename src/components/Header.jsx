@@ -138,6 +138,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
     notificationCtx.getUnseenchatNotificationCount();
   }, []);
 
+      
   useEffect(() => {
     if (showNotificationsMenu) {
       notificationCtx.seenNotificationHandler();
@@ -389,7 +390,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
         )}
       </div>
     </div>
-  );
+    );
 };
 
 export default Header;
