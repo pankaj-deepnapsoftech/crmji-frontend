@@ -635,70 +635,6 @@ const Dashboard = () => {
       {isAllowed && (
         
         <div className="px-2 py-4 md:px-4 lg:px-6">
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mb-6 w-full">
-  <Link to="admins">
-    <Cards
-      label="Total Employees"
-      content={totalEmployees}
-      bg="bg-indigo-50"
-      Icon={RiUserStarLine}
-      iconColor="text-indigo-500"
-    />
-  </Link>
-
-  <Link to="individuals">
-    <Cards
-      label="Total Individuals"
-      content={totalPeople}
-      bg="bg-orange-100"
-      Icon={TbUsersGroup}
-      iconColor="text-orange-700"
-    />
-  </Link>
-
-  <Link to="corporates">
-    <Cards
-      label="Total Corporates"
-      content={totalCompanies}
-      bg="bg-blue-50"
-      Icon={RiUserStarLine}
-      iconColor="text-blue-500"
-    />
-  </Link>
-
-  <Link to="leads">
-    <Cards
-      label="Total Bulk SMS"
-      content={totalSms}
-      bg="bg-yellow-100"
-      Icon={MdOutlineSms}
-      iconColor="text-yellow-600"
-    />
-  </Link>
-
-  <Link to="leads">
-    <Cards
-      label="Total Whatsapp"
-      content={totalWhatsapp}
-      bg="bg-green-100"
-      Icon={FaWhatsapp}
-      iconColor="text-green-700"
-    />
-  </Link>
-
-  <Link to="leads">
-    <Cards
-      label="Total Bulk Email"
-      content={totalEmail}
-      bg="bg-red-100"
-      Icon={AiOutlineMail}
-      iconColor="text-red-600"
-    />
-  </Link>
-</div>
-
-          {/* Date Range and Duration Filters */}
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 mb-6">
             {/* Date Range Filter */}
             <div className="flex-1">
@@ -710,7 +646,7 @@ const Dashboard = () => {
                 className="bg-white p-[18px] rounded-lg shadow-md border"
               >
                 <h3 className="text-lg font-semibold mb-4 text-gray-700">
-                  Date Range Filter
+                  Date Range Filter 
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <FormControl>

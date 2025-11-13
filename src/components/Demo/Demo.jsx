@@ -111,6 +111,7 @@ const Demo = () => {
   const [newStatus, setNewStatus] = useState("");
   const [remark, setRemark] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [viewMode, setViewMode] = useState("table");
   const statusStyles = {
     "scheduled meeting": {
       bg: "#e6f7ff",

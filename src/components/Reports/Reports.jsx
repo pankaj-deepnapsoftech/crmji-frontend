@@ -764,7 +764,7 @@ const Reports = () => {
 
               <Bar options={paymentOptions} data={paymentData} />
             </div>
-            <div>
+            {/* <div>
               <div className="flex justify-between items-center mt-10">
                 <h1 className="text-2xl">Expense Report</h1>
                 <div className="flex gap-2">
@@ -780,7 +780,7 @@ const Reports = () => {
               </div>
 
               <Bar options={expenseOptions} data={expenseData} />
-            </div>
+            </div> */}
           </div>
         </div>
       )}
