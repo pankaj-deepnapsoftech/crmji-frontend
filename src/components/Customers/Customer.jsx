@@ -405,13 +405,13 @@ const Customer = () => {
                   <option value={100}>100</option>
                   <option value={100000}>All</option>
                 </Select>
-                <Button
+                {/* <Button
                   onClick={addCustomersHandler}
                   color="white"
                   backgroundColor="#1640d6"
                 >
                   Add New Customer
-                </Button>
+                </Button> */}
               </div>
             </div> */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
