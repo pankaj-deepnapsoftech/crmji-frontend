@@ -21,7 +21,9 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Portal,
 } from "@chakra-ui/react";
+import { BiTable, BiCard } from "react-icons/bi";
 import {
   MdOutlineRefresh,
   MdArrowBack,
@@ -118,6 +120,7 @@ const Leads = () => {
   const [searchKey, setSearchKey] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [viewMode, setViewMode] = useState("table");
 
   const [leadSummaryData, setLeadSummaryData] = useState([]);
   const [leadSummaryLabels, setLeadSummaryLabels] = useState([]);
@@ -1468,6 +1471,7 @@ const Leads = () => {
                   fontSize="14px"
                   _hover={{ borderColor: "blue.400" }}
                 >
+                  <option value={5}>5</option>
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={50}>50</option>
@@ -1491,6 +1495,32 @@ const Leads = () => {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="flex justify-end gap-x-2 mb-4">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "table"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Table View"
+              >
+                <BiTable size={20} />
+              </button>
+              <butCorporate
+                Listton
+                onClick={() => setViewMode("card")}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  viewMode === "card"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                }`}
+                title="Card View"
+              >
+                <BiCard size={20} />
+              </butCorporate>
             </div>
 
             <div>
@@ -1656,294 +1686,312 @@ const Leads = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    className="shadow-lg rounded-lg bg-white"
-                  >
-                    <Table
-                      {...getTableProps()}
-                      borderWidth="1px"
-                      borderColor="#e0e0e0"
-                      className="min-w-full"
+                  {viewMode === "table" ? (
+                    <TableContainer
+                      maxHeight="600px"
+                      overflowY="auto"
+                      className="shadow-lg rounded-lg bg-white"
                     >
-                      <Thead
-                        position="sticky"
-                        top={0}
-                        zIndex={1}
-                        bg="blue.400"
-                        color="white"
-                        boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
-                        className="text-lg font-semibold"
+                      <Table
+                        {...getTableProps()}
+                        borderWidth="1px"
+                        borderColor="#e0e0e0"
+                        className="min-w-full"
                       >
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr {...hg.getHeaderGroupProps()}>
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    bg="blue.400"
-                                    className={`${
-                                      column.id === "name"
-                                        ? "sticky top-0 left-[-2px]"
-                                        : ""
-                                    }`}
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                    textTransform="capitalize"
-                                    fontSize="15px"
-                                    fontWeight="700"
-                                    color="white"
-                                  >
-                                    <div className="flex items-center">
-                                      {column.render("Header")}
-                                      {column.isSorted && (
-                                        <span>
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
+                        <Thead
+                          position="sticky"
+                          top={0}
+                          zIndex={1}
+                          bg="blue.400"
+                          color="white"
+                          boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
+                          className="text-lg font-semibold"
+                        >
+                          {headerGroups.map((hg) => {
+                            return (
+                              <Tr {...hg.getHeaderGroupProps()}>
+                                {hg.headers.map((column) => {
+                                  return (
+                                    <Th
+                                      bg="blue.400"
+                                      className={`${
+                                        column.id === "name"
+                                          ? "sticky top-0 left-[-2px]"
+                                          : ""
+                                      }`}
+                                      {...column.getHeaderProps(
+                                        column.getSortByToggleProps()
                                       )}
-                                    </div>
-                                  </Th>
-                                );
-                              })}
-                              <Th
-                                textTransform="capitalize"
-                                fontSize="15px"
-                                fontWeight="700"
-                                color="white"
-                                borderLeft="1px solid #e0e0e0"
-                                borderRight="1px solid #e0e0e0"
+                                      textTransform="capitalize"
+                                      fontSize="15px"
+                                      fontWeight="700"
+                                      color="white"
+                                    >
+                                      <div className="flex items-center">
+                                        {column.render("Header")}
+                                        {column.isSorted && (
+                                          <span>
+                                            {column.isSortedDesc ? (
+                                              <FaCaretDown />
+                                            ) : (
+                                              <FaCaretUp />
+                                            )}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </Th>
+                                  );
+                                })}
+                                <Th
+                                  textTransform="capitalize"
+                                  fontSize="15px"
+                                  fontWeight="700"
+                                  color="white"
+                                  borderLeft="1px solid #e0e0e0"
+                                  borderRight="1px solid #e0e0e0"
+                                >
+                                  Actions
+                                </Th>
+                              </Tr>
+                            );
+                          })}
+                        </Thead>
+                        <Tbody {...getTableBodyProps()}>
+                          {page.map((row) => {
+                            prepareRow(row);
+                            return (
+                              <Tr
+                                className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
+                                {...row.getRowProps()}
                               >
-                                Actions
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={
-                                      cell.column.id === "name"
-                                        ? "sticky left-0 bg-gray-50 hover:bg-gray-100"
-                                        : ""
-                                    }
-                                    fontWeight="600"
-                                    padding="16px"
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "select" &&
-                                      cell.column.id !== "leadtype" &&
-                                      cell.column.id !== "status" &&
-                                      cell.column.id !== "source" &&
-                                      cell.column.id !== "assigned" &&
-                                      cell.column.id !== "followup_date" &&
-                                      cell.column.id !== "followup_reason" &&
-                                      cell.column.id !== "created_on" &&
-                                      cell.column.id !== "leadCategory" &&
-                                      cell.render("Cell")}
+                                {row.cells.map((cell) => {
+                                  return (
+                                    <Td
+                                      className={
+                                        cell.column.id === "name"
+                                          ? "sticky left-0 bg-gray-50 hover:bg-gray-100"
+                                          : ""
+                                      }
+                                      fontWeight="600"
+                                      padding="16px"
+                                      {...cell.getCellProps()}
+                                    >
+                                      {cell.column.id !== "select" &&
+                                        cell.column.id !== "leadtype" &&
+                                        cell.column.id !== "status" &&
+                                        cell.column.id !== "source" &&
+                                        cell.column.id !== "assigned" &&
+                                        cell.column.id !== "followup_date" &&
+                                        cell.column.id !== "followup_reason" &&
+                                        cell.column.id !== "created_on" &&
+                                        cell.column.id !== "leadCategory" &&
+                                        cell.render("Cell")}
 
-                                    {cell.column.id === "select" && (
-                                      <input
-                                        value={cell.row.original._id}
-                                        name="select"
-                                        type="checkbox"
-                                        className="cursor-pointer"
-                                        checked={selectedIds.includes(
-                                          cell.row.original._id
-                                        )}
-                                        onChange={(e) => {
-                                          selectOneHandler(
-                                            e,
+                                      {cell.column.id === "select" && (
+                                        <input
+                                          value={cell.row.original._id}
+                                          name="select"
+                                          type="checkbox"
+                                          className="cursor-pointer"
+                                          checked={selectedIds.includes(
                                             cell.row.original._id
-                                          );
-                                          // remove the old handleSelection call — it's redundant now
-                                        }}
-                                      />
-                                    )}
-
-                                    {/* Specific Column Renderings */}
-                                    {cell.column.id === "leadtype" && (
-                                      <span
-                                        className={`text-sm rounded-md px-3 py-1 ${
-                                          row.original.leadtype === "People"
-                                            ? "bg-[#fff0f6] text-[#c41d7f]"
-                                            : "bg-[#e6f4ff] text-[#0958d9]"
-                                        }`}
-                                      >
-                                        {row.original.leadtype === "People"
-                                          ? "Individual"
-                                          : "Corporate"}
-                                      </span>
-                                    )}
-
-                                    {/* Date & Reason Handling */}
-                                    {cell.column.id === "created_on" &&
-                                      row.original?.createdAt && (
-                                        <span>
-                                          {moment(
-                                            row.original?.createdAt
-                                          ).format("DD/MM/YYYY")}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "followup_date" &&
-                                      row.original?.followup_date && (
-                                        <span>
-                                          {moment(
-                                            row.original?.followup_date
-                                          ).format("DD/MM/YYYY")}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "followup_reason" &&
-                                      row.original?.followup_reason && (
-                                        <span>
-                                          {row.original?.followup_reason?.substr(
-                                            0,
-                                            10
                                           )}
-                                          ...
+                                          onChange={(e) => {
+                                            selectOneHandler(
+                                              e,
+                                              cell.row.original._id
+                                            );
+                                            // remove the old handleSelection call — it's redundant now
+                                          }}
+                                        />
+                                      )}
+
+                                      {/* Specific Column Renderings */}
+                                      {cell.column.id === "leadtype" && (
+                                        <span
+                                          className={`text-sm rounded-md px-3 py-1 ${
+                                            row.original.leadtype === "People"
+                                              ? "bg-[#fff0f6] text-[#c41d7f]"
+                                              : "bg-[#e6f4ff] text-[#0958d9]"
+                                          }`}
+                                        >
+                                          {row.original.leadtype === "People"
+                                            ? "Individual"
+                                            : "Corporate"}
                                         </span>
                                       )}
 
-                                    {/* Status Rendering */}
-                                    {cell.column.id === "status" && (
-                                      <span
-                                        className="text-sm rounded-md px-3 py-1"
-                                        style={{
-                                          backgroundColor:
-                                            statusStyles[
-                                              row.original.status.toLowerCase()
-                                            ]?.bg,
-                                          color:
-                                            statusStyles[
-                                              row.original.status.toLowerCase()
-                                            ]?.text,
-                                        }}
-                                      >
-                                        {row.original.status}
-                                      </span>
-                                    )}
-
-                                    {/* Source Rendering */}
-                                    {cell.column.id === "source" && (
-                                      <span
-                                        className="text-sm rounded-md px-3 py-1"
-                                        style={{
-                                          backgroundColor:
-                                            sourceStyles[
-                                              row?.original?.source?.toLowerCase()
-                                            ]?.bg,
-                                          color:
-                                            sourceStyles[
-                                              row?.original?.source?.toLowerCase()
-                                            ]?.text,
-                                        }}
-                                      >
-                                        {row.original.source}
-                                      </span>
-                                    )}
-
-                                    {/* Assigned */}
-                                    {cell.column.id === "assigned" && (
-                                      <span>
-                                        {row.original?.assigned ||
-                                          "Not Assigned"}
-                                      </span>
-                                    )}
-
-                                    {cell.column.id === "leadCategory" && (
-                                      <Badge
-                                        className="text-sm rounded-md px-3 py-1"
-                                        colorScheme={getCategoryColor(
-                                          row.original?.leadCategory
+                                      {/* Date & Reason Handling */}
+                                      {cell.column.id === "created_on" &&
+                                        row.original?.createdAt && (
+                                          <span>
+                                            {moment(
+                                              row.original?.createdAt
+                                            ).format("DD/MM/YYYY")}
+                                          </span>
                                         )}
-                                      >
-                                        {row.original?.leadCategory}
-                                      </Badge>
-                                    )}
-                                  </Td>
-                                );
-                              })}
+                                      {cell.column.id === "followup_date" &&
+                                        row.original?.followup_date && (
+                                          <span>
+                                            {moment(
+                                              row.original?.followup_date
+                                            ).format("DD/MM/YYYY")}
+                                          </span>
+                                        )}
+                                      {cell.column.id === "followup_reason" &&
+                                        row.original?.followup_reason && (
+                                          <span>
+                                            {row.original?.followup_reason?.substr(
+                                              0,
+                                              10
+                                            )}
+                                            ...
+                                          </span>
+                                        )}
 
-                              {/* Actions */}
-                              <Td className="flex items-center gap-x-3">
-                                {/* KYC Button */}
+                                      {/* Status Rendering */}
+                                      {cell.column.id === "status" && (
+                                        <span
+                                          className="text-sm rounded-md px-3 py-1"
+                                          style={{
+                                            backgroundColor:
+                                              statusStyles[
+                                                row.original.status.toLowerCase()
+                                              ]?.bg,
+                                            color:
+                                              statusStyles[
+                                                row.original.status.toLowerCase()
+                                              ]?.text,
+                                          }}
+                                        >
+                                          {row.original.status}
+                                        </span>
+                                      )}
 
-                                {/* This is the KYC Component below commented */}
-                                {/* <FaUserShield size={20}
+                                      {/* Source Rendering */}
+                                      {cell.column.id === "source" && (
+                                        <span
+                                          className="text-sm rounded-md px-3 py-1"
+                                          style={{
+                                            backgroundColor:
+                                              sourceStyles[
+                                                row?.original?.source?.toLowerCase()
+                                              ]?.bg,
+                                            color:
+                                              sourceStyles[
+                                                row?.original?.source?.toLowerCase()
+                                              ]?.text,
+                                          }}
+                                        >
+                                          {row.original.source}
+                                        </span>
+                                      )}
+
+                                      {/* Assigned */}
+                                      {cell.column.id === "assigned" && (
+                                        <span>
+                                          {row.original?.assigned ||
+                                            "Not Assigned"}
+                                        </span>
+                                      )}
+
+                                      {cell.column.id === "leadCategory" && (
+                                        <Badge
+                                          className="text-sm rounded-md px-3 py-1"
+                                          colorScheme={getCategoryColor(
+                                            row.original?.leadCategory
+                                          )}
+                                        >
+                                          {row.original?.leadCategory}
+                                        </Badge>
+                                      )}
+                                    </Td>
+                                  );
+                                })}
+
+                                {/* Actions */}
+                                <Td className="flex items-center gap-x-3">
+                                  {/* KYC Button */}
+
+                                  {/* This is the KYC Component below commented */}
+                                  {/* <FaUserShield size={20}
                                   onClick={() => {
                                     setDataId(row.original?._id);
                                     dispatch(openKYCDrawer());
                                   }} className="flex items-center justify-center text-blue-500" /> */}
 
-                                {/* Schedule Demo */}
-                                <FaCalendarAlt
-                                  className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
-                                  size={20}
-                                  title="Schedule Meeting"
-                                  onClick={() => {
-                                    setDataId(row.original?._id);
-                                    dispatch(openMoveToDemoDrawer());
-                                  }}
-                                />
-
-                                {/* Actions Dropdown */}
-                                <Menu>
-                                  <MenuButton
-                                    as={IconButton}
-                                    icon={<MdMoreVert />}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="hover:bg-gray-100"
+                                  {/* Schedule Demo */}
+                                  <FaCalendarAlt
+                                    className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
+                                    size={20}
+                                    title="Schedule Meeting"
+                                    onClick={() => {
+                                      setDataId(row.original?._id);
+                                      dispatch(openMoveToDemoDrawer());
+                                    }}
                                   />
-                                  <MenuList>
-                                    <MenuItem
-                                      icon={<MdOutlineVisibility />}
-                                      onClick={() =>
-                                        showDetailsHandler(row.original?._id)
-                                      }
-                                    >
-                                      View
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdEdit />}
-                                      onClick={() =>
-                                        editHandler(row.original?._id)
-                                      }
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdDeleteOutline />}
-                                      onClick={() => {
-                                        setLeadDeleteId(row.original?._id);
-                                        confirmDeleteHandler();
-                                      }}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </MenuList>
-                                </Menu>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+
+                                  {/* Actions Dropdown */}
+                                  <Menu>
+                                    <MenuButton
+                                      as={IconButton}
+                                      icon={<MdMoreVert />}
+                                      variant="ghost"
+                                      size="sm"
+                                      className="hover:bg-gray-100"
+                                    />
+                                    <Portal>
+                                      <MenuList>
+                                        <MenuItem
+                                          icon={<MdOutlineVisibility />}
+                                          onClick={() =>
+                                            showDetailsHandler(
+                                              row.original?._id
+                                            )
+                                          }
+                                        >
+                                          View
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdEdit />}
+                                          onClick={() =>
+                                            editHandler(row.original?._id)
+                                          }
+                                        >
+                                          Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdDeleteOutline />}
+                                          onClick={() => {
+                                            setLeadDeleteId(row.original?._id);
+                                            confirmDeleteHandler();
+                                          }}
+                                        >
+                                          Delete
+                                        </MenuItem>
+                                      </MenuList>
+                                    </Portal>
+                                  </Menu>
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {page.map((lead) => {
+                        prepareRow(lead);
+                        return (
+                          <div className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer">
+                            hello
+                            <div>f</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
 
                   <div className="w-[max-content] m-auto mt-4 mb-6">
                     <button
