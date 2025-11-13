@@ -349,7 +349,15 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   const navigate = useNavigate();
   const [cookies, , removeCookie] = useCookies();
   const user = useSelector((state) => state.auth);
+  const [notifications, setNotifications] = useState([]);
+  const [unseenNotifications, setUnseenNotifications] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [dataId, setDataId] = useState();
+  const [isIndiamartLead, setIsIndiamartLead] = useState(false);
+  const baseURL = process.env.REACT_APP_BACKEND_URL;
   const notificationCtx = useContext(notificationContext);
+  const shouldShowUpgradeButton =
+    !user?.isSubscribed && user?.isTrial && !user?.isTrialEnded;
 
   const toggleUserDetailsMenu = () => setShowUserDetailsMenu((prev) => !prev);
   const toggleNotificationsMenu = () => setShowNotificationsMenu((prev) => !prev);
@@ -364,8 +372,138 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   };
 
   useEffect(() => {
-    if (user?.id) socket.emit("register", user.id);
-  }, [user]);
+    notificationCtx.getNotifications();
+
+    // Register user for receiving personal notifications
+    if (user?.id) {
+      socket.emit("register", user.id);
+      console.log("User registered for notifications:", user.id);
+    }
+
+    // Register notification listeners inside useEffect with cleanup
+    const handleSendNotification = async (data) => {
+      console.log("New one-to-one notification arrived:", data);
+
+      // Show toast for one-to-one messages
+      if (data.sender && data.sender !== user.id) {
+        toast.info("You have a new message!");
+      }
+
+      // Refresh notification count
+      notificationCtx.getChatNotificationsHandler(user.id);
+      notificationCtx.getUnseenchatNotificationCount();
+    };
+
+    const handleNewNotification = async (data) => {
+      console.log("Group message notification:", data);
+      const { notification, groupName, senderName, fileName } = data;
+
+      // Show toast notification
+      if (fileName) {
+        toast.info(`${senderName} sent a file in ${groupName}`);
+      } else {
+        toast.info(`New message in ${groupName} from ${senderName}`);
+      }
+
+      // Refresh notifications
+      notificationCtx.getChatNotificationsHandler(user.id);
+      notificationCtx.getUnseenchatNotificationCount();
+    };
+
+    socket.on("sendNotification", handleSendNotification);
+    socket.on("newNotification", handleNewNotification);
+
+    // Cleanup listeners on unmount
+    return () => {
+      socket.off("sendNotification", handleSendNotification);
+      socket.off("newNotification", handleNewNotification);
+    };
+  }, [user]); 
+
+  useEffect(() => {
+    notificationCtx.getChatNotificationsHandler(user.id);
+    notificationCtx.getUnseenchatNotificationCount();
+  }, []);
+
+      
+  useEffect(() => {
+    if (showNotificationsMenu) {
+      notificationCtx.seenNotificationHandler();
+    }
+  }, [showNotificationsMenu]);
+
+  useEffect(() => {
+    socket.on("NEW_SUPPORT_QUERY", (data) => {
+      toast.info(data);
+      notificationCtx.getUnseenNotificationsHandler();
+    });
+
+    // socket.on("NEW_MESSAGE_NOTIFICATION", (data) => {
+    //   toast.info(data);
+    // notificationCtx.getChatNotificationsHandler(user.id);
+    // });
+
+    socket.on("SUPPORT_QUERY_ASSIGNED", (data) => {
+      toast.info(data);
+      notificationCtx.getUnseenNotificationsHandler();
+    });
+    socket.on("NEW_FOLLOWUP_LEAD", (data) => {
+      toast.info(data);
+      notificationCtx.getUnseenNotificationsHandler();
+    });
+    socket.on("NEW_ASSIGNED_LEAD", (data) => {
+      toast.info(data);
+      notificationCtx.getUnseenNotificationsHandler();
+    });
+
+    return () => {
+      socket.off("NEW_SUPPORT_QUERY", (data) => {
+        toast.info(data);
+        notificationCtx.getUnseenNotificationsHandler();
+      });
+      socket.off("SUPPORT_QUERY_ASSIGNED", (data) => {
+        toast.info(data);
+        notificationCtx.getUnseenNotificationsHandler();
+      });
+      socket.off("NEW_FOLLOWUP_LEAD", (data) => {
+        toast.info(data);
+        notificationCtx.getUnseenNotificationsHandler();
+      });
+      socket.off("NEW_ASSIGNED_LEAD", (data) => {
+        toast.info(data);
+        notificationCtx.getUnseenNotificationsHandler();
+      });
+    };
+  }, []);
+
+  // const getusermessage = async (clickedUser) => {
+  //   // Fetch all messages between the logged-in user and the clicked user
+  //   socket.emit('getMessages', { user1: user.id, user2: clickedUser?.sender });
+  //   // // Listen for all messages between two users
+  //   socket.on('allMessages', async (data) => {
+  //       await dispatch(addChatMessages(data));
+  //   });
+  //   try {
+  //     const response = await fetch(`${baseURL}chat/getuser/${user.id}`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to update status');
+  //     }
+
+  //     const data = await response.json();
+  //     await dispatch(addRecipient(data.admins));
+  //     await dispatch(togglechatarea('onetoonechat'));
+
+  //     navigate('/chats');
+  //   } catch (error) {
+  //     console.error('Error updating status:', error);
+  //   }
+  // };
 
   return (
     <header className="sticky top-0 bg-white shadow-sm border-b border-gray-300">
@@ -401,7 +539,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
 
         {/* Right Section */}
         <div className="flex items-center gap-3 sm:gap-5">
-          {user?.isTrial && !user?.isTrialEnded && (
+          {shouldShowUpgradeButton && (
             <Link to="/pricing">
               <button className="border border-[#d61616] rounded-md px-3 sm:px-6 py-1.5 bg-[#d61616] text-white font-medium text-sm sm:text-base hover:bg-white hover:text-[#d61616] transition">
                 {user?.account?.trial_started || user?.isSubscriptionEnded

@@ -16,15 +16,19 @@ const SuperAdminCustomers = () => {
       header: 'Status',
       key: 'status',
       render: (item) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          item.status === 'Payment Received' ? 'bg-green-100 text-green-800' :
-          item.status === 'Invoice Sent' ? 'bg-blue-100 text-blue-800' :
-          item.status === 'Proforma Invoice Sent' ? 'bg-yellow-100 text-yellow-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.status === 'Payment Received' ? 'bg-green-100 text-green-800' :
+            item.status === 'Invoice Sent' ? 'bg-blue-100 text-blue-800' :
+              item.status === 'Proforma Invoice Sent' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-gray-100 text-gray-800'
+          }`}>
           {item.status}
         </span>
       )
+    },
+    {
+      header: 'Last Payment Amount',
+      key: 'lastPaymentAmount',
+      render: (item) => item.lastPaymentAmount != null ? `₹${item.lastPaymentAmount}` : '—'
     },
     {
       header: 'Contact Person',

@@ -111,6 +111,7 @@ const Demo = () => {
   const [leadData, setLeadData] = useState([]);
   const [newStatus, setNewStatus] = useState("");
   const [remark, setRemark] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const statusStyles = {
     "scheduled meeting": {
@@ -421,12 +422,21 @@ const Demo = () => {
       return;
     }
 
+    if (newStatus === "Payment Received") {
+      const amt = Number(paymentAmount);
+      if (!amt || amt <= 0) {
+        toast.error("Please enter a valid payment amount");
+        return;
+      }
+    }
+
     setIsUpdating(true);
     try {
       console.log("Updating demo with:", {
         leadId: dataId,
         status: newStatus,
         remark,
+        paymentAmount,
       });
 
       const response = await fetch(`${baseURL}lead/edit-schedule-demo`, {
@@ -439,6 +449,7 @@ const Demo = () => {
           leadId: dataId,
           status: newStatus,
           remark: remark,
+          paymentAmount: newStatus === "Payment Received" ? Number(paymentAmount) : undefined,
         }),
       });
 
@@ -463,6 +474,7 @@ const Demo = () => {
 
         setNewStatus("");
         setRemark("");
+        setPaymentAmount("");
 
         setIsLeadModalOpen(false);
       } else {
@@ -1052,8 +1064,10 @@ const Demo = () => {
                   <Select
                     value={newStatus}
                     onChange={(e) => {
-                      setNewStatus(e.target.value);
-                      console.log("New Status:", e.target.value);
+                      const val = e.target.value;
+                      setNewStatus(val);
+                      if (val !== "Payment Received") setPaymentAmount("");
+                      console.log("New Status:", val);
                     }}
                     maxW="250px"
                   >
@@ -1066,6 +1080,24 @@ const Demo = () => {
                     <option value="Invoice sent">Invoice sent</option>
                     <option value="Payment Received">Payment Received</option>
                   </Select>
+
+                  {/* Payment Amount (Shown only when Payment Received) */}
+                  {newStatus === "Payment Received" && (
+                    <Box mt={4}>
+                      <Text fontWeight="bold" mb={1}>
+                        Enter Payment Amount:
+                      </Text>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g. 5000"
+                        value={paymentAmount}
+                        onChange={(e) => setPaymentAmount(e.target.value)}
+                        maxW="250px"
+                      />
+                    </Box>
+                  )}
                 </Box>
 
                 {/* Remark */}
