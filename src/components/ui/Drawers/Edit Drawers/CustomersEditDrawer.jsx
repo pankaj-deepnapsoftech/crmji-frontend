@@ -275,22 +275,50 @@ const CustomersEditDrawer = ({
   }, [statusId?.value]);
 
   const deleteStatusHandler = async (status) => {
-    if (!status?.id) {
-      toast.error("Unable to delete this status.");
-      return;
-    }
-
     try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(
-        `${baseURL}status/delete-status/${status.id}`,
-        {
+      let statusIdToDelete = status?.id;
+      if (!statusIdToDelete) {
+        // Try to resolve id by name first
+        const baseURL = process.env.REACT_APP_BACKEND_URL;
+        const res = await fetch(baseURL + "status/all-statuses", {
           method: "POST",
           headers: {
             authorization: `Bearer ${cookies?.access_token}`,
           },
+        });
+        const list = await res.json();
+        if (list?.success && Array.isArray(list.statuses)) {
+          const found = list.statuses.find(
+            (s) => s?.name?.toLowerCase() === status.value?.toLowerCase()
+          );
+          if (found?._id) {
+            statusIdToDelete = found._id;
+          }
         }
-      );
+      }
+
+      if (!statusIdToDelete) {
+        // Not found on server; remove locally so it doesn't persist in UI
+        setStatusOptions((prev) =>
+          prev.filter(
+            (option) =>
+              (option.id || option.value) !== (status.id || status.value)
+          )
+        );
+        if ((statusId?.id || statusId?.value) === (status.id || status.value)) {
+          setStatusId(undefined);
+        }
+        toast.success("Removed from list");
+        return;
+      }
+
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${baseURL}status/delete-status/${statusIdToDelete}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
 
       const data = await response.json();
 
@@ -299,10 +327,17 @@ const CustomersEditDrawer = ({
       }
 
       setStatusOptions((prev) =>
-        prev.filter((option) => option.id !== status.id)
+        prev.filter(
+          (option) =>
+            (option.id || option.value) !== statusIdToDelete &&
+            (option.id || option.value) !== (status.id || status.value)
+        )
       );
 
-      if (statusId?.id === status.id) {
+      if (
+        statusId?.id === statusIdToDelete ||
+        (statusId?.id || statusId?.value) === (status.id || status.value)
+      ) {
         setStatusId(undefined);
       }
 
@@ -339,7 +374,11 @@ const CustomersEditDrawer = ({
                 <Select
                   className="rounded mt-2"
                   options={statusOptions}
-                  placeholder="Select status"
+                  placeholder={
+                    statusOptions.length === 0
+                      ? "No statuses added"
+                      : "Select status"
+                  }
                   value={statusId}
                   onChange={(d) => {
                     setStatusId(d);
@@ -416,12 +455,10 @@ const CustomersEditDrawer = ({
                             colorScheme="blue"
                           >
                             <TagLabel>{option.label}</TagLabel>
-                            {option.id && (
-                              <TagCloseButton
-                                onClick={() => deleteStatusHandler(option)}
-                                aria-label={`Delete ${option.label}`}
-                              />
-                            )}
+                            <TagCloseButton
+                              onClick={() => deleteStatusHandler(option)}
+                              aria-label={`Delete ${option.label}`}
+                            />
                           </Tag>
                         ))}
                       </div>
