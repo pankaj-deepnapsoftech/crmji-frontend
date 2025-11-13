@@ -21,6 +21,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Portal
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -1921,33 +1922,35 @@ const Leads = () => {
                                     size="sm"
                                     className="hover:bg-gray-100"
                                   />
-                                  <MenuList>
-                                    <MenuItem
-                                      icon={<MdOutlineVisibility />}
-                                      onClick={() =>
-                                        showDetailsHandler(row.original?._id)
-                                      }
-                                    >
-                                      View
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdEdit />}
-                                      onClick={() =>
-                                        editHandler(row.original?._id)
-                                      }
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdDeleteOutline />}
-                                      onClick={() => {
-                                        setLeadDeleteId(row.original?._id);
-                                        confirmDeleteHandler();
-                                      }}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </MenuList>
+                                  <Portal>
+                                    <MenuList>
+                                      <MenuItem
+                                        icon={<MdOutlineVisibility />}
+                                        onClick={() =>
+                                          showDetailsHandler(row.original?._id)
+                                        }
+                                      >
+                                        View
+                                      </MenuItem>
+                                      <MenuItem
+                                        icon={<MdEdit />}
+                                        onClick={() =>
+                                          editHandler(row.original?._id)
+                                        }
+                                      >
+                                        Edit
+                                      </MenuItem>
+                                      <MenuItem
+                                        icon={<MdDeleteOutline />}
+                                        onClick={() => {
+                                          setLeadDeleteId(row.original?._id);
+                                          confirmDeleteHandler();
+                                        }}
+                                      >
+                                        Delete
+                                      </MenuItem>
+                                    </MenuList>
+                                  </Portal>
                                 </Menu>
                               </Td>
                             </Tr>
