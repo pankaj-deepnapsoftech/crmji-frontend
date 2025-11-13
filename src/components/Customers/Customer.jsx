@@ -7,6 +7,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Portal
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -653,6 +654,7 @@ const Customer = () => {
                                       setSelectedRowId(row.original?._id)
                                     }
                                   />
+                                  <Portal>
                                   <MenuList>
                                     <MenuItem
                                       icon={<MdOutlineVisibility />}
@@ -680,6 +682,7 @@ const Customer = () => {
                                       Delete
                                     </MenuItem>
                                   </MenuList>
+                                  </Portal>
                                 </Menu>
                               </Td>
                             </Tr>
