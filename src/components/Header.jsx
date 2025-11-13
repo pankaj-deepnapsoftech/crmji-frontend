@@ -37,7 +37,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   const [notifications, setNotifications] = useState([]);
   const [unseenNotifications, setUnseenNotifications] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
-  const [dataId, setDataId] = useState();
+  const [dataId, setDataId] = useState(); 
   const [isIndiamartLead, setIsIndiamartLead] = useState(false);
   const baseURL = process.env.REACT_APP_BACKEND_URL;
   const notificationCtx = useContext(notificationContext);
@@ -131,7 +131,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
       socket.off("sendNotification", handleSendNotification);
       socket.off("newNotification", handleNewNotification);
     };
-  }, [user]);
+  }, [user]); 
 
   useEffect(() => {
     notificationCtx.getChatNotificationsHandler(user.id);
@@ -361,6 +361,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
                 )}
               </div>
               {/* )} */}
+
             </div>
           </ClickMenu>
         )}
