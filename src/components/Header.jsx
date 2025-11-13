@@ -352,10 +352,12 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   const [notifications, setNotifications] = useState([]);
   const [unseenNotifications, setUnseenNotifications] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
-  const [dataId, setDataId] = useState(); 
+  const [dataId, setDataId] = useState();
   const [isIndiamartLead, setIsIndiamartLead] = useState(false);
   const baseURL = process.env.REACT_APP_BACKEND_URL;
   const notificationCtx = useContext(notificationContext);
+  const shouldShowUpgradeButton =
+    !user?.isSubscribed && user?.isTrial && !user?.isTrialEnded;
 
   const toggleUserDetailsMenu = () => setShowUserDetailsMenu((prev) => !prev);
   const toggleNotificationsMenu = () => setShowNotificationsMenu((prev) => !prev);
@@ -537,7 +539,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
 
         {/* Right Section */}
         <div className="flex items-center gap-3 sm:gap-5">
-          {user?.isTrial && !user?.isTrialEnded && (
+          {shouldShowUpgradeButton && (
             <Link to="/pricing">
               <button className="border border-[#d61616] rounded-md px-3 sm:px-6 py-1.5 bg-[#d61616] text-white font-medium text-sm sm:text-base hover:bg-white hover:text-[#d61616] transition">
                 {user?.account?.trial_started || user?.isSubscriptionEnded
