@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { BiX } from "react-icons/bi";
 import { MdAdd, MdDelete } from "react-icons/md";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { closeAddCompaniesDrawer } from "../../../../redux/reducers/misc";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
@@ -32,9 +32,11 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
   const [comment, setComment] = useState("");
   const [additionalContacts, setAdditionalContacts] = useState([]); // Only 0 or 1 item
   const [statusOptions, setStatusOptions] = useState([]);
+  const [customStatus, setCustomStatus] = useState("");
   const [cookies] = useCookies();
 
   const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
 
   // Add only if no contact exists
   const addAdditionalContact = () => {
@@ -111,7 +113,7 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
 
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
-      console.log("this isthe baseurl :: ",process.env.REACT_APP_BACKEND_URL)
+      console.log("this isthe baseurl :: ", process.env.REACT_APP_BACKEND_URL)
 
       const response = await fetch(baseURL + "company/create-company", {
         method: "POST",
@@ -164,29 +166,34 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
       });
 
       const data = await response.json();
-      if (data.success && data.data.length > 0) {
-        setStatusOptions(data.data.map(status => ({ value: status.name, label: status.name })));
+      if (data.success && Array.isArray(data.data)) {
+        setStatusOptions(data.data.map((s) => ({ value: s.name, label: s.name })));
       } else {
-        setStatusOptions([
-          { value: "Active", label: "Active" },
-          { value: "Inactive", label: "Inactive" },
-          { value: "Prospect", label: "Prospect" },
-          { value: "Customer", label: "Customer" },
-          { value: "Not Interested", label: "Not Interested" },
-          { value: "On Hold", label: "On Hold" },
-        ]);
+        setStatusOptions([]);
       }
     } catch (err) {
-      console.error("Error fetching status options:", err);
-      setStatusOptions([
-        { value: "Active", label: "Active" },
-        { value: "Inactive", label: "Inactive" },
-        { value: "Prospect", label: "Prospect" },
-        { value: "Customer", label: "Customer" },
-        { value: "Not Interested", label: "Not Interested" },
-        { value: "On Hold", label: "On Hold" },
-      ]);
+      setStatusOptions([]);
     }
+  };
+
+  const addCompanyStatus = async (statusName) => {
+    const name = statusName?.trim();
+    if (!name) throw new Error("Status name is required");
+    const exists = statusOptions.some((o) => o.value.toLowerCase() === name.toLowerCase());
+    if (exists) throw new Error("Status already exists");
+
+    const baseURL = process.env.REACT_APP_BACKEND_URL;
+    const response = await fetch(baseURL + "company-status/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${cookies?.access_token}`,
+      },
+      body: JSON.stringify({ name }),
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || "Failed to add status");
+    return data;
   };
 
   useEffect(() => {
@@ -406,7 +413,7 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
             <Select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              placeholder="Select Status"
+              placeholder="Select status"
               className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
             >
               {statusOptions.map((option) => (
@@ -415,6 +422,45 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
                 </option>
               ))}
             </Select>
+            {(auth?.role === "Super Admin") && (
+              <div className="flex gap-2 mt-2">
+                <Input
+                  value={customStatus}
+                  onChange={(e) => setCustomStatus(e.target.value)}
+                  placeholder="Add more status"
+                  disabled={statusOptions.length >= 10}
+                />
+                <Button
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    const val = customStatus.trim();
+                    if (!val) return;
+
+                    if (statusOptions.length >= 10) {
+                      toast.error("Maximum 10 status options allowed");
+                      return;
+                    }
+
+                    if (!statusOptions.some((o) => o.value.toLowerCase() === val.toLowerCase())) {
+                      try {
+                        await addCompanyStatus(val);
+                        await fetchStatusOptions();
+                        setStatus(val);
+                        toast.success("Status added successfully");
+                      } catch (err) {
+                        toast.error(err.message);
+                      }
+                    } else {
+                      toast.error("Status already exists");
+                    }
+                    setCustomStatus("");
+                  }}
+                  disabled={statusOptions.length >= 10}
+                >
+                  Add
+                </Button>
+              </div>
+            )}
           </FormControl>
 
           {/* Website */}

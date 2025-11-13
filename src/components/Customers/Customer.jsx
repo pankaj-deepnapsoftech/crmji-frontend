@@ -75,6 +75,17 @@ const columns = [
     accessor: "name",
   },
   {
+    Header: "Products",
+    accessor: (row) =>
+      row?.products && row.products.length > 0
+        ? row.products
+            .map((product) => product?.name)
+            .filter(Boolean)
+            .join(", ")
+        : "Not Available",
+    id: "products",
+  },
+  {
     Header: "Phone",
     accessor: "phone",
   },

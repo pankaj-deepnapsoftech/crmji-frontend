@@ -269,7 +269,9 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
       </div>
 
       <div className="flex gap-x-5 items-center">
-        {user?.isTrial && !user?.isTrialEnded && (
+            {user?.isTrial &&
+          !user?.isTrialEnded &&
+          (!user?.isSubscribed || user?.isSubscriptionEnded) && (
           <div>
             <Link to="/pricing">
               <button className="border border-[#d61616] rounded-md px-7 py-2 bg-[#d61616] text-white font-medium hover:bg-white hover:text-[#d61616] ease-in-out duration-300">

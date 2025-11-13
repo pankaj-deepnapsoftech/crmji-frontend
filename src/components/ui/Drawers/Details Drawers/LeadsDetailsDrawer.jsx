@@ -162,253 +162,141 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
         {isLoading ? (
           <Loading />
         ) : (
-          <div className="bg-white shadow-lg rounded-lg p-6 space-y-6">
-            {/* Type and Lead Category side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="font-bold text-lg text-gray-700">
-                <p>Type</p>
-                <p className="font-normal text-indigo-800">
-                  {details?.type || "Not Available"}
-                </p>
+          <div className="bg-gray-50 shadow-inner rounded-lg p-6 space-y-6 border border-gray-200">
+            {/* Type and Category */}
+            <div className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3">
+                Lead Overview
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="font-bold text-gray-700">Type</p>
+                  <p className="text-indigo-800">{details?.type || "Not Available"}</p>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-700">Lead Category</p>
+                  <Badge
+                    colorScheme={
+                      details?.leadCategory === "Hot"
+                        ? "red"
+                        : details?.leadCategory === "Cold"
+                          ? "blue"
+                          : "orange"
+                    }
+                  >
+                    {details?.leadCategory || "Not Available"}
+                  </Badge>
+                </div>
               </div>
-              <div className="font-bold text-lg text-gray-700">
-                <p>Lead Category</p>
-                <Badge
-                  colorScheme={
-                    details?.leadCategory === "Hot"
-                      ? "red"
-                      : details?.leadCategory === "Cold"
-                        ? "blue"
-                        : "orange"
-                  }
-                >
-                  {details?.leadCategory || "Not Available"}
-                </Badge>
+            </div>
+
+            {/* Contact Info */}
+            <div className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3">
+                Contact Information
+              </h3>
+              <div className="space-y-2">
+                <div>
+                  <p className="font-bold text-gray-700">Phone</p>
+                  <p className="text-indigo-800">{details?.phone || "Not Available"}</p>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-700">Email</p>
+                  <p className="text-indigo-800">{details?.email || "Not Available"}</p>
+                </div>
+                {details?.location && (
+                  <div>
+                    <p className="font-bold text-gray-700">Location</p>
+                    <p className="text-indigo-800">{details.location}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Corporate Field */}
-            {details.company && (
-              <div className="font-bold text-lg text-gray-700">
-                <p>Corporate</p>
-                <p className="font-normal text-indigo-800">
-                  {details?.company}
-                </p>
-              </div>
-            )}
-
-            {/* Individual Field */}
-            {details.people && (
-              <div className="font-bold text-lg text-gray-700">
-                <p>Individual</p>
-                <p className="font-normal text-indigo-800">{details?.people}</p>
-              </div>
-            )}
-
-            {/* Status Field */}
-            <div className="font-bold text-lg text-gray-700">
-              <p>Status</p>
-              <Badge colorScheme="orange">
-                {details?.status || "Not Available"}
-              </Badge>
-            </div>
-
-            {/* Source Field */}
-            <div className="font-bold text-lg text-gray-700">
-              <p>Source</p>
-              <p className="font-normal text-indigo-800">
-                {details?.source || "Not Available"}
-              </p>
-            </div>
-
-            {/* Contact Fields */}
-            <div className="font-bold text-lg text-gray-700">
-              <p>Phone</p>
-              <p className="font-normal text-indigo-800">
-                {details?.phone || "Not Available"}
-              </p>
-            </div>
-            <div className="font-bold text-lg text-gray-700">
-              <p>Email</p>
-              <p className="font-normal text-indigo-800">
-                {details?.email || "Not Available"}
-              </p>
-            </div>
-
-            {/* Products Table */}
-            <div className="cursor-pointer">
-              <p className="font-bold mb-1 text-gray-700">
+            {/* Products */}
+            <div className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3">
                 Products Interested In
-              </p>
-              <div>
-                <table className="border w-full table-auto text-left shadow-md rounded-lg overflow-hidden">
-                  <thead>
-                    <tr className="bg-gray-200">
-                      <th className="border px-3 py-2">Product</th>
-                      <th className="border px-3 py-2">Category</th>
-                      <th className="border px-3 py-2">Image</th>
+              </h3>
+              <table className="border w-full table-auto text-left rounded-lg overflow-hidden">
+                <thead className="bg-blue-100">
+                  <tr>
+                    <th className="border px-3 py-2">Product</th>
+                    <th className="border px-3 py-2">Category</th>
+                    <th className="border px-3 py-2">Image</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {details?.products.map((p) => (
+                    <tr key={p._id} className="hover:bg-gray-50 transition">
+                      <td className="border px-3 py-2">{p.name}</td>
+                      <td className="border px-3 py-2">{p.category.categoryname}</td>
+                      <td className="border px-3 py-2">
+                        <Avatar size="sm" src={p.imageUrl} />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {details?.products.map((p, ind) => (
-                      <tr
-                        className="border-b hover:bg-gray-100 transition-colors duration-200"
-                        key={p._id}
-                      >
-                        <td className="px-3 py-2">{p.name}</td>
-                        <td className="px-3 py-2">{p.category.categoryname}</td>
-                        <td className="px-3 py-2">
-                          <Avatar size="sm" src={p.imageUrl} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* Follow-up Date & Reason */}
-            {details?.followupDate && (
-              <div className="font-bold text-lg text-gray-700">
-                <p>Follow-up Date</p>
-                <p className="font-normal text-indigo-800">
-                  {moment(details.followupDate).format("DD-MM-YYYY")}
-                </p>
-              </div>
-            )}
-            {details?.followupReason && (
-              <div className="font-bold text-lg text-gray-700">
-                <p>Follow-up Reason</p>
-                <p className="font-normal text-indigo-800">
-                  {details?.followupReason}
-                </p>
-              </div>
-            )}
-
-            {/* Remarks */}
-            <div className="font-bold text-lg text-gray-700">
-              <p>Remarks</p>
-              <p className="font-normal text-indigo-800">
-                {details?.notes || "Not Available"}
-              </p>
-            </div>
-
-            {/* Assigned To Fields */}
-            {details?.assignedName !== "N/A" && (
-              <>
-                <div className="font-bold text-lg text-gray-700">
-                  <p>Assigned To (Name)</p>
-                  <p className="font-normal text-indigo-800">
-                    {details?.assignedName}
-                  </p>
-                </div>
-                <div className="font-bold text-lg text-gray-700">
-                  <p>Assigned To (Phone)</p>
-                  <p className="font-normal text-indigo-800">
-                    {details?.assignedPhone}
-                  </p>
-                </div>
-                <div className="font-bold text-lg text-gray-700">
-                  <p>Assigned To (Email)</p>
-                  <p className="font-normal text-indigo-800">
-                    {details?.assignedEmail}
-                  </p>
-                </div>
-              </>
-            )}
-
-            {/* PRC QT Field */}
-            {details?.prcQt !== "N/A" && (
-              <div className="font-bold text-lg text-gray-700">
-                <p>PRC QT</p>
-                <p className="font-normal text-indigo-800">{details?.prcQt}</p>
-              </div>
-            )}
-
-            {/* Location Field */}
-            {details?.location !== "N/A" && (
-              <div className="font-bold text-lg text-gray-700">
-                <p>Location</p>
-                <p className="font-normal text-indigo-800">
-                  {details?.location}
-                </p>
-              </div>
-            )}
-
+            {/* Meeting */}
             {details?.meeting && (
-              <div className="border rounded-lg p-4 mt-6">
-                <h3 className="font-bold text-lg mb-3">Meeting Scheduled</h3>
-
+              <div className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3">
+                  Meeting Details
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="font-bold text-gray-700">
-                    <p>Meeting Date & Time</p>
-                    <p className="font-normal">
-                      {details?.meeting?.meetingDateTime
-                        ? moment(details.meeting.meetingDateTime).format(
-                          "DD-MM-YYYY HH:mm"
-                        )
+                  <div>
+                    <p className="font-bold text-gray-700">Meeting Date & Time</p>
+                    <p>
+                      {details.meeting.meetingDateTime
+                        ? moment(details.meeting.meetingDateTime).format("DD-MM-YYYY HH:mm")
                         : "N/A"}
                     </p>
                   </div>
-
-                  <div className="font-bold text-gray-700">
-                    <p>Meeting Type</p>
+                  <div>
+                    <p className="font-bold text-gray-700">Meeting Type</p>
                     <Badge
                       colorScheme={
-                          details?.meeting?.meetingType === "Physical"
-                          ? "blue"
-                          : "purple"
+                        details.meeting.meetingType === "Physical" ? "blue" : "purple"
                       }
                     >
-                        {details?.meeting?.meetingType || "N/A"}
+                      {details.meeting.meetingType || "N/A"}
                     </Badge>
                   </div>
                 </div>
-
-                {details?.meeting?.notes && (
-                  <div className="font-bold text-gray-700 mt-3">
-                    <p>Meeting Notes</p>
-                    <p className="font-normal text-green-700">
-                      {details.meeting.notes}
-                    </p>
+                {details.meeting.notes && (
+                  <div className="mt-3">
+                    <p className="font-bold text-gray-700">Meeting Notes</p>
+                    <p className="text-green-700">{details.meeting.notes}</p>
                   </div>
                 )}
               </div>
             )}
 
             {/* Comments Section */}
-            <div className="mt-8">
-              <h3 className="text-xl font-bold text-gray-700 mb-4">
+            <div className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3">
                 Comments & Remarks
               </h3>
-
-              {/* Add Comment Form */}
-              <Box
-                mb={4}
-                p={4}
-                border="1px"
-                borderColor="gray.200"
-                borderRadius="md"
-              >
+              <Box mb={4}>
                 <Textarea
-                  placeholder="Add a comment or remark..."
+                  placeholder="Add a comment..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  rows={3}
                   mb={3}
                 />
                 <Button
                   colorScheme="blue"
+                  size="sm"
                   onClick={addComment}
                   isLoading={isAddingComment}
-                  loadingText="Adding..."
-                  size="sm"
                 >
                   Add Comment
                 </Button>
               </Box>
 
-              {/* Comments List */}
               <VStack spacing={3} align="stretch">
                 {details.comments && details.comments.length > 0 ? (
                   details.comments.map((comment, index) => (
@@ -421,14 +309,11 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                       bg="gray.50"
                     >
                       <HStack justify="space-between" mb={2}>
-                        <Text fontSize="sm" fontWeight="bold" color="gray.600">
-                          {comment.createdBy?.firstname}{" "}
-                          {comment.createdBy?.lastname}
+                        <Text fontWeight="bold" fontSize="sm" color="gray.600">
+                          {comment.createdBy?.firstname} {comment.createdBy?.lastname}
                         </Text>
                         <Text fontSize="xs" color="gray.500">
-                          {moment(comment.timestamp).format(
-                            "MMM DD, YYYY - h:mm A"
-                          )}
+                          {moment(comment.timestamp).format("MMM DD, YYYY - h:mm A")}
                         </Text>
                       </HStack>
                       <Text fontSize="sm" color="gray.700">
@@ -444,6 +329,7 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
               </VStack>
             </div>
           </div>
+
         )}
       </div>
     </div>

@@ -489,9 +489,6 @@ const Companies = () => {
           <div>
             <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
               <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                {/* <span className="mr-2">
-                  <MdArrowBack />
-                </span> */}
                 Corporate List
               </div>
 
@@ -589,7 +586,8 @@ const Companies = () => {
               >
                 <BiTable size={20} />
               </button>
-              <butCorporate Listton
+              <butCorporate
+                Listton
                 onClick={() => setViewMode("card")}
                 className={`p-2 rounded-md transition-colors duration-200 ${
                   viewMode === "card"
