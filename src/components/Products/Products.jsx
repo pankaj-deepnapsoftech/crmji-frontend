@@ -69,10 +69,10 @@ const columns = [
     Header: "Model",
     accessor: "model",
   },
-  {
-    Header: "Stock",
-    accessor: "stock",
-  },
+  // {
+  //   Header: "Stock",
+  //   accessor: "stock",
+  // },
   {
     Header: "Image",
     accessor: "imageUrl",
@@ -89,10 +89,10 @@ const columns = [
     Header: "Description",
     accessor: "description",
   },
-  {
-    Header: "Ref",
-    accessor: "ref",
-  },
+  // {
+  //   Header: "Ref",
+  //   accessor: "ref",
+  // },
 ];
 
 const Products = () => {
