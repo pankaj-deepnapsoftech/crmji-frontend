@@ -11,7 +11,8 @@ import { closeAddProductsDrawer } from "../../../../redux/reducers/misc";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
-import FormData from "form-data";
+// Use the browser's native FormData. Removed server-side `form-data` import which
+// breaks uploads from the browser environment.
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 
@@ -28,8 +29,8 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
   });
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [ref, setRef] = useState("");
-  const [stock, setStock] = useState();
+  // const [ref, setRef] = useState("");
+  // const [stock, setStock] = useState();
   const file = useRef();
 
   const dispatch = useDispatch();
@@ -46,10 +47,10 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
       toast.error("Category not selected");
       return;
     }
-    if (price === "") {
-      toast.error("Price should not be empty");
-      return;
-    }
+    // if (price === "") {
+    //   toast.error("Price should not be empty");
+    //   return;
+    // }
     if (file.current.files.length === 0) {
       toast.error("Product image not selected");
       return;
@@ -57,11 +58,18 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
 
     try {
       const formData = new FormData();
-      console.log("first we are hewre");
-      formData.append("file", file.current.files[0]);
-      console.log("file url :: ", file.current.files[0]);
-      console.log("second we are hewre");
-      console.log("process :::", process.env.REACT_APP_IMAGE_UPLOAD_URL);
+      // Append the selected file(s). The upload endpoint expects file data in the
+      // request body. We append under a few common keys to maximize compatibility
+      // with different upload handlers (e.g. 'file', 'files', 'image').
+      const selectedFile = file.current.files[0];
+      if (selectedFile) {
+        // Send only a single field name. Many upload handlers expect exactly one
+        // field (commonly 'file' or 'image'). Sending multiple keys can cause
+        // server-side validation to fail and return 400. Use 'file' here.
+        formData.append("file", selectedFile);
+      } else {
+        throw new Error("No file selected for upload");
+      }
       const uploadUrl =
         process.env.REACT_APP_IMAGE_UPLOAD_URL ||
         "https://images.deepmart.shop/upload";
@@ -69,39 +77,70 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
         method: "POST",
         body: formData,
       });
-      console.log("third we are hewre", imageUploadResponse);
 
+      // If upload fails, include the response body in the thrown error to
+      // make debugging easier (server may return validation details).
       if (!imageUploadResponse.ok) {
+        const errBody = await imageUploadResponse.text();
         throw new Error(
-          `Image upload failed (${imageUploadResponse.status}) - check REACT_APP_IMAGE_UPLOAD_URL for test mode`
+          `Image upload failed (${imageUploadResponse.status}) - ${errBody || "check REACT_APP_IMAGE_UPLOAD_URL for test mode"
+          }`
         );
       }
-      const imageUrl = await imageUploadResponse.json();
-      console.log("fourth we are hewre");
 
-      if (imageUrl?.error) {
-        throw new Error(imageUrl?.error);
+      // Try to parse JSON, fall back to text if response isn't JSON.
+      const contentType = imageUploadResponse.headers.get("content-type") || "";
+      let imageUrlRaw;
+      if (contentType.includes("application/json")) {
+        imageUrlRaw = await imageUploadResponse.json();
+      } else {
+        const txt = await imageUploadResponse.text();
+        try {
+          imageUrlRaw = JSON.parse(txt);
+        } catch (e) {
+          imageUrlRaw = txt;
+        }
+      }
+
+      console.log("image upload response:", imageUrlRaw);
+
+      // Normalize returned image URL/value. Server might return an array, an
+      // object { url } or a plain string. Try common shapes.
+      let imageUrlValue;
+      if (Array.isArray(imageUrlRaw)) imageUrlValue = imageUrlRaw[0];
+      else if (imageUrlRaw && typeof imageUrlRaw === "object") {
+        imageUrlValue = imageUrlRaw.url || imageUrlRaw[0] || imageUrlRaw.path || null;
+      } else imageUrlValue = imageUrlRaw;
+
+      if (!imageUrlValue) {
+        throw new Error("Image upload returned no usable URL");
       }
 
       const baseURL = process.env.REACT_APP_BACKEND_URL;
       console.log("product response reaching hjere :: ", baseURL);
+      const payload = {
+        name,
+        categoryId: category?.value,
+        description,
+        imageUrl: imageUrlValue,
+        type: itemType?.value,
+      };
+
+      // Only include optional fields when provided.
+      if (price !== "" && price !== null && !isNaN(Number(price))) {
+        payload.price = Number(price);
+      }
+      if (model && model.toString().trim() !== "") {
+        payload.model = model;
+      }
+
       const response = await fetch(baseURL + "product/create-product", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           authorization: `Bearer ${cookies?.access_token}`,
         },
-        body: JSON.stringify({
-          name,
-          categoryId: category?.value,
-          price,
-          description,
-          ref,
-          imageUrl: imageUrl[0],
-          model,
-          stock,
-          type: itemType?.value,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -135,7 +174,7 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
       }
       setCategories(data.categories);
     } catch (err) {
-      toast(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -200,9 +239,9 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
           </FormControl>
 
           {/* Product Model */}
-          <FormControl className="mt-3 mb-5" isRequired>
+          <FormControl className="mt-3 mb-5" >
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
-              Model
+              Model/Version
             </FormLabel>
             <Input
               value={model}
@@ -248,7 +287,7 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
           </div>
 
           {/* Price */}
-          <FormControl className="mt-3 mb-5" isRequired>
+          <FormControl className="mt-3 mb-5" >
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
               Price
             </FormLabel>
@@ -276,7 +315,7 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
           </FormControl>
 
           {/* Stock */}
-          <FormControl className="mt-2 mb-5" isRequired>
+          {/* <FormControl className="mt-2 mb-5" isRequired>
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
               Stock
             </FormLabel>
@@ -286,10 +325,10 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
               onChange={(e) => setStock(e.target.value)}
               className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
             />
-          </FormControl>
+          </FormControl> */}
 
           {/* Product Reference */}
-          <FormControl className="mt-3 mb-5">
+          {/* <FormControl className="mt-3 mb-5">
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
               Ref
             </FormLabel>
@@ -300,7 +339,7 @@ const ProductsDrawer = ({ fetchAllProducts, closeDrawerHandler }) => {
               placeholder="Product Reference"
               className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
             />
-          </FormControl>
+          </FormControl> */}
 
           {/* Submit Button */}
           <Button

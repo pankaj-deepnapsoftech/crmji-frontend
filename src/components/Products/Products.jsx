@@ -69,10 +69,10 @@ const columns = [
     Header: "Model",
     accessor: "model",
   },
-  {
-    Header: "Stock",
-    accessor: "stock",
-  },
+  // {
+  //   Header: "Stock",
+  //   accessor: "stock",
+  // },
   {
     Header: "Image",
     accessor: "imageUrl",
@@ -89,10 +89,10 @@ const columns = [
     Header: "Description",
     accessor: "description",
   },
-  {
-    Header: "Ref",
-    accessor: "ref",
-  },
+  // {
+  //   Header: "Ref",
+  //   accessor: "ref",
+  // },
 ];
 
 const Products = () => {
@@ -518,7 +518,7 @@ const Products = () => {
                                     )}
                                     {cell.column.id === "stock" &&
                                       row.original.stock > 10 && (
-                                        <span className="text-gray-600 font-bold h-[30px] w-[30px] rounded-full 
+                                        <span className="text-gray-600 font-extrabold h-[30px] w-[30px] rounded-full 
                                         p-2 flex items-center justify-center">
                                           {row.original.stock}
                                         </span>
