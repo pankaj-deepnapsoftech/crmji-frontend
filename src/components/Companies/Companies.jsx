@@ -477,40 +477,52 @@ const Companies = () => {
             </AlertDialog>
           </>
           <div>
-            <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
-              <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                Corporate List
-              </div>
 
-              <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+
+              {/* HEADER TITLE */}
+              <div className="text-lg md:text-xl font-semibold">Corporate List</div>
+
+              {/* ACTION BUTTONS + SEARCH */}
+              <div className="
+                  w-full md:w-auto 
+                  flex flex-col sm:flex-row 
+                  gap-3 flex-wrap
+                "
+              >
+                {/* Hidden file input */}
                 <input
                   ref={companyBulkInputRef}
                   type="file"
                   accept=".xlsx,.csv"
                   onChange={handleCompanyBulkFile}
-                  style={{ display: "none" }}
+                  className="hidden"
                 />
+
+                {/* Bulk Upload */}
                 <Button
                   onClick={() =>
                     companyBulkInputRef.current &&
                     companyBulkInputRef.current.click()
                   }
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 160 }}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   rightIcon={<FaFileCsv size={18} />}
                   color="white"
                   backgroundColor="#1640d6"
                 >
                   Bulk Upload
                 </Button>
+
+                {/* Download CSV */}
                 <Button
                   onClick={downloadCompanySampleCSV}
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 200 }}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   rightIcon={<FaFileCsv size={18} />}
                   color="#1640d6"
                   borderColor="#1640d6"
@@ -518,41 +530,54 @@ const Companies = () => {
                 >
                   Download Sample CSV
                 </Button>
+
+                {/* Search Box */}
                 <textarea
-                  className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
+                  className="
+                    rounded-[10px] 
+                    w-full sm:flex-1 
+                    px-3 py-2 text-sm 
+                    border 
+                    focus:outline-[#1640d6]
+                  "
                   rows="1"
-                  width="220px"
                   placeholder="Search"
                   value={searchKey}
                   onChange={(e) => setSearchKey(e.target.value)}
                 />
+
+                {/* Refresh */}
                 <Button
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 100 }}
-                  onClick={fetchAllCompanies}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   leftIcon={<MdOutlineRefresh />}
                   color="#1640d6"
                   borderColor="#1640d6"
                   variant="outline"
+                  onClick={fetchAllCompanies}
                 >
                   Refresh
                 </Button>
+
+                {/* Add Corporate */}
                 <Button
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 200 }}
-                  onClick={addCompaniesHandler}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   color="white"
                   backgroundColor="#1640d6"
+                  onClick={addCompaniesHandler}
                 >
                   Add New Corporate
                 </Button>
+
+                {/* Page Size */}
                 <Select
                   onChange={(e) => setPageSize(e.target.value)}
-                  width="80px"
+                  width={{ base: "100%", sm: "80px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
