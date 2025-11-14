@@ -889,11 +889,15 @@ const Peoples = () => {
                                     return (
                                       <Th
                                         className={`
+                                        ${
+                                          column.id === "uniqueId"
+                                            ? "sticky left-0 top-0 bg-blue-400 z-[10]"
+                                            : ""
+                                        }
                                         text-transform: capitalize
                                         font-size: 15px
                                         font-weight: 700
                                         border-b-2 border-gray-300
-                                        
                                         text-center
                                         bg-blue-400
                                       `}
@@ -941,7 +945,7 @@ const Peoples = () => {
                                         className={`
                         ${
                           cell.column.id === "uniqueId"
-                            ? "sticky top-0 left-[-2px] "
+                            ? "sticky left-0 top-auto bg-white z-[5] "
                             : ""
                         }
                          text-center
