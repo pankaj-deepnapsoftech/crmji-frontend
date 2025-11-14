@@ -69,10 +69,10 @@ const columns = [
     Header: "Model",
     accessor: "model",
   },
-  {
-    Header: "Stock",
-    accessor: "stock",
-  },
+  // {
+  //   Header: "Stock",
+  //   accessor: "stock",
+  // },
   {
     Header: "Image",
     accessor: "imageUrl",
@@ -89,10 +89,10 @@ const columns = [
     Header: "Description",
     accessor: "description",
   },
-  {
-    Header: "Ref",
-    accessor: "ref",
-  },
+  // {
+  //   Header: "Ref",
+  //   accessor: "ref",
+  // },
 ];
 
 const Products = () => {
@@ -298,9 +298,6 @@ const Products = () => {
           <div>
             <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
               <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                {/* <span className="mr-2">
-                  <MdArrowBack />
-                </span> */}
                 Product List
               </div>
 
@@ -521,13 +518,15 @@ const Products = () => {
                                     )}
                                     {cell.column.id === "stock" &&
                                       row.original.stock > 10 && (
-                                        <span className="bg-blue-500 text-white h-[30px] w-[30px] rounded-full p-2 flex items-center justify-center">
+                                        <span className="text-gray-600 font-extrabold h-[30px] w-[30px] rounded-full 
+                                        p-2 flex items-center justify-center">
                                           {row.original.stock}
                                         </span>
                                       )}
                                     {cell.column.id === "stock" &&
                                       row.original.stock <= 10 && (
-                                        <span className="bg-red-500 text-white h-[30px] w-[30px] rounded-full p-2 flex items-center justify-center">
+                                        <span className="bg-red-500 text-white h-[30px] w-[30px] rounded-full
+                                         p-2 flex items-center justify-center">
                                           {row.original.stock <= 9
                                             ? "0" + row.original.stock
                                             : row.original.stock}

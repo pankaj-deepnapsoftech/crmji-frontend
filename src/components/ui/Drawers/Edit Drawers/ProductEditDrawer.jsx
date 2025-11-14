@@ -218,7 +218,7 @@ const ProductsEditDrawer = ({
 
       <div className="mt-8 px-5">
         <h2 className="text-2xl font-bold py-5 text-center mb-6 border-y bg-blue-200 rounded-lg shadow-md">
-          Edit Product
+          Edit Product  
         </h2>
 
         {isLoading && <Loading />}
@@ -255,7 +255,7 @@ const ProductsEditDrawer = ({
             {/* Product Model */}
             <FormControl className="mt-3 mb-5" isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
-                Model
+                Model/Version
               </FormLabel>
               <Input
                 value={model}

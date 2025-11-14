@@ -1,10 +1,19 @@
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  Input,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+} from "@chakra-ui/react";
 import { BiX } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
 import Loading from "../../Loading";
 import Select from "react-select";
+import { useSelector } from "react-redux";
 
 const CustomersEditDrawer = ({
   dataId: id,
@@ -12,30 +21,20 @@ const CustomersEditDrawer = ({
   fetchAllCustomers,
 }) => {
   const [cookies] = useCookies();
-  const [type, setType] = useState("");
-  const [people, setPeople] = useState("");
-  const [company, setCompany] = useState("");
-  const [companies, setCompanies] = useState([]);
-  const [peoples, setPeoples] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [showSelectPeoples, setShowSelectPeoples] = useState(true);
-  const [showSelectCompanies, setShowSelectCompanies] = useState(true);
-
   const [statusId, setStatusId] = useState();
+  const [statusOptions, setStatusOptions] = useState([]);
+  const [customStatus, setCustomStatus] = useState("");
+  const [isAddingStatus, setIsAddingStatus] = useState(false);
+  const auth = useSelector((state) => state.auth);
+  const STATUS_LIMIT = 10;
 
-  const statusOptions = [
-    { value: "Deal Done", label: "Deal Done" },
-    { value: "Proforma Invoice Sent", label: "Proforma Invoice Sent" },
-    { value: "Invoice Sent", label: "Invoice Sent" },
-    { value: "Payment Received", label: "Payment Received" },
-  ];
-
-  const getAllCompanies = async () => {
+  const fetchStatuses = async () => {
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
 
-      const response = await fetch(baseURL + "company/all-companies", {
+      const response = await fetch(baseURL + "status/all-statuses", {
         method: "POST",
         headers: {
           authorization: `Bearer ${cookies?.access_token}`,
@@ -47,31 +46,76 @@ const CustomersEditDrawer = ({
         throw new Error(data.message);
       }
 
-      setCompanies(data.companies);
-    } catch (err) {
-      toast(err.message);
-    }
-  };
+      const formattedOptions = data.statuses.map((status) => ({
+        value: status.name,
+        label: status.name,
+        id: status._id,
+      }));
 
-  const getAllPeoples = async () => {
-    try {
-      const baseURL = process.env.REACT_APP_BACKEND_URL;
+      setStatusOptions((prevOptions) => {
+        if (!statusId?.value) {
+          return formattedOptions;
+        }
 
-      const response = await fetch(baseURL + "people/all-persons", {
-        method: "POST",
-        headers: {
-          authorization: `Bearer ${cookies?.access_token}`,
-        },
+        const hasMatch = formattedOptions.some((option) => {
+          return (
+            option.value.toLowerCase() === statusId.value.toLowerCase() ||
+            (statusId.id && option.id === statusId.id)
+          );
+        });
+
+        if (hasMatch) {
+          return formattedOptions;
+        }
+
+        return [
+          ...formattedOptions,
+          {
+            value: statusId.value,
+            label: statusId.value,
+            id: statusId.id,
+          },
+        ];
       });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-      setPeoples(data.people);
+      setStatusId((prev) => {
+        if (!prev?.value) return prev;
+        const match = formattedOptions.find((option) => {
+          return (
+            option.value.toLowerCase() === prev.value.toLowerCase() ||
+            option.id === prev.id
+          );
+        });
+        return match || prev;
+      });
     } catch (err) {
-      toast(err.message);
+      setStatusOptions((prevOptions) => {
+        if (!statusId?.value) {
+          return prevOptions;
+        }
+
+        const hasMatch = prevOptions.some((option) => {
+          return (
+            option.value.toLowerCase() === statusId.value.toLowerCase() ||
+            (statusId.id && option.id === statusId.id)
+          );
+        });
+
+        if (hasMatch) {
+          return prevOptions;
+        }
+
+        return [
+          ...prevOptions,
+          {
+            value: statusId.value,
+            label: statusId.value,
+            id: statusId.id,
+          },
+        ];
+      });
+      if (err?.message) {
+        toast.error(err.message);
+      }
     }
   };
 
@@ -90,15 +134,11 @@ const CustomersEditDrawer = ({
         }),
       });
       const data = await response.json();
-      console.log(data);
       if (!data.success) {
         throw new Error(data.message);
       }
 
       setStatusId({ value: data.customer.status, label: data.customer.status });
-      // setType(data.customer?.customerType);
-      // setCompany(data.customer?.company);
-      // setPeople(data.customer?.people);
 
       setIsLoading(false);
       toast.success(data.message);
@@ -144,18 +184,168 @@ const CustomersEditDrawer = ({
     }
   };
 
+  const addStatusHandler = async (e) => {
+    e.preventDefault();
+    const newStatus = customStatus.trim();
+
+    if (!newStatus) {
+      toast.error("Status name cannot be empty");
+      return;
+    }
+
+    const uniqueCount = new Set(
+      statusOptions.map((option) => option.value.toLowerCase())
+    ).size;
+
+    if (uniqueCount >= STATUS_LIMIT) {
+      toast.error(`Maximum ${STATUS_LIMIT} status options allowed`);
+      return;
+    }
+
+    const alreadyExists = statusOptions.some(
+      (option) => option.value.toLowerCase() === newStatus.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      toast.error("Status already exists");
+      return;
+    }
+
+    try {
+      setIsAddingStatus(true);
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "status/create-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+        body: JSON.stringify({
+          name: newStatus,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      const option = {
+        value: data.status.name,
+        label: data.status.name,
+        id: data.status._id,
+      };
+      setStatusOptions((prev) => [...prev, option]);
+      setStatusId(option);
+      toast.success(data.message || "Status added successfully");
+      setCustomStatus("");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsAddingStatus(false);
+    }
+  };
+
   useEffect(() => {
     fetchCustomerDetails();
-    getAllCompanies();
-    getAllPeoples();
+    fetchStatuses();
   }, []);
 
   useEffect(() => {
-    setShowSelectPeoples(type === "People" ? true : false);
-    setShowSelectCompanies(type === "Company" ? true : false);
-    setPeople("");
-    setCompany("");
-  }, [type]);
+    if (!statusId?.value) return;
+    setStatusOptions((prev) => {
+      if (
+        prev.some(
+          (option) => option.value.toLowerCase() === statusId.value.toLowerCase()
+        )
+      ) {
+        return prev;
+      }
+      return [
+        ...prev,
+        {
+          value: statusId.value,
+          label: statusId.value,
+          id: statusId.id,
+        },
+      ];
+    });
+  }, [statusId?.value]);
+
+  const deleteStatusHandler = async (status) => {
+    try {
+      let statusIdToDelete = status?.id;
+      if (!statusIdToDelete) {
+        // Try to resolve id by name first
+        const baseURL = process.env.REACT_APP_BACKEND_URL;
+        const res = await fetch(baseURL + "status/all-statuses", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${cookies?.access_token}`,
+          },
+        });
+        const list = await res.json();
+        if (list?.success && Array.isArray(list.statuses)) {
+          const found = list.statuses.find(
+            (s) => s?.name?.toLowerCase() === status.value?.toLowerCase()
+          );
+          if (found?._id) {
+            statusIdToDelete = found._id;
+          }
+        }
+      }
+
+      if (!statusIdToDelete) {
+        // Not found on server; remove locally so it doesn't persist in UI
+        setStatusOptions((prev) =>
+          prev.filter(
+            (option) =>
+              (option.id || option.value) !== (status.id || status.value)
+          )
+        );
+        if ((statusId?.id || statusId?.value) === (status.id || status.value)) {
+          setStatusId(undefined);
+        }
+        toast.success("Removed from list");
+        return;
+      }
+
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${baseURL}status/delete-status/${statusIdToDelete}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setStatusOptions((prev) =>
+        prev.filter(
+          (option) =>
+            (option.id || option.value) !== statusIdToDelete &&
+            (option.id || option.value) !== (status.id || status.value)
+        )
+      );
+
+      if (
+        statusId?.id === statusIdToDelete ||
+        (statusId?.id || statusId?.value) === (status.id || status.value)
+      ) {
+        setStatusId(undefined);
+      }
+
+      toast.success(data.message || "Status deleted successfully");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div
@@ -184,14 +374,97 @@ const CustomersEditDrawer = ({
                 <Select
                   className="rounded mt-2"
                   options={statusOptions}
-                  placeholder="Select source"
+                  placeholder={
+                    statusOptions.length === 0
+                      ? "No statuses added"
+                      : "Select status"
+                  }
                   value={statusId}
                   onChange={(d) => {
-                    // setSourceLabel(d);
                     setStatusId(d);
                   }}
                   isSearchable={true}
                 />
+                {["Super Admin", "Admin"].includes(auth?.role) && (
+                  <FormControl mt={3}>
+                    <div className="flex gap-2">
+                      <Input
+                        value={customStatus}
+                        onChange={(event) => setCustomStatus(event.target.value)}
+                        placeholder="Add new status"
+                        maxLength={50}
+                      isDisabled={
+                        isAddingStatus ||
+                        new Set(
+                          statusOptions.map((option) =>
+                            option.value.toLowerCase()
+                          )
+                        ).size >= STATUS_LIMIT
+                      }
+                      />
+                      <Button
+                        onClick={addStatusHandler}
+                      isDisabled={
+                        isAddingStatus ||
+                        new Set(
+                          statusOptions.map((option) =>
+                            option.value.toLowerCase()
+                          )
+                        ).size >= STATUS_LIMIT
+                      }
+                        isLoading={isAddingStatus}
+                        loadingText="Adding"
+                        colorScheme="blue"
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    <FormHelperText>
+                      {new Set(
+                        statusOptions.map((option) =>
+                          option.value.toLowerCase()
+                        )
+                      ).size >= STATUS_LIMIT
+                        ? `You can only have up to ${STATUS_LIMIT} status options.`
+                        : `You can add ${
+                            STATUS_LIMIT -
+                            new Set(
+                              statusOptions.map((option) =>
+                                option.value.toLowerCase()
+                              )
+                            ).size
+                          } more status${
+                            STATUS_LIMIT -
+                              new Set(
+                                statusOptions.map((option) =>
+                                  option.value.toLowerCase()
+                                )
+                              ).size ===
+                            1
+                              ? ""
+                              : "es"
+                          }.`}
+                    </FormHelperText>
+                    {statusOptions.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {statusOptions.map((option) => (
+                          <Tag
+                            size="md"
+                            key={option.id || option.value}
+                            borderRadius="full"
+                            colorScheme="blue"
+                          >
+                            <TagLabel>{option.label}</TagLabel>
+                            <TagCloseButton
+                              onClick={() => deleteStatusHandler(option)}
+                              aria-label={`Delete ${option.label}`}
+                            />
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
+                  </FormControl>
+                )}
               </div>
             </div>
             {/* <FormControl className="mt-3 mb-5" isRequired>
