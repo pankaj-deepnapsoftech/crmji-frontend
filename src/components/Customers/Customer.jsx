@@ -7,7 +7,24 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-  Portal
+  Portal,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Progress,
+  Box,
+  VStack,
+  HStack,
+  Text,
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -68,6 +85,18 @@ const columns = [
     accessor: "uniqueId",
   },
   {
+    Header: "Total Price",
+    accessor: "totalInvoiceAmount",
+    Cell: ({ value }) =>
+      typeof value === "number"
+        ? value.toLocaleString("en-IN", {
+          style: "currency",
+          currency: "INR",
+          minimumFractionDigits: 2,
+        })
+        : "₹0.00",
+  },
+  {
     Header: "Type",
     accessor: "customertype",
   },
@@ -80,9 +109,9 @@ const columns = [
     accessor: (row) =>
       row?.products && row.products.length > 0
         ? row.products
-            .map((product) => product?.name)
-            .filter(Boolean)
-            .join(", ")
+          .map((product) => product?.name)
+          .filter(Boolean)
+          .join(", ")
         : "Not Available",
     id: "products",
   },
@@ -95,9 +124,14 @@ const columns = [
     accessor: "email",
   },
   {
-    Header: "RI File",
-    accessor: "riFile",
+    Header: "Payment Received",
+    accessor: "lastPaymentAmount",
+    id: "payment_received",
   },
+  // {
+  //   Header: "RI File",
+  //   accessor: "riFile",
+  // },
 ];
 
 const Customer = () => {
@@ -108,7 +142,14 @@ const Customer = () => {
   const [loading, setLoading] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selectedCustomerForPayment, setSelectedCustomerForPayment] = useState(null);
   const dispatch = useDispatch();
+
+  const {
+    isOpen: isPaymentOpen,
+    onOpen: onPaymentOpen,
+    onClose: onPaymentClose,
+  } = useDisclosure();
 
   const {
     getTableProps,
@@ -365,6 +406,109 @@ const Customer = () => {
                 </AlertDialogContent>
               </AlertDialogOverlay>
             </AlertDialog>
+
+            {/* Payment details modal: toggles between invoice/payment info and percentage view */}
+            <Modal isOpen={isPaymentOpen} onClose={() => { setSelectedCustomerForPayment(null); onPaymentClose(); }} size="lg">
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Payment Details</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Tabs>
+                    <TabList>
+                      <Tab>Invoices / Payments</Tab>
+                      <Tab>Percentage</Tab>
+                    </TabList>
+
+                    <TabPanels>
+                      <TabPanel>
+                        {selectedCustomerForPayment ? (
+                          <VStack align="stretch" spacing={3}>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Customer</Text>
+                              <Text>{selectedCustomerForPayment.name}</Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Total Invoice Amount</Text>
+                              <Text>
+                                {typeof selectedCustomerForPayment.totalInvoiceAmount === 'number'
+                                  ? selectedCustomerForPayment.totalInvoiceAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
+                                  : '₹0.00'}
+                              </Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Last Payment Amount</Text>
+                              <Text>
+                                {typeof selectedCustomerForPayment.lastPaymentAmount === 'number'
+                                  ? selectedCustomerForPayment.lastPaymentAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
+                                  : '₹0.00'}
+                              </Text>
+                            </HStack>
+
+                            {/* If there's a payments or invoices array, show it; otherwise simple message */}
+                            {Array.isArray(selectedCustomerForPayment.invoices) && selectedCustomerForPayment.invoices.length > 0 ? (
+                              <Box>
+                                {selectedCustomerForPayment.invoices.map((inv, idx) => (
+                                  <Box key={idx} borderWidth={1} borderRadius="md" p={2} mb={2}>
+                                    <HStack justify="space-between">
+                                      <Text fontSize="sm">{inv?.invoiceNo || `Invoice ${idx + 1}`}</Text>
+                                      <Text fontSize="sm">{typeof inv?.amount === 'number' ? inv.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }) : '₹0.00'}</Text>
+                                    </HStack>
+                                  </Box>
+                                ))}
+                              </Box>
+                            ) : (
+                              <Text fontSize="sm" color="gray.600">No detailed invoices available.</Text>
+                            )}
+                          </VStack>
+                        ) : (
+                          <Text>No customer selected.</Text>
+                        )}
+                      </TabPanel>
+
+                      <TabPanel>
+                        {selectedCustomerForPayment ? (
+                          <VStack align="stretch" spacing={4}>
+                            <Text>
+                              Percentage of amount received against total invoice amount.
+                            </Text>
+                            {typeof selectedCustomerForPayment.totalInvoiceAmount === 'number' && selectedCustomerForPayment.totalInvoiceAmount > 0 ? (
+                              (() => {
+                                const total = selectedCustomerForPayment.totalInvoiceAmount || 0;
+                                const paid = selectedCustomerForPayment.lastPaymentAmount || 0;
+                                const pct = Math.min(100, Math.round((paid / total) * 10000) / 100) || 0;
+                                return (
+                                  <Box>
+                                    <Text fontSize="lg" fontWeight={700}>{pct}%</Text>
+                                    <Progress value={pct} size="md" colorScheme={pct >= 100 ? 'green' : 'blue'} mt={2} />
+                                    <HStack justify="space-between" mt={3}>
+                                      <Text fontSize="sm">Received</Text>
+                                      <Text fontSize="sm">{typeof paid === 'number' ? paid.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }) : '₹0.00'}</Text>
+                                    </HStack>
+                                    <HStack justify="space-between">
+                                      <Text fontSize="sm">Total</Text>
+                                      <Text fontSize="sm">{total.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })}</Text>
+                                    </HStack>
+                                  </Box>
+                                );
+                              })()
+                            ) : (
+                              <Text>No invoice amount available to calculate percentage.</Text>
+                            )}
+                          </VStack>
+                        ) : (
+                          <Text>No customer selected.</Text>
+                        )}
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button onClick={() => { setSelectedCustomerForPayment(null); onPaymentClose(); }}>Close</Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
           </>
           <div>
             {/* <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
@@ -405,69 +549,69 @@ const Customer = () => {
                   <option value={100}>100</option>
                   <option value={100000}>All</option>
                 </Select>
-                {/* <Button
+                <Button
                   onClick={addCustomersHandler}
                   color="white"
                   backgroundColor="#1640d6"
                 >
                   Add New Customer
-                </Button> */}
+                </Button>
               </div>
             </div> */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
-  {/* Title */}
-  <div className="text-lg md:text-xl font-semibold text-gray-800">
-    Customer List
-  </div>
+              {/* Title */}
+              <div className="text-lg md:text-xl font-semibold text-gray-800">
+                Customer List
+              </div>
 
-  {/* Controls */}
-  <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
-    <textarea
-      className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
-      rows="1"
-      placeholder="Search"
-      value={searchKey}
-      onChange={(e) => setSearchKey(e.target.value)}
-    />
+              {/* Controls */}
+              <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
+                <textarea
+                  className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
+                  rows="1"
+                  placeholder="Search"
+                  value={searchKey}
+                  onChange={(e) => setSearchKey(e.target.value)}
+                />
 
-    <Button
-      fontSize={{ base: "14px", md: "14px" }}
-      px={{ base: "10px", md: "12px" }}
-      py={{ base: "2px", md: "3px" }}
-      width={{ base: "full", sm: "auto" }}
-      onClick={fetchAllCustomers}
-      leftIcon={<MdOutlineRefresh />}
-      color="#1640d6"
-      borderColor="#1640d6"
-      variant="outline"
-    >
-      Refresh
-    </Button>
+                <Button
+                  fontSize={{ base: "14px", md: "14px" }}
+                  px={{ base: "10px", md: "12px" }}
+                  py={{ base: "2px", md: "3px" }}
+                  width={{ base: "full", sm: "auto" }}
+                  onClick={fetchAllCustomers}
+                  leftIcon={<MdOutlineRefresh />}
+                  color="#1640d6"
+                  borderColor="#1640d6"
+                  variant="outline"
+                >
+                  Refresh
+                </Button>
 
-    <Select
-      onChange={(e) => setPageSize(e.target.value)}
-      width={{ base: "full", sm: "80px" }}
-      className="text-sm"
-    >
-      <option value={5}>5</option>
-      <option value={10}>10</option>
-      <option value={20}>20</option>
-      <option value={50}>50</option>
-      <option value={100}>100</option>
-      <option value={100000}>All</option>
-    </Select>
+                <Select
+                  onChange={(e) => setPageSize(e.target.value)}
+                  width={{ base: "full", sm: "80px" }}
+                  className="text-sm"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={100000}>All</option>
+                </Select>
 
-    <Button
-      onClick={addCustomersHandler}
-      color="white"
-      backgroundColor="#1640d6"
-      width={{ base: "full", sm: "auto" }}
-      _hover={{ backgroundColor: "#1035ad" }}
-    >
-      Add New Customer
-    </Button>
-  </div>
-</div>
+                {/* <Button
+                  onClick={addCustomersHandler}
+                  color="white"
+                  backgroundColor="#1640d6"
+                  width={{ base: "full", sm: "auto" }}
+                  _hover={{ backgroundColor: "#1035ad" }}
+                >
+                  Add New Customer
+                </Button> */}
+              </div>
+            </div>
 
 
             <div>
@@ -557,11 +701,10 @@ const Customer = () => {
                                 return (
                                   <Th
                                     className={`
-                    ${
-                      column.id === "name"
-                        ? "sticky top-0 left-[-2px]"
-                        : "sticky top-0"
-                    }
+                    ${column.id === "name"
+                                        ? "sticky top-0 left-[-2px]"
+                                        : "sticky top-0"
+                                      }
                     text-transform: capitalize
                     font-size: 15px
                     font-weight: 700
@@ -612,29 +755,28 @@ const Customer = () => {
                               {row.cells.map((cell) => {
                                 return (
                                   <Td
-                                    className={` ${
-                                      cell.column.id === "name"
-                                        ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
-                                        : ""
-                                    } text-center border-b border-gray-200 p-3 `}
+                                    className={` ${cell.column.id === "name"
+                                      ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
+                                      : ""
+                                      } text-center border-b border-gray-200 p-3 `}
                                     {...cell.getCellProps()}
                                   >
                                     {cell.column.id !== "customertype" &&
                                       cell.column.id !== "status" &&
                                       cell.column.id !== "created_on" &&
                                       cell.column.id !== "riFile" &&
+                                      cell.column.id !== "payment_received" &&
                                       cell.render("Cell")}
                                     {cell.column.id === "customertype" && (
                                       <span
-                                        className={`text-sm rounded-md px-3 py-1 ${
-                                          cell.row.original.customertype ===
+                                        className={`text-sm rounded-md px-3 py-1 ${cell.row.original.customertype ===
                                           "People"
-                                            ? "bg-[#fff0f6] text-[#c41d7f]"
-                                            : "bg-[#e6f4ff] text-[#0958d9]"
-                                        }`}
+                                          ? "bg-[#fff0f6] text-[#c41d7f]"
+                                          : "bg-[#e6f4ff] text-[#0958d9]"
+                                          }`}
                                       >
                                         {cell.row.original.customertype ===
-                                        "People"
+                                          "People"
                                           ? "Individual"
                                           : "Corporate"}
                                       </span>
@@ -651,20 +793,32 @@ const Customer = () => {
                                       <span
                                         className="text-sm rounded-md px-3 py-1"
                                         style={{
-                                          backgroundColor: `${
-                                            statusStyles[
-                                              row.original.status?.toLowerCase()
-                                            ]?.bg
-                                          }`,
-                                          color: `${
-                                            statusStyles[
-                                              row.original.status?.toLowerCase()
-                                            ]?.text
-                                          }`,
+                                          backgroundColor: `${statusStyles[
+                                            row.original.status?.toLowerCase()
+                                          ]?.bg
+                                            }`,
+                                          color: `${statusStyles[
+                                            row.original.status?.toLowerCase()
+                                          ]?.text
+                                            }`,
                                         }}
                                       >
                                         {row.original.status}
                                       </span>
+                                    )}
+                                    {cell.column.id === "payment_received" && (
+                                      <div className="flex items-center justify-center">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => {
+                                            setSelectedCustomerForPayment(row.original);
+                                            onPaymentOpen();
+                                          }}
+                                        >
+                                          Details
+                                        </Button>
+                                      </div>
                                     )}
                                     {cell.column.id === "riFile" && (
                                       <div className="flex justify-center">
@@ -707,33 +861,33 @@ const Customer = () => {
                                     }
                                   />
                                   <Portal>
-                                  <MenuList>
-                                    <MenuItem
-                                      icon={<MdOutlineVisibility />}
-                                      onClick={() =>
-                                        showDetailsHandler(row.original?._id)
-                                      }
-                                    >
-                                      View
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdEdit />}
-                                      onClick={() =>
-                                        editHandler(row.original?._id)
-                                      }
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdDeleteOutline />}
-                                      onClick={() => {
-                                        setCustomerDeleteId(row.original?._id);
-                                        confirmDeleteHandler();
-                                      }}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </MenuList>
+                                    <MenuList>
+                                      <MenuItem
+                                        icon={<MdOutlineVisibility />}
+                                        onClick={() =>
+                                          showDetailsHandler(row.original?._id)
+                                        }
+                                      >
+                                        View
+                                      </MenuItem>
+                                      <MenuItem
+                                        icon={<MdEdit />}
+                                        onClick={() =>
+                                          editHandler(row.original?._id)
+                                        }
+                                      >
+                                        Edit
+                                      </MenuItem>
+                                      <MenuItem
+                                        icon={<MdDeleteOutline />}
+                                        onClick={() => {
+                                          setCustomerDeleteId(row.original?._id);
+                                          confirmDeleteHandler();
+                                        }}
+                                      >
+                                        Delete
+                                      </MenuItem>
+                                    </MenuList>
                                   </Portal>
                                 </Menu>
                               </Td>
