@@ -7,7 +7,24 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-  Portal
+  Portal,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Progress,
+  Box,
+  VStack,
+  HStack,
+  Text,
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -17,7 +34,6 @@ import {
   MdOutlineVisibility,
   MdMoreVert,
 } from "react-icons/md";
-import { BiTable, BiCard } from "react-icons/bi";
 import Loading from "../ui/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -74,10 +90,10 @@ const columns = [
     Cell: ({ value }) =>
       typeof value === "number"
         ? value.toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-            minimumFractionDigits: 2,
-          })
+          style: "currency",
+          currency: "INR",
+          minimumFractionDigits: 2,
+        })
         : "₹0.00",
   },
   {
@@ -93,9 +109,9 @@ const columns = [
     accessor: (row) =>
       row?.products && row.products.length > 0
         ? row.products
-            .map((product) => product?.name)
-            .filter(Boolean)
-            .join(", ")
+          .map((product) => product?.name)
+          .filter(Boolean)
+          .join(", ")
         : "Not Available",
     id: "products",
   },
@@ -108,9 +124,14 @@ const columns = [
     accessor: "email",
   },
   {
-    Header: "RI File",
-    accessor: "riFile",
+    Header: "Payment Received",
+    accessor: "lastPaymentAmount",
+    id: "payment_received",
   },
+  // {
+  //   Header: "RI File",
+  //   accessor: "riFile",
+  // },
 ];
 
 const Customer = () => {
@@ -121,8 +142,14 @@ const Customer = () => {
   const [loading, setLoading] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [selectedRowId, setSelectedRowId] = useState(null);
-  const [viewMode, setViewMode] = useState("table"); // table or card
+  const [selectedCustomerForPayment, setSelectedCustomerForPayment] = useState(null);
   const dispatch = useDispatch();
+
+  const {
+    isOpen: isPaymentOpen,
+    onOpen: onPaymentOpen,
+    onClose: onPaymentClose,
+  } = useDisclosure();
 
   const {
     getTableProps,
@@ -379,89 +406,215 @@ const Customer = () => {
                 </AlertDialogContent>
               </AlertDialogOverlay>
             </AlertDialog>
+
+            {/* Payment details modal: toggles between invoice/payment info and percentage view */}
+            <Modal isOpen={isPaymentOpen} onClose={() => { setSelectedCustomerForPayment(null); onPaymentClose(); }} size="lg">
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Payment Details</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Tabs>
+                    <TabList>
+                      <Tab>Invoices / Payments</Tab>
+                      <Tab>Percentage</Tab>
+                    </TabList>
+
+                    <TabPanels>
+                      <TabPanel>
+                        {selectedCustomerForPayment ? (
+                          <VStack align="stretch" spacing={3}>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Customer</Text>
+                              <Text>{selectedCustomerForPayment.name}</Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Total Invoice Amount</Text>
+                              <Text>
+                                {typeof selectedCustomerForPayment.totalInvoiceAmount === 'number'
+                                  ? selectedCustomerForPayment.totalInvoiceAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
+                                  : '₹0.00'}
+                              </Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Last Payment Amount</Text>
+                              <Text>
+                                {typeof selectedCustomerForPayment.lastPaymentAmount === 'number'
+                                  ? selectedCustomerForPayment.lastPaymentAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
+                                  : '₹0.00'}
+                              </Text>
+                            </HStack>
+
+                            {/* If there's a payments or invoices array, show it; otherwise simple message */}
+                            {Array.isArray(selectedCustomerForPayment.invoices) && selectedCustomerForPayment.invoices.length > 0 ? (
+                              <Box>
+                                {selectedCustomerForPayment.invoices.map((inv, idx) => (
+                                  <Box key={idx} borderWidth={1} borderRadius="md" p={2} mb={2}>
+                                    <HStack justify="space-between">
+                                      <Text fontSize="sm">{inv?.invoiceNo || `Invoice ${idx + 1}`}</Text>
+                                      <Text fontSize="sm">{typeof inv?.amount === 'number' ? inv.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }) : '₹0.00'}</Text>
+                                    </HStack>
+                                  </Box>
+                                ))}
+                              </Box>
+                            ) : (
+                              <Text fontSize="sm" color="gray.600">No detailed invoices available.</Text>
+                            )}
+                          </VStack>
+                        ) : (
+                          <Text>No customer selected.</Text>
+                        )}
+                      </TabPanel>
+
+                      <TabPanel>
+                        {selectedCustomerForPayment ? (
+                          <VStack align="stretch" spacing={4}>
+                            <Text>
+                              Percentage of amount received against total invoice amount.
+                            </Text>
+                            {typeof selectedCustomerForPayment.totalInvoiceAmount === 'number' && selectedCustomerForPayment.totalInvoiceAmount > 0 ? (
+                              (() => {
+                                const total = selectedCustomerForPayment.totalInvoiceAmount || 0;
+                                const paid = selectedCustomerForPayment.lastPaymentAmount || 0;
+                                const pct = Math.min(100, Math.round((paid / total) * 10000) / 100) || 0;
+                                return (
+                                  <Box>
+                                    <Text fontSize="lg" fontWeight={700}>{pct}%</Text>
+                                    <Progress value={pct} size="md" colorScheme={pct >= 100 ? 'green' : 'blue'} mt={2} />
+                                    <HStack justify="space-between" mt={3}>
+                                      <Text fontSize="sm">Received</Text>
+                                      <Text fontSize="sm">{typeof paid === 'number' ? paid.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }) : '₹0.00'}</Text>
+                                    </HStack>
+                                    <HStack justify="space-between">
+                                      <Text fontSize="sm">Total</Text>
+                                      <Text fontSize="sm">{total.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })}</Text>
+                                    </HStack>
+                                  </Box>
+                                );
+                              })()
+                            ) : (
+                              <Text>No invoice amount available to calculate percentage.</Text>
+                            )}
+                          </VStack>
+                        ) : (
+                          <Text>No customer selected.</Text>
+                        )}
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button onClick={() => { setSelectedCustomerForPayment(null); onPaymentClose(); }}>Close</Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
           </>
           <div>
+            {/* <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
+              <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
+                Customer List
+              </div>
+
+              <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
+                <textarea
+                  className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
+                  rows="1"
+                  width="220px"
+                  placeholder="Search"
+                  value={searchKey}
+                  onChange={(e) => setSearchKey(e.target.value)}
+                />
+                <Button
+                  fontSize={{ base: "14px", md: "14px" }}
+                  paddingX={{ base: "10px", md: "12px" }}
+                  paddingY={{ base: "0", md: "3px" }}
+                  width={{ base: "-webkit-fill-available", md: 100 }}
+                  onClick={fetchAllCustomers}
+                  leftIcon={<MdOutlineRefresh />}
+                  color="#1640d6"
+                  borderColor="#1640d6"
+                  variant="outline"
+                >
+                  Refresh
+                </Button>
+                <Select
+                  onChange={(e) => setPageSize(e.target.value)}
+                  width="80px"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={100000}>All</option>
+                </Select>
+                <Button
+                  onClick={addCustomersHandler}
+                  color="white"
+                  backgroundColor="#1640d6"
+                >
+                  Add New Customer
+                </Button>
+              </div>
+            </div> */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
-  {/* Title */}
-  <div className="text-lg md:text-xl font-semibold text-gray-800">
-    Customer List
-  </div>
+              {/* Title */}
+              <div className="text-lg md:text-xl font-semibold text-gray-800">
+                Customer List
+              </div>
 
-  {/* Controls */}
-  <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
-    <textarea
-      className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
-      rows="1"
-      placeholder="Search"
-      value={searchKey}
-      onChange={(e) => setSearchKey(e.target.value)}
-    />
+              {/* Controls */}
+              <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
+                <textarea
+                  className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
+                  rows="1"
+                  placeholder="Search"
+                  value={searchKey}
+                  onChange={(e) => setSearchKey(e.target.value)}
+                />
 
-    <Button
-      fontSize={{ base: "14px", md: "14px" }}
-      px={{ base: "10px", md: "12px" }}
-      py={{ base: "2px", md: "3px" }}
-      width={{ base: "full", sm: "auto" }}
-      onClick={fetchAllCustomers}
-      leftIcon={<MdOutlineRefresh />}
-      color="#1640d6"
-      borderColor="#1640d6"
-      variant="outline"
-    >
-      Refresh
-    </Button>
+                <Button
+                  fontSize={{ base: "14px", md: "14px" }}
+                  px={{ base: "10px", md: "12px" }}
+                  py={{ base: "2px", md: "3px" }}
+                  width={{ base: "full", sm: "auto" }}
+                  onClick={fetchAllCustomers}
+                  leftIcon={<MdOutlineRefresh />}
+                  color="#1640d6"
+                  borderColor="#1640d6"
+                  variant="outline"
+                >
+                  Refresh
+                </Button>
 
-    <Select
-      onChange={(e) => setPageSize(e.target.value)}
-      width={{ base: "full", sm: "80px" }}
-      className="text-sm"
-    >
-      <option value={5}>5</option>
-      <option value={10}>10</option>
-      <option value={20}>20</option>
-      <option value={50}>50</option>
-      <option value={100}>100</option>
-      <option value={100000}>All</option>
-    </Select>
+                <Select
+                  onChange={(e) => setPageSize(e.target.value)}
+                  width={{ base: "full", sm: "80px" }}
+                  className="text-sm"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={100000}>All</option>
+                </Select>
 
-    <Button
-      onClick={addCustomersHandler}
-      color="white"
-      backgroundColor="#1640d6"
-      width={{ base: "full", sm: "auto" }}
-      _hover={{ backgroundColor: "#1035ad" }}
-    >
-      Add New Customer
-    </Button>
-  </div>
-</div>
+                {/* <Button
+                  onClick={addCustomersHandler}
+                  color="white"
+                  backgroundColor="#1640d6"
+                  width={{ base: "full", sm: "auto" }}
+                  _hover={{ backgroundColor: "#1035ad" }}
+                >
+                  Add New Customer
+                </Button> */}
+              </div>
+            </div>
 
 
             <div>
-              <div className="flex justify-end gap-x-2 mb-4">
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`p-2 rounded-md transition-colors duration-200 ${
-                    viewMode === "table"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  }`}
-                  title="Table View"
-                >
-                  <BiTable size={20} />
-                </button>
-                <button
-                  onClick={() => setViewMode("card")}
-                  className={`p-2 rounded-md transition-colors duration-200 ${
-                    viewMode === "card"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  }`}
-                  title="Card View"
-                >
-                  <BiCard size={20} />
-                </button>
-              </div>
               {addCustomersDrawerIsOpened && (
                 <ClickMenu
                   top={0}
@@ -528,32 +681,30 @@ const Customer = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  {viewMode === "table" ? (
-                    <TableContainer
-                      maxHeight="600px"
-                      overflowY="auto"
-                      shadow="md"
-                      borderRadius="lg"
-                      border="1px solid"
-                      borderColor="gray.200"
-                    >
-                      <Table variant="striped" {...getTableProps()}>
-                        <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
-                          {headerGroups.map((hg) => {
-                            return (
-                              <Tr
-                                {...hg.getHeaderGroupProps()}
-                                className="border-b-2 border-gray-300"
-                              >
-                                {hg.headers.map((column) => {
-                                  return (
-                                    <Th
-                                      className={`
-                    ${
-                      column.id === "name"
-                        ? "sticky top-0 left-[-2px]"
-                        : "sticky top-0"
-                    }
+                  <TableContainer
+                    maxHeight="600px"
+                    overflowY="auto"
+                    shadow="md"
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="gray.200"
+                  >
+                    <Table variant="striped" {...getTableProps()}>
+                      <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
+                        {headerGroups.map((hg) => {
+                          return (
+                            <Tr
+                              {...hg.getHeaderGroupProps()}
+                              className="border-b-2 border-gray-300"
+                            >
+                              {hg.headers.map((column) => {
+                                return (
+                                  <Th
+                                    className={`
+                    ${column.id === "name"
+                                        ? "sticky top-0 left-[-2px]"
+                                        : "sticky top-0"
+                                      }
                     text-transform: capitalize
                     font-size: 15px
                     font-weight: 700
@@ -565,140 +716,151 @@ const Customer = () => {
                     bg-blue-400
                     z-10
                   `}
-                                      {...column.getHeaderProps(
-                                        column.getSortByToggleProps()
+                                    {...column.getHeaderProps(
+                                      column.getSortByToggleProps()
+                                    )}
+                                  >
+                                    <div className="flex items-center justify-center text-white ">
+                                      {column.render("Header")}
+                                      {column.isSorted && (
+                                        <span className="ml-1 text-xs">
+                                          {column.isSortedDesc ? (
+                                            <FaCaretDown />
+                                          ) : (
+                                            <FaCaretUp />
+                                          )}
+                                        </span>
                                       )}
-                                    >
-                                      <div className="flex items-center justify-center text-white ">
-                                        {column.render("Header")}
-                                        {column.isSorted && (
-                                          <span className="ml-1 text-xs">
-                                            {column.isSortedDesc ? (
-                                              <FaCaretDown />
-                                            ) : (
-                                              <FaCaretUp />
-                                            )}
+                                    </div>
+                                  </Th>
+                                );
+                              })}
+                              <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
+                                <p className="text-white">Actions</p>
+                              </Th>
+                            </Tr>
+                          );
+                        })}
+                      </Thead>
+
+                      <Tbody {...getTableBodyProps()}>
+                        {page.map((row) => {
+                          prepareRow(row);
+
+                          return (
+                            <Tr
+                              className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
+                              {...row.getRowProps()}
+                            >
+                              {row.cells.map((cell) => {
+                                return (
+                                  <Td
+                                    className={` ${cell.column.id === "name"
+                                      ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
+                                      : ""
+                                      } text-center border-b border-gray-200 p-3 `}
+                                    {...cell.getCellProps()}
+                                  >
+                                    {cell.column.id !== "customertype" &&
+                                      cell.column.id !== "status" &&
+                                      cell.column.id !== "created_on" &&
+                                      cell.column.id !== "riFile" &&
+                                      cell.column.id !== "payment_received" &&
+                                      cell.render("Cell")}
+                                    {cell.column.id === "customertype" && (
+                                      <span
+                                        className={`text-sm rounded-md px-3 py-1 ${cell.row.original.customertype ===
+                                          "People"
+                                          ? "bg-[#fff0f6] text-[#c41d7f]"
+                                          : "bg-[#e6f4ff] text-[#0958d9]"
+                                          }`}
+                                      >
+                                        {cell.row.original.customertype ===
+                                          "People"
+                                          ? "Individual"
+                                          : "Corporate"}
+                                      </span>
+                                    )}
+                                    {cell.column.id === "created_on" &&
+                                      row.original?.createdAt && (
+                                        <span>
+                                          {moment(
+                                            row.original?.createdAt
+                                          ).format("DD/MM/YYYY")}
+                                        </span>
+                                      )}
+                                    {cell.column.id === "status" && (
+                                      <span
+                                        className="text-sm rounded-md px-3 py-1"
+                                        style={{
+                                          backgroundColor: `${statusStyles[
+                                            row.original.status?.toLowerCase()
+                                          ]?.bg
+                                            }`,
+                                          color: `${statusStyles[
+                                            row.original.status?.toLowerCase()
+                                          ]?.text
+                                            }`,
+                                        }}
+                                      >
+                                        {row.original.status}
+                                      </span>
+                                    )}
+                                    {cell.column.id === "payment_received" && (
+                                      <div className="flex items-center justify-center">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => {
+                                            setSelectedCustomerForPayment(row.original);
+                                            onPaymentOpen();
+                                          }}
+                                        >
+                                          Details
+                                        </Button>
+                                      </div>
+                                    )}
+                                    {cell.column.id === "riFile" && (
+                                      <div className="flex justify-center">
+                                        {row.original.riFile ? (
+                                          <Button
+                                            size="sm"
+                                            colorScheme="blue"
+                                            variant="outline"
+                                            onClick={() =>
+                                              downloadRIFile(
+                                                row.original._id,
+                                                row.original.name
+                                              )
+                                            }
+                                            className="text-xs"
+                                          >
+                                            Download RI
+                                          </Button>
+                                        ) : (
+                                          <span className="text-gray-400 text-sm">
+                                            No RI File
                                           </span>
                                         )}
                                       </div>
-                                    </Th>
-                                  );
-                                })}
-                                <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
-                                  <p className="text-white">Actions</p>
-                                </Th>
-                              </Tr>
-                            );
-                          })}
-                        </Thead>
+                                    )}
+                                  </Td>
+                                );
+                              })}
 
-                        <Tbody {...getTableBodyProps()}>
-                          {page.map((row) => {
-                            prepareRow(row);
-
-                            return (
-                              <Tr
-                                className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
-                                {...row.getRowProps()}
-                              >
-                                {row.cells.map((cell) => {
-                                  return (
-                                    <Td
-                                      className={` ${
-                                        cell.column.id === "name"
-                                          ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
-                                          : ""
-                                      } text-center border-b border-gray-200 p-3 `}
-                                      {...cell.getCellProps()}
-                                    >
-                                      {cell.column.id !== "customertype" &&
-                                        cell.column.id !== "status" &&
-                                        cell.column.id !== "created_on" &&
-                                        cell.column.id !== "riFile" &&
-                                        cell.render("Cell")}
-                                      {cell.column.id === "customertype" && (
-                                        <span
-                                          className={`text-sm rounded-md px-3 py-1 ${
-                                            cell.row.original.customertype ===
-                                            "People"
-                                              ? "bg-[#fff0f6] text-[#c41d7f]"
-                                              : "bg-[#e6f4ff] text-[#0958d9]"
-                                          }`}
-                                        >
-                                          {cell.row.original.customertype ===
-                                          "People"
-                                            ? "Individual"
-                                            : "Corporate"}
-                                        </span>
-                                      )}
-                                      {cell.column.id === "created_on" &&
-                                        row.original?.createdAt && (
-                                          <span>
-                                            {moment(
-                                              row.original?.createdAt
-                                            ).format("DD/MM/YYYY")}
-                                          </span>
-                                        )}
-                                      {cell.column.id === "status" && (
-                                        <span
-                                          className="text-sm rounded-md px-3 py-1"
-                                          style={{
-                                            backgroundColor: `${
-                                              statusStyles[
-                                                row.original.status?.toLowerCase()
-                                              ]?.bg
-                                            }`,
-                                            color: `${
-                                              statusStyles[
-                                                row.original.status?.toLowerCase()
-                                              ]?.text
-                                            }`,
-                                          }}
-                                        >
-                                          {row.original.status}
-                                        </span>
-                                      )}
-                                      {cell.column.id === "riFile" && (
-                                        <div className="flex justify-center">
-                                          {row.original.riFile ? (
-                                            <Button
-                                              size="sm"
-                                              colorScheme="blue"
-                                              variant="outline"
-                                              onClick={() =>
-                                                downloadRIFile(
-                                                  row.original._id,
-                                                  row.original.name
-                                                )
-                                              }
-                                              className="text-xs"
-                                            >
-                                              Download RI
-                                            </Button>
-                                          ) : (
-                                            <span className="text-gray-400 text-sm">
-                                              No RI File
-                                            </span>
-                                          )}
-                                        </div>
-                                      )}
-                                    </Td>
-                                  );
-                                })}
-
-                                <Td className="text-center p-3">
-                                  <Menu>
-                                    <MenuButton
-                                      as={IconButton}
-                                      aria-label="Options"
-                                      icon={<MdMoreVert />}
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() =>
-                                        setSelectedRowId(row.original?._id)
-                                      }
-                                    />
-                                    <Portal>
+                              <Td className="text-center p-3">
+                                <Menu>
+                                  <MenuButton
+                                    as={IconButton}
+                                    aria-label="Options"
+                                    icon={<MdMoreVert />}
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      setSelectedRowId(row.original?._id)
+                                    }
+                                  />
+                                  <Portal>
                                     <MenuList>
                                       <MenuItem
                                         icon={<MdOutlineVisibility />}
@@ -726,109 +888,35 @@ const Customer = () => {
                                         Delete
                                       </MenuItem>
                                     </MenuList>
-                                    </Portal>
-                                  </Menu>
-                                </Td>
-                              </Tr>
-                            );
-                          })}
-                        </Tbody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {page.map((row) => {
-                          prepareRow(row);
-                          const cust = row.original;
-                          return (
-                            <div
-                              key={cust?._id}
-                              className="border rounded-lg p-4 shadow hover:shadow-md relative bg-white"
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <div className="text-xs text-gray-500">ID</div>
-                                  <div className="font-semibold">{cust?.uniqueId}</div>
-                                </div>
-                                <div>
-                                  <Menu>
-                                    <MenuButton
-                                      as={IconButton}
-                                      aria-label="Actions"
-                                      icon={<MdMoreVert />}
-                                      variant="ghost"
-                                      size="sm"
-                                    />
-                                    <Portal>
-                                    <MenuList>
-                                      <MenuItem
-                                        icon={<MdOutlineVisibility />}
-                                        onClick={() => showDetailsHandler(cust?._id)}
-                                      >
-                                        View
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdEdit />}
-                                        onClick={() => editHandler(cust?._id)}
-                                      >
-                                        Edit
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdDeleteOutline />}
-                                        onClick={() => {
-                                          setCustomerDeleteId(cust?._id);
-                                          confirmDeleteHandler();
-                                        }}
-                                      >
-                                        Delete
-                                      </MenuItem>
-                                    </MenuList>
-                                    </Portal>
-                                  </Menu>
-                                </div>
-                              </div>
-
-                              <div className="mt-3 text-sm text-gray-700">
-                                <div className="font-medium text-lg">{cust?.name}</div>
-                                <div className="text-sm text-gray-500">
-                                  {cust?.customertype === "People" ? "Individual" : "Corporate"}
-                                </div>
-                                <div className="mt-2">Phone: {cust?.phone || "-"}</div>
-                                <div className="">Email: {cust?.email || "-"}</div>
-                                <div className="mt-2 text-sm text-gray-600">Products: {cust?.products && cust?.products.length > 0 ? cust.products.map(p=>p.name).filter(Boolean).join(", ") : "Not Available"}</div>
-                                {cust?.riFile && (
-                                  <div className="mt-3">
-                                    <Button size="sm" colorScheme="blue" variant="outline" onClick={() => downloadRIFile(cust?._id, cust?.name)}>Download RI</Button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+                                  </Portal>
+                                </Menu>
+                              </Td>
+                            </Tr>
                           );
                         })}
-                      </div>
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
 
-                      <div className="w-[max-content] m-auto my-7">
-                        <button
-                          className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                          disabled={!canPreviousPage}
-                          onClick={previousPage}
-                        >
-                          Prev
-                        </button>
-                        <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                          {pageIndex + 1} of {pageCount}
-                        </span>
-                        <button
-                          className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                          disabled={!canNextPage}
-                          onClick={nextPage}
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <div className="w-[max-content] m-auto my-7">
+                    <button
+                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
+                      disabled={!canPreviousPage}
+                      onClick={previousPage}
+                    >
+                      Prev
+                    </button>
+                    <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
+                      {pageIndex + 1} of {pageCount}
+                    </span>
+                    <button
+                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
+                      disabled={!canNextPage}
+                      onClick={nextPage}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
