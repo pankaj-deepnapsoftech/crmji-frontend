@@ -106,7 +106,6 @@ import sampleCSV from "../../assets/bulk-upload-sample.csv";
 import SMSDrawer from "../ui/Drawers/Add Drawers/SMSDrawer";
 import BulkAssignDrawer from "../ui/Drawers/Add Drawers/BulkAssignDrawer";
 import PieChart from "../ui/Charts/PieChart";
-import { BiTable, BiCard } from "react-icons/bi";
 
 // columns moved inside component
 
@@ -1527,8 +1526,7 @@ const Leads = () => {
               >
                 <BiTable size={20} />
               </button>
-              <butCorporate
-                Listton
+              <button
                 onClick={() => setViewMode("card")}
                 className={`p-2 rounded-md transition-colors duration-200 ${
                   viewMode === "card"
@@ -1538,7 +1536,7 @@ const Leads = () => {
                 title="Card View"
               >
                 <BiCard size={20} />
-              </butCorporate>
+              </button>
             </div>
 
             <div>
