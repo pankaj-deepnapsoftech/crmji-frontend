@@ -1086,9 +1086,11 @@ const Leads = () => {
     if (selectedUsers.length === 0) {
       toast.error("Please select users first!");
     } else {
-      setComponents([{ type: "text", text: "" }]);
-      setTemplateName("");
-      setOpen(true);
+      // Show toastify message instead of opening modal
+      toast.info("Kindly contact to customer care");
+      // setComponents([{ type: "text", text: "" }]);
+      // setTemplateName("");
+      // setOpen(true);
     }
   };
   const handleComponentChange = (index, value) => {
@@ -2187,7 +2189,8 @@ const Leads = () => {
         </div>
       )}
 
-      <Modal isOpen={open} onClose={() => setOpen(false)}>
+        {/* Bulk WhatsApp Modal - Commented out as per requirement */}
+      {/* <Modal isOpen={open} onClose={() => setOpen(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Bulk WhatsApp Sender</ModalHeader>
@@ -2256,7 +2259,7 @@ const Leads = () => {
             </Box>
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </Modal> */}
       <Modal isOpen={isTemplateModalOpen} onClose={closeTemplateModal}>
         <ModalOverlay />
         <ModalContent>

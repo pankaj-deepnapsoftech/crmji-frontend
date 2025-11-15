@@ -200,10 +200,10 @@ const Login = () => {
 
     if (verifyingOTP) return;
 
-    if (otp.length < 4) {
-      toast.error("Invalid OTP");
-      return;
-    }
+    // if (otp.length < 4) {
+    //   toast.error("Invalid OTP");
+    //   return;
+    // }
 
     setVerifyingOtp(true);
 
@@ -430,13 +430,13 @@ const Login = () => {
                     <IoEyeOffOutline
                       onClick={() => setShowPassword(true)}
                       size={20}
-                      className="absolute top-[20px] right-3"
+                      className="absolute top-[50px] right-3"
                     />
                   ) : (
                     <IoEyeOutline
                       onClick={() => setShowPassword(false)}
                       size={20}
-                      className="absolute top-[20px] right-3"
+                      className="absolute top-[50px] right-3" 
                     />
                   )}
                 </div>

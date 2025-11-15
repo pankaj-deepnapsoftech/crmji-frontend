@@ -21,7 +21,7 @@ const InvoicesDrawer = ({ closeDrawerHandler, getAllInvoices }) => {
   // const [yearOptionsList, setYearOptionsList] = useState();
 
   const [remarks, setRemarks] = useState("");
-
+  // console.log(getAllInvoices)
   const statusOptionsList = [
     { value: "Draft", label: "Draft" },
     { value: "Pending", label: "Pending" },
@@ -142,6 +142,8 @@ const InvoicesDrawer = ({ closeDrawerHandler, getAllInvoices }) => {
     const subTotalAmt = items.reduce((acc, curr) => acc + curr.total, 0);
     setSubTotal(subTotalAmt);
   }, [items]);
+   
+  // console.log(items)
 
   useEffect(() => {
     if (taxes?.value === 1) {
@@ -201,7 +203,7 @@ const InvoicesDrawer = ({ closeDrawerHandler, getAllInvoices }) => {
           {/* Date Selection */}
           <FormControl className="mt-3 mb-5" isRequired>
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
-              Date
+              Sale Data
             </FormLabel>
             <Input
               value={date}
@@ -216,7 +218,7 @@ const InvoicesDrawer = ({ closeDrawerHandler, getAllInvoices }) => {
           {/* Expiry Date Selection */}
           <FormControl className="mt-3 mb-5" isRequired>
             <FormLabel fontWeight="bold" className="text-[#4B5563]">
-              Expiry Date
+              Delivery Date
             </FormLabel>
             <Input
               value={expiryDate}
