@@ -40,9 +40,9 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-  Portal 
+  Portal
 } from "@chakra-ui/react";
-import { Table  } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react";
 import { FaCaretDown, FaCaretUp, FaDownload } from "react-icons/fa";
 import {
   MdContactPhone,
@@ -67,6 +67,7 @@ import { toast } from "react-toastify";
 import { FaUserShield } from "react-icons/fa6";
 import KYCDrawer from "../ui/Drawers/KYC/KYCDrawer";
 import ClickMenu from "../ui/ClickMenu";
+import { BiTable, BiCard } from "react-icons/bi";
 
 const columns = [
   {
@@ -612,6 +613,10 @@ const Demo = () => {
     );
   }
 
+  const filteredData = page.map((row) => row.original);
+
+
+
   return (
     <Box p={6}>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.05)] p-3">
@@ -639,312 +644,496 @@ const Demo = () => {
             onClick={fetchScheduledDemoLeads}
             className="flex items-center justify-center gap-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-200 w-full sm:w-auto"
           >
-          
+
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
+      {!loading && filteredData.length > 0 && (
+      <div className="flex justify-end gap-x-2 mb-4">
+        <button
+          onClick={() => setViewMode("table")}
+          className={`p-2 rounded-md transition-colors duration-200 ${viewMode === "table"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+            }`}
+          title="Table View"
+        >
+          <BiTable size={20} />
+        </button>
+        <button
+          onClick={() => setViewMode("card")}
+          className={`p-2 rounded-md transition-colors duration-200 ${viewMode === "card"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+            }`}
+          title="Card View"
+        >
+          <BiCard size={20} />
+        </button>
+      </div>
+)}
 
 
-      {data.length === 0 ? (
-        <Text color="gray.500" textAlign="center" mt={8}>
-          No scheduled meetings found.
-        </Text>
-      ) : (
-        <div>
-          <TableContainer
-            maxHeight="600px"
-            overflowY="auto"
-            className="shadow-lg rounded-lg bg-white"
-          >
-            <Table
-              {...getTableProps()}
-              borderWidth="1px"
-              borderColor="#e0e0e0"
-              className="min-w-full"
+
+      {viewMode === "card" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
+
+          {filteredData.map((item) => (
+            <div
+              key={item._id}
+              className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all"
             >
-              <Thead
-                position="sticky"
-                top={0}
-                zIndex={1}
-                bg="blue.400"
-                color="white"
-                boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
-                className="text-lg font-semibold"
+              {/* NAME */}
+              <p className="text-lg font-semibold text-blue-700">
+                {item.name}
+              </p>
+
+              {/* LEAD TYPE */}
+              <p className="text-sm mt-1">
+                <span
+                  className={`px-3 py-1 rounded-md text-sm ${item.leadtype === "People"
+                    ? "bg-[#fff0f6] text-[#c41d7f]"
+                    : "bg-[#e6f4ff] text-[#0958d9]"
+                    }`}
+                >
+                  {item.leadtype === "People" ? "Individual" : "Corporate"}
+                </span>
+              </p>
+
+              {/* STATUS */}
+              <p className="mt-2 text-sm">
+                <span
+                  className="px-3 py-1 rounded-md text-sm"
+                  style={{
+                    backgroundColor:
+                      statusStyles[item.status?.toLowerCase()]?.bg,
+                    color:
+                      statusStyles[item.status?.toLowerCase()]?.text,
+                  }}
+                >
+                  {item.status}
+                </span>
+              </p>
+
+              {/* CREATED ON */}
+              <p className="text-[13px] text-gray-600 mt-2">
+                Created:{" "}
+                {moment(item.createdAt).format("DD/MM/YYYY")}
+              </p>
+
+              {/* MEETING DATE */}
+              <p className="text-[13px] text-gray-600">
+                Meeting:{" "}
+                {item.meeting?.meetingDateTime
+                  ? moment(item.meeting.meetingDateTime).format(
+                    "DD/MM/YYYY HH:mm"
+                  )
+                  : "Not Set"}
+              </p>
+
+              {/* MEETING TYPE */}
+              <p className="text-[13px] text-gray-600">
+                Type: {item.meeting?.meetingType || "N/A"}
+              </p>
+
+              {/* ACTIONS */}
+              <div className="flex items-center justify-end gap-4 mt-4">
+
+                {/* VIEW */}
+                <MdOutlineVisibility
+                  className="text-blue-500 cursor-pointer hover:scale-110 transition"
+                  size={20}
+                  onClick={() => {
+                    setDataId(item._id);
+                    showDetailsHandler(item._id);
+                  }}
+                />
+
+                {/* EDIT */}
+                <MdEdit
+                  className="text-yellow-500 cursor-pointer hover:scale-110 transition"
+                  size={20}
+                  onClick={() => editHandler(item._id)}
+                />
+
+                {/* MOVE TO CUSTOMER */}
+                <FaUserShield
+                  className="text-green-600 cursor-pointer hover:scale-110 transition"
+                  size={20}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(
+                        `${process.env.REACT_APP_BACKEND_URL}lead/edit-schedule-demo`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${cookies?.access_token}`,
+                          },
+                          body: JSON.stringify({
+                            leadId: item._id,
+                            status: "Completed",
+                            remark:
+                              remark ||
+                              "Converted to customer from Scheduled Meetings",
+                          }),
+                        }
+                      );
+
+                      const result = await response.json();
+                      if (result.success) {
+                        toast.success(result.message);
+                        fetchScheduledDemoLeads();
+                      } else {
+                        toast.error(result.message);
+                      }
+                    } catch (error) {
+                      console.error(error);
+                      toast.error("Move to Customer failed");
+                    }
+                  }}
+                />
+
+                {/* DELETE */}
+                <MdDeleteOutline
+                  className="text-red-500 cursor-pointer hover:scale-110 transition"
+                  size={20}
+                  onClick={() => {
+                    toast.info("Delete functionality to be implemented");
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+
+      {viewMode === "table" && (
+        <>
+
+          {data.length === 0 ? (
+            <Text color="gray.500" textAlign="center" mt={8}>
+              No scheduled meetings found.
+            </Text>
+          ) : (
+            <div>
+              <TableContainer
+                maxHeight="600px"
+                overflowY="auto"
+                className="shadow-lg rounded-lg bg-white"
               >
-                {headerGroups.map((hg) => {
-                  return (
-                    <Tr {...hg.getHeaderGroupProps()}>
-                      {hg.headers.map((column) => {
-                        return (
+                <Table
+                  {...getTableProps()}
+                  borderWidth="1px"
+                  borderColor="#e0e0e0"
+                  className="min-w-full"
+                >
+                  <Thead
+                    position="sticky"
+                    top={0}
+                    zIndex={1}
+                    bg="blue.400"
+                    color="white"
+                    boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
+                    className="text-lg font-semibold"
+                  >
+                    {headerGroups.map((hg) => {
+                      return (
+                        <Tr {...hg.getHeaderGroupProps()}>
+                          {hg.headers.map((column) => {
+                            return (
+                              <Th
+                                bg="blue.400"
+                                {...column.getHeaderProps(
+                                  column.getSortByToggleProps()
+                                )}
+                                textTransform="capitalize"
+                                fontSize="15px"
+                                fontWeight="700"
+                                color="white"
+                              >
+                                <div className="flex items-center">
+                                  {column.render("Header")}
+                                  {column.isSorted && (
+                                    <span>
+                                      {column.isSortedDesc ? (
+                                        <FaCaretDown />
+                                      ) : (
+                                        <FaCaretUp />
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
+                              </Th>
+                            );
+                          })}
                           <Th
-                            bg="blue.400"
-                            {...column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            )}
                             textTransform="capitalize"
                             fontSize="15px"
                             fontWeight="700"
                             color="white"
+                            borderLeft="1px solid #e0e0e0"
+                            borderRight="1px solid #e0e0e0"
                           >
-                            <div className="flex items-center">
-                              {column.render("Header")}
-                              {column.isSorted && (
-                                <span>
-                                  {column.isSortedDesc ? (
-                                    <FaCaretDown />
-                                  ) : (
-                                    <FaCaretUp />
-                                  )}
-                                </span>
-                              )}
-                            </div>
+                            Actions
                           </Th>
-                        );
-                      })}
-                      <Th
-                        textTransform="capitalize"
-                        fontSize="15px"
-                        fontWeight="700"
-                        color="white"
-                        borderLeft="1px solid #e0e0e0"
-                        borderRight="1px solid #e0e0e0"
-                      >
-                        Actions
-                      </Th>
-                    </Tr>
-                  );
-                })}
-              </Thead>
-              <Tbody {...getTableBodyProps()}>
-                {page.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <Tr
-                      className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
-                      {...row.getRowProps()}
-                    >
-                      {row.cells.map((cell) => {
-                        return (
-                          <Td
-                            fontWeight="600"
-                            padding="16px"
-                            {...cell.getCellProps()}
-                          >
-                            {cell.column.id !== "leadtype" &&
-                              cell.column.id !== "status" &&
-                              cell.column.id !== "created_on" &&
-                              cell.render("Cell")}
+                        </Tr>
+                      );
+                    })}
+                  </Thead>
 
-                            {/* Lead Type Rendering */}
-                            {cell.column.id === "leadtype" && (
-                              <span
-                                className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
-                                  ? "bg-[#fff0f6] text-[#c41d7f]"
-                                  : "bg-[#e6f4ff] text-[#0958d9]"
-                                  }`}
+
+
+
+
+
+                  {/* CARD VIEW — SAME DESIGN AS BEFORE */}
+
+
+
+
+
+
+                  <Tbody {...getTableBodyProps()}>
+                    {page.map((row) => {
+                      prepareRow(row);
+                      return (
+                        <Tr
+                          className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
+                          {...row.getRowProps()}
+                        >
+                          {row.cells.map((cell) => {
+                            return (
+                              <Td
+                                fontWeight="600"
+                                padding="16px"
+                                {...cell.getCellProps()}
                               >
-                                {row.original.leadtype === "People"
-                                  ? "Individual"
-                                  : "Corporate"}
-                              </span>
-                            )}
+                                {cell.column.id !== "leadtype" &&
+                                  cell.column.id !== "status" &&
+                                  cell.column.id !== "created_on" &&
+                                  cell.render("Cell")}
 
-                            {/* Date Handling */}
-                            {cell.column.id === "created_on" &&
-                              row.original?.createdAt && (
-                                <span>
-                                  {moment(row.original?.createdAt).format(
-                                    "DD/MM/YYYY"
+                                {/* Lead Type Rendering */}
+                                {cell.column.id === "leadtype" && (
+                                  <span
+                                    className={`text-sm rounded-md px-3 py-1 ${row.original.leadtype === "People"
+                                      ? "bg-[#fff0f6] text-[#c41d7f]"
+                                      : "bg-[#e6f4ff] text-[#0958d9]"
+                                      }`}
+                                  >
+                                    {row.original.leadtype === "People"
+                                      ? "Individual"
+                                      : "Corporate"}
+                                  </span>
+                                )}
+
+                                {/* Date Handling */}
+                                {cell.column.id === "created_on" &&
+                                  row.original?.createdAt && (
+                                    <span>
+                                      {moment(row.original?.createdAt).format(
+                                        "DD/MM/YYYY"
+                                      )}
+                                    </span>
                                   )}
-                                </span>
-                              )}
 
-                            {/* Status Rendering */}
-                            {cell.column.id === "status" && (
-                              <span
-                                className="text-sm rounded-md px-3 py-1"
-                                style={{
-                                  backgroundColor:
-                                    statusStyles[
-                                      row.original.status.toLowerCase()
-                                    ]?.bg,
-                                  color:
-                                    statusStyles[
-                                      row.original.status.toLowerCase()
-                                    ]?.text,
-                                }}
-                              >
-                                {row.original.status}
-                              </span>
-                            )}
+                                {/* Status Rendering */}
+                                {cell.column.id === "status" && (
+                                  <span
+                                    className="text-sm rounded-md px-3 py-1"
+                                    style={{
+                                      backgroundColor:
+                                        statusStyles[
+                                          row.original.status.toLowerCase()
+                                        ]?.bg,
+                                      color:
+                                        statusStyles[
+                                          row.original.status.toLowerCase()
+                                        ]?.text,
+                                    }}
+                                  >
+                                    {row.original.status}
+                                  </span>
+                                )}
+                              </Td>
+                            );
+                          })}
+
+                          {/* Actions */}
+                          <Td>
+                            <Menu>
+
+                              <MenuButton
+                                as={IconButton}
+                                aria-label="Options"
+                                icon={<MdMoreVert />}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedRowId(row.original?._id)}
+                              />
+                              <Portal>
+                                <MenuList>
+                                  <MenuItem
+                                    icon={<MdOutlineVisibility />}
+                                    onClick={async () => {
+                                      const leadId = row.original?._id;
+                                      setDataId(leadId);
+
+                                      // Fetch lead details for view
+                                      try {
+                                        const response = await axios.post(
+                                          `${process.env.REACT_APP_BACKEND_URL}lead/lead-details`,
+                                          { leadId: leadId },
+                                          {
+                                            headers: {
+                                              Authorization: `Bearer ${cookies?.access_token}`,
+                                            },
+                                          }
+                                        );
+
+                                        if (response.data.success) {
+                                          const lead = response?.data?.lead;
+                                          setLeadData(lead);
+                                          setIsLeadModalOpen(true);
+                                        }
+                                      } catch (err) {
+                                        console.error(
+                                          "Error fetching lead details:",
+                                          err
+                                        );
+                                        toast.error("Failed to fetch lead details");
+                                      }
+                                    }}
+                                  >
+                                    View
+                                  </MenuItem>
+                                  <MenuItem
+                                    icon={<MdEdit />}
+                                    onClick={async () => {
+                                      const leadId = row.original?._id;
+                                      setDataId(leadId);
+
+                                      // Fetch lead details for edit
+                                      try {
+                                        const response = await axios.post(
+                                          `${process.env.REACT_APP_BACKEND_URL}lead/lead-details`,
+                                          { leadId: leadId },
+                                          {
+                                            headers: {
+                                              Authorization: `Bearer ${cookies?.access_token}`,
+                                            },
+                                          }
+                                        );
+
+                                        if (response.data.success) {
+                                          const lead = response?.data?.lead;
+                                          setLeadData(lead);
+                                          setNewStatus(lead.status || "");
+                                          setRemark(lead.meeting?.remark || "");
+                                          setIsLeadModalOpen(true);
+                                        }
+                                      } catch (err) {
+                                        console.error(
+                                          "Error fetching lead details:",
+                                          err
+                                        );
+                                        toast.error("Failed to fetch lead details");
+                                      }
+                                    }}
+                                  >
+                                    Edit
+                                  </MenuItem>
+                                  <MenuItem
+                                    icon={<FaUserShield />}
+                                    onClick={async () => {
+                                      try {
+                                        const leadId = row.original?._id;
+                                        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}lead/edit-schedule-demo`, {
+                                          method: "POST",
+                                          headers: {
+                                            "Content-Type": "application/json",
+                                            Authorization: `Bearer ${cookies?.access_token}`,
+                                          },
+                                          body: JSON.stringify({
+                                            leadId,
+                                            status: "Completed",
+                                            remark: remark || "Converted to customer from Scheduled Meetings",
+                                          }),
+                                        });
+                                        const result = await response.json();
+                                        if (result.success) {
+                                          toast.success(result.message || "Moved to Customer successfully");
+                                          await fetchScheduledDemoLeads();
+                                        } else {
+                                          toast.error(result.message || "Failed to move to Customer");
+                                        }
+                                      } catch (error) {
+                                        console.error("Move to Customer error:", error);
+                                        toast.error(error.message || "Move to Customer failed");
+                                      }
+                                    }}
+                                  >
+                                    Move to Customer
+                                  </MenuItem>
+                                  <MenuItem
+                                    icon={<MdDeleteOutline />}
+                                    onClick={() => {
+                                      // Add delete functionality here
+                                      toast.info(
+                                        "Delete functionality to be implemented"
+                                      );
+                                    }}
+                                  >
+                                    Delete
+                                  </MenuItem>
+                                </MenuList>
+                              </Portal>
+                            </Menu>
                           </Td>
-                        );
-                      })}
-
-                      {/* Actions */}
-                      <Td>
-                        <Menu>
-                          
-                          <MenuButton
-                            as={IconButton}
-                            aria-label="Options"
-                            icon={<MdMoreVert />}
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedRowId(row.original?._id)}
-                          />
-                          <Portal>
-                          <MenuList>
-                            <MenuItem
-                              icon={<MdOutlineVisibility />}
-                              onClick={async () => {
-                                const leadId = row.original?._id;
-                                setDataId(leadId);
-
-                                // Fetch lead details for view
-                                try {
-                                  const response = await axios.post(
-                                    `${process.env.REACT_APP_BACKEND_URL}lead/lead-details`,
-                                    { leadId: leadId },
-                                    {
-                                      headers: {
-                                        Authorization: `Bearer ${cookies?.access_token}`,
-                                      },
-                                    }
-                                  );
-
-                                  if (response.data.success) {
-                                    const lead = response?.data?.lead;
-                                    setLeadData(lead);
-                                    setIsLeadModalOpen(true);
-                                  }
-                                } catch (err) {
-                                  console.error(
-                                    "Error fetching lead details:",
-                                    err
-                                  );
-                                  toast.error("Failed to fetch lead details");
-                                }
-                              }}
-                            >
-                              View
-                            </MenuItem>
-                            <MenuItem
-                              icon={<MdEdit />}
-                              onClick={async () => {
-                                const leadId = row.original?._id;
-                                setDataId(leadId);
-
-                                // Fetch lead details for edit
-                                try {
-                                  const response = await axios.post(
-                                    `${process.env.REACT_APP_BACKEND_URL}lead/lead-details`,
-                                    { leadId: leadId },
-                                    {
-                                      headers: {
-                                        Authorization: `Bearer ${cookies?.access_token}`,
-                                      },
-                                    }
-                                  );
-
-                                  if (response.data.success) {
-                                    const lead = response?.data?.lead;
-                                    setLeadData(lead);
-                                    setNewStatus(lead.status || "");
-                                    setRemark(lead.meeting?.remark || "");
-                                    setIsLeadModalOpen(true);
-                                  }
-                                } catch (err) {
-                                  console.error(
-                                    "Error fetching lead details:",
-                                    err
-                                  );
-                                  toast.error("Failed to fetch lead details");
-                                }
-                              }}
-                            >
-                              Edit
-                            </MenuItem>
-                            <MenuItem
-                              icon={<FaUserShield />}
-                              onClick={async () => {
-                                try {
-                                  const leadId = row.original?._id;
-                                  const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}lead/edit-schedule-demo`, {
-                                    method: "POST",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                      Authorization: `Bearer ${cookies?.access_token}`,
-                                    },
-                                    body: JSON.stringify({
-                                      leadId,
-                                      status: "Completed",
-                                      remark: remark || "Converted to customer from Scheduled Meetings",
-                                    }),
-                                  });
-                                  const result = await response.json();
-                                  if (result.success) {
-                                    toast.success(result.message || "Moved to Customer successfully");
-                                    await fetchScheduledDemoLeads();
-                                  } else {
-                                    toast.error(result.message || "Failed to move to Customer");
-                                  }
-                                } catch (error) {
-                                  console.error("Move to Customer error:", error);
-                                  toast.error(error.message || "Move to Customer failed");
-                                }
-                              }}
-                            >
-                              Move to Customer
-                            </MenuItem>
-                            <MenuItem
-                              icon={<MdDeleteOutline />}
-                              onClick={() => {
-                                // Add delete functionality here
-                                toast.info(
-                                  "Delete functionality to be implemented"
-                                );
-                              }}
-                            >
-                              Delete
-                            </MenuItem>
-                          </MenuList>
-                          </Portal>
-                        </Menu>
-                      </Td>
 
 
 
-                    </Tr>
-                  );
-                })}
-              </Tbody>
-            </Table>
-          </TableContainer>
+                        </Tr>
+                      );
+                    })}
+                  </Tbody>
+                </Table>
+              </TableContainer>
 
-          <div className="w-[max-content] m-auto mt-4 mb-6">
-            <button
-              className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-              disabled={!canPreviousPage}
-              onClick={previousPage}
-            >
-              Prev
-            </button>
-            <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-              {pageIndex + 1} of {pageCount}
-            </span>
-            <button
-              className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-              disabled={!canNextPage}
-              onClick={nextPage}
-            >
-              Next
-            </button>
-          </div>
-        </div>
+              <div className="w-[max-content] m-auto mt-4 mb-6">
+                <button
+                  className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
+                  disabled={!canPreviousPage}
+                  onClick={previousPage}
+                >
+                  Prev
+                </button>
+                <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
+                  {pageIndex + 1} of {pageCount}
+                </span>
+                <button
+                  className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
+                  disabled={!canNextPage}
+                  onClick={nextPage}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+        </>
       )}
+
+
+
+
+
+
       {/* RI Upload Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="md">
         <ModalOverlay />

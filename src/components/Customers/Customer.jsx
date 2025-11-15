@@ -7,7 +7,24 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-  Portal
+  Portal,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Progress,
+  Box,
+  VStack,
+  HStack,
+  Text,
 } from "@chakra-ui/react";
 import {
   MdOutlineRefresh,
@@ -61,11 +78,24 @@ import {
 } from "@chakra-ui/react";
 import { checkAccess } from "../../utils/checkAccess";
 import { Link } from "react-router-dom";
+import { BiTable, BiCard } from "react-icons/bi";
 
 const columns = [
   {
     Header: "ID",
     accessor: "uniqueId",
+  },
+  {
+    Header: "Total Price",
+    accessor: "totalInvoiceAmount",
+    Cell: ({ value }) =>
+      typeof value === "number"
+        ? value.toLocaleString("en-IN", {
+          style: "currency",
+          currency: "INR",
+          minimumFractionDigits: 2,
+        })
+        : "₹0.00",
   },
   {
     Header: "Type",
@@ -80,9 +110,9 @@ const columns = [
     accessor: (row) =>
       row?.products && row.products.length > 0
         ? row.products
-            .map((product) => product?.name)
-            .filter(Boolean)
-            .join(", ")
+          .map((product) => product?.name)
+          .filter(Boolean)
+          .join(", ")
         : "Not Available",
     id: "products",
   },
@@ -95,9 +125,14 @@ const columns = [
     accessor: "email",
   },
   {
-    Header: "RI File",
-    accessor: "riFile",
+    Header: "Payment Received",
+    accessor: "lastPaymentAmount",
+    id: "payment_received",
   },
+  // {
+  //   Header: "RI File",
+  //   accessor: "riFile",
+  // },
 ];
 
 const Customer = () => {
@@ -108,7 +143,15 @@ const Customer = () => {
   const [loading, setLoading] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selectedCustomerForPayment, setSelectedCustomerForPayment] = useState(null);
   const dispatch = useDispatch();
+  const [viewMode, setViewMode] = useState("table");
+
+  const {
+    isOpen: isPaymentOpen,
+    onOpen: onPaymentOpen,
+    onClose: onPaymentClose,
+  } = useDisclosure();
 
   const {
     getTableProps,
@@ -365,27 +408,132 @@ const Customer = () => {
                 </AlertDialogContent>
               </AlertDialogOverlay>
             </AlertDialog>
+
+            {/* Payment details modal: toggles between invoice/payment info and percentage view */}
+            <Modal isOpen={isPaymentOpen} onClose={() => { setSelectedCustomerForPayment(null); onPaymentClose(); }} size="lg">
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Payment Details</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Tabs>
+                    <TabList>
+                      <Tab>Invoices / Payments</Tab>
+                      <Tab>Percentage</Tab>
+                    </TabList>
+
+                    <TabPanels>
+                      <TabPanel>
+                        {selectedCustomerForPayment ? (
+                          <VStack align="stretch" spacing={3}>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Customer</Text>
+                              <Text>{selectedCustomerForPayment.name}</Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Total Invoice Amount</Text>
+                              <Text>
+                                {typeof selectedCustomerForPayment.totalInvoiceAmount === 'number'
+                                  ? selectedCustomerForPayment.totalInvoiceAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
+                                  : '₹0.00'}
+                              </Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Last Payment Amount</Text>
+                              <Text>
+                                {typeof selectedCustomerForPayment.lastPaymentAmount === 'number'
+                                  ? selectedCustomerForPayment.lastPaymentAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
+                                  : '₹0.00'}
+                              </Text>
+                            </HStack>
+
+                            {/* If there's a payments or invoices array, show it; otherwise simple message */}
+                            {Array.isArray(selectedCustomerForPayment.invoices) && selectedCustomerForPayment.invoices.length > 0 ? (
+                              <Box>
+                                {selectedCustomerForPayment.invoices.map((inv, idx) => (
+                                  <Box key={idx} borderWidth={1} borderRadius="md" p={2} mb={2}>
+                                    <HStack justify="space-between">
+                                      <Text fontSize="sm">{inv?.invoiceNo || `Invoice ${idx + 1}`}</Text>
+                                      <Text fontSize="sm">{typeof inv?.amount === 'number' ? inv.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }) : '₹0.00'}</Text>
+                                    </HStack>
+                                  </Box>
+                                ))}
+                              </Box>
+                            ) : (
+                              <Text fontSize="sm" color="gray.600">No detailed invoices available.</Text>
+                            )}
+                          </VStack>
+                        ) : (
+                          <Text>No customer selected.</Text>
+                        )}
+                      </TabPanel>
+
+                      <TabPanel>
+                        {selectedCustomerForPayment ? (
+                          <VStack align="stretch" spacing={4}>
+                            <Text>
+                              Percentage of amount received against total invoice amount.
+                            </Text>
+                            {typeof selectedCustomerForPayment.totalInvoiceAmount === 'number' && selectedCustomerForPayment.totalInvoiceAmount > 0 ? (
+                              (() => {
+                                const total = selectedCustomerForPayment.totalInvoiceAmount || 0;
+                                const paid = selectedCustomerForPayment.lastPaymentAmount || 0;
+                                const pct = Math.min(100, Math.round((paid / total) * 10000) / 100) || 0;
+                                return (
+                                  <Box>
+                                    <Text fontSize="lg" fontWeight={700}>{pct}%</Text>
+                                    <Progress value={pct} size="md" colorScheme={pct >= 100 ? 'green' : 'blue'} mt={2} />
+                                    <HStack justify="space-between" mt={3}>
+                                      <Text fontSize="sm">Received</Text>
+                                      <Text fontSize="sm">{typeof paid === 'number' ? paid.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }) : '₹0.00'}</Text>
+                                    </HStack>
+                                    <HStack justify="space-between">
+                                      <Text fontSize="sm">Total</Text>
+                                      <Text fontSize="sm">{total.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })}</Text>
+                                    </HStack>
+                                  </Box>
+                                );
+                              })()
+                            ) : (
+                              <Text>No invoice amount available to calculate percentage.</Text>
+                            )}
+                          </VStack>
+                        ) : (
+                          <Text>No customer selected.</Text>
+                        )}
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button onClick={() => { setSelectedCustomerForPayment(null); onPaymentClose(); }}>Close</Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
           </>
           <div>
-            {/* <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
-              <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
+              {/* Title */}
+              <div className="text-lg md:text-xl font-semibold text-gray-800">
                 Customer List
               </div>
 
-              <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
+              {/* Controls */}
+              <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
                 <textarea
-                  className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
+                  className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
                   rows="1"
-                  width="220px"
                   placeholder="Search"
                   value={searchKey}
                   onChange={(e) => setSearchKey(e.target.value)}
                 />
+
                 <Button
                   fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 100 }}
+                  px={{ base: "10px", md: "12px" }}
+                  py={{ base: "2px", md: "3px" }}
+                  width={{ base: "full", sm: "auto" }}
                   onClick={fetchAllCustomers}
                   leftIcon={<MdOutlineRefresh />}
                   color="#1640d6"
@@ -394,9 +542,11 @@ const Customer = () => {
                 >
                   Refresh
                 </Button>
+
                 <Select
                   onChange={(e) => setPageSize(e.target.value)}
-                  width="80px"
+                  width={{ base: "full", sm: "80px" }}
+                  className="text-sm"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>
@@ -405,69 +555,18 @@ const Customer = () => {
                   <option value={100}>100</option>
                   <option value={100000}>All</option>
                 </Select>
+
                 {/* <Button
                   onClick={addCustomersHandler}
                   color="white"
                   backgroundColor="#1640d6"
+                  width={{ base: "full", sm: "auto" }}
+                  _hover={{ backgroundColor: "#1035ad" }}
                 >
                   Add New Customer
                 </Button> */}
-              {/* </div> */}
-            </div> 
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
-  {/* Title */}
-  <div className="text-lg md:text-xl font-semibold text-gray-800">
-    Customer List
-  </div>
-
-  {/* Controls */}
-  <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-2">
-    <textarea
-      className="rounded-lg border border-gray-300 w-full sm:w-auto px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1640d6] transition-all resize-none"
-      rows="1"
-      placeholder="Search"
-      value={searchKey}
-      onChange={(e) => setSearchKey(e.target.value)}
-    />
-
-    <Button
-      fontSize={{ base: "14px", md: "14px" }}
-      px={{ base: "10px", md: "12px" }}
-      py={{ base: "2px", md: "3px" }}
-      width={{ base: "full", sm: "auto" }}
-      onClick={fetchAllCustomers}
-      leftIcon={<MdOutlineRefresh />}
-      color="#1640d6"
-      borderColor="#1640d6"
-      variant="outline"
-    >
-      Refresh
-    </Button>
-
-    <Select
-      onChange={(e) => setPageSize(e.target.value)}
-      width={{ base: "full", sm: "80px" }}
-      className="text-sm"
-    >
-      <option value={5}>5</option>
-      <option value={10}>10</option>
-      <option value={20}>20</option>
-      <option value={50}>50</option>
-      <option value={100}>100</option>
-      <option value={100000}>All</option>
-    </Select>
-
-    <Button
-      onClick={addCustomersHandler}
-      color="white"
-      backgroundColor="#1640d6"
-      width={{ base: "full", sm: "auto" }}
-      _hover={{ backgroundColor: "#1035ad" }}
-    >
-      Add New Customer
-    </Button>
-  </div>
-</div>
+              </div>
+            </div>
 
 
             <div>
@@ -535,33 +634,156 @@ const Customer = () => {
                   </span>
                 </div>
               )}
+
+              {/* Card/Table Toggle */}
+              {!loading && filteredData.length > 0 && (
+              <div className="flex justify-end mb-4 gap-2">
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
+      ${viewMode === "table"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-blue-600 border-blue-600"}
+    `}
+                >
+                  <BiTable size={18} />
+
+                </button>
+
+                <button
+                  onClick={() => setViewMode("card")}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
+      ${viewMode === "card"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-blue-600 border-blue-600"}
+    `}
+                >
+                  <BiCard size={18} />
+
+                </button>
+              </div>
+              )}
+
+              {/* CARD VIEW */}
+              {viewMode === "card" && (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  {filteredData.map((cust) => (
+                    <div
+                      key={cust._id}
+                      className="bg-white p-4 rounded-lg shadow hover:shadow-md border border-gray-200 transition"
+                    >
+                      {/* ID */}
+                      <p className="text-sm text-gray-500 mb-1">
+                        <span className="font-semibold text-gray-700">ID: </span>
+                        {cust.uniqueId}
+                      </p>
+
+                      {/* Name */}
+                      <p className="text-lg font-semibold text-gray-900">{cust.name}</p>
+
+                      {/* Customer Type */}
+                      <p className="mt-1 text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-md text-xs ${cust.customertype === "People"
+                              ? "bg-pink-100 text-pink-600"
+                              : "bg-blue-100 text-blue-600"
+                            }`}
+                        >
+                          {cust.customertype === "People" ? "Individual" : "Corporate"}
+                        </span>
+                      </p>
+
+                      {/* Email / Phone */}
+                      <div className="mt-3 text-sm text-gray-700">
+                        <p><strong>Email:</strong> {cust.email || "N/A"}</p>
+                        <p><strong>Phone:</strong> {cust.phone || "N/A"}</p>
+                      </div>
+
+                      {/* Total Price */}
+                      <p className="mt-3 text-sm">
+                        <strong>Total Price: </strong>
+                        {typeof cust.totalInvoiceAmount === "number"
+                          ? cust.totalInvoiceAmount.toLocaleString("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                            minimumFractionDigits: 2,
+                          })
+                          : "₹0.00"}
+                      </p>
+
+                      {/* Products */}
+                      <p className="text-sm mt-1">
+                        <strong>Products: </strong>
+                        {Array.isArray(cust.products) && cust.products.length > 0
+                          ? cust.products.map((p) => p.name).join(", ")
+                          : "Not Available"}
+                      </p>
+
+                      {/* Payment Received */}
+                      <p className="text-sm mt-1">
+                        <strong>Payment: </strong>
+                        {cust.lastPaymentAmount || 0}
+                      </p>
+
+                      {/* ACTION BUTTONS */}
+                      <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
+                        <button
+                          className="text-blue-600 text-sm font-medium bg-blue-200 py-1 px-2 rounded-2xl"
+                          onClick={() => showDetailsHandler(cust._id)}
+                        >
+                          View
+                        </button>
+
+                        <button
+                          className="text-green-600 text-sm font-medium bg-green-200 py-1 px-2 rounded-2xl"
+                          onClick={() => editHandler(cust._id)}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="text-red-600 text-sm font-medium bg-red-200 py-1 px-2 rounded-2xl"
+                          onClick={() => {
+                            setCustomerDeleteId(cust._id);
+                            confirmDeleteHandler();
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    shadow="md"
-                    borderRadius="lg"
-                    border="1px solid"
-                    borderColor="gray.200"
-                  >
-                    <Table variant="striped" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr
-                              {...hg.getHeaderGroupProps()}
-                              className="border-b-2 border-gray-300"
-                            >
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    className={`
-                    ${
-                      column.id === "name"
-                        ? "sticky top-0 left-[-2px]"
-                        : "sticky top-0"
-                    }
+                  {viewMode === "table" && (
+                    <TableContainer
+                      maxHeight="600px"
+                      overflowY="auto"
+                      shadow="md"
+                      borderRadius="lg"
+                      border="1px solid"
+                      borderColor="gray.200"
+                    >
+                      <Table variant="striped" {...getTableProps()}>
+                        <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
+                          {headerGroups.map((hg) => {
+                            return (
+                              <Tr
+                                {...hg.getHeaderGroupProps()}
+                                className="border-b-2 border-gray-300"
+                              >
+                                {hg.headers.map((column) => {
+                                  return (
+                                    <Th
+                                      className={`
+                    ${column.id === "name"
+                                          ? "sticky top-0 left-[-2px]"
+                                          : "sticky top-0"
+                                        }
                     text-transform: capitalize
                     font-size: 15px
                     font-weight: 700
@@ -573,176 +795,188 @@ const Customer = () => {
                     bg-blue-400
                     z-10
                   `}
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                  >
-                                    <div className="flex items-center justify-center text-white ">
-                                      {column.render("Header")}
-                                      {column.isSorted && (
-                                        <span className="ml-1 text-xs">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
+                                      {...column.getHeaderProps(
+                                        column.getSortByToggleProps()
                                       )}
-                                    </div>
-                                  </Th>
-                                );
-                              })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
-                                <p className="text-white">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
-
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
-
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={` ${
-                                      cell.column.id === "name"
-                                        ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
-                                        : ""
-                                    } text-center border-b border-gray-200 p-3 `}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "customertype" &&
-                                      cell.column.id !== "status" &&
-                                      cell.column.id !== "created_on" &&
-                                      cell.column.id !== "riFile" &&
-                                      cell.render("Cell")}
-                                    {cell.column.id === "customertype" && (
-                                      <span
-                                        className={`text-sm rounded-md px-3 py-1 ${
-                                          cell.row.original.customertype ===
-                                          "People"
-                                            ? "bg-[#fff0f6] text-[#c41d7f]"
-                                            : "bg-[#e6f4ff] text-[#0958d9]"
-                                        }`}
-                                      >
-                                        {cell.row.original.customertype ===
-                                        "People"
-                                          ? "Individual"
-                                          : "Corporate"}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "created_on" &&
-                                      row.original?.createdAt && (
-                                        <span>
-                                          {moment(
-                                            row.original?.createdAt
-                                          ).format("DD/MM/YYYY")}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "status" && (
-                                      <span
-                                        className="text-sm rounded-md px-3 py-1"
-                                        style={{
-                                          backgroundColor: `${
-                                            statusStyles[
-                                              row.original.status?.toLowerCase()
-                                            ]?.bg
-                                          }`,
-                                          color: `${
-                                            statusStyles[
-                                              row.original.status?.toLowerCase()
-                                            ]?.text
-                                          }`,
-                                        }}
-                                      >
-                                        {row.original.status}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "riFile" && (
-                                      <div className="flex justify-center">
-                                        {row.original.riFile ? (
-                                          <Button
-                                            size="sm"
-                                            colorScheme="blue"
-                                            variant="outline"
-                                            onClick={() =>
-                                              downloadRIFile(
-                                                row.original._id,
-                                                row.original.name
-                                              )
-                                            }
-                                            className="text-xs"
-                                          >
-                                            Download RI
-                                          </Button>
-                                        ) : (
-                                          <span className="text-gray-400 text-sm">
-                                            No RI File
+                                    >
+                                      <div className="flex items-center justify-center text-white ">
+                                        {column.render("Header")}
+                                        {column.isSorted && (
+                                          <span className="ml-1 text-xs">
+                                            {column.isSortedDesc ? (
+                                              <FaCaretDown />
+                                            ) : (
+                                              <FaCaretUp />
+                                            )}
                                           </span>
                                         )}
                                       </div>
-                                    )}
-                                  </Td>
-                                );
-                              })}
+                                    </Th>
+                                  );
+                                })}
+                                <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
+                                  <p className="text-white">Actions</p>
+                                </Th>
+                              </Tr>
+                            );
+                          })}
+                        </Thead>
 
-                              <Td className="text-center p-3">
-                                <Menu>
-                                  <MenuButton
-                                    as={IconButton}
-                                    aria-label="Options"
-                                    icon={<MdMoreVert />}
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      setSelectedRowId(row.original?._id)
-                                    }
-                                  />
-                                  <Portal>
-                                  <MenuList>
-                                    <MenuItem
-                                      icon={<MdOutlineVisibility />}
+                        <Tbody {...getTableBodyProps()}>
+                          {page.map((row) => {
+                            prepareRow(row);
+
+                            return (
+                              <Tr
+                                className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
+                                {...row.getRowProps()}
+                              >
+                                {row.cells.map((cell) => {
+                                  return (
+                                    <Td
+                                      className={` ${cell.column.id === "name"
+                                        ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
+                                        : ""
+                                        } text-center border-b border-gray-200 p-3 `}
+                                      {...cell.getCellProps()}
+                                    >
+                                      {cell.column.id !== "customertype" &&
+                                        cell.column.id !== "status" &&
+                                        cell.column.id !== "created_on" &&
+                                        cell.column.id !== "riFile" &&
+                                        cell.column.id !== "payment_received" &&
+                                        cell.render("Cell")}
+                                      {cell.column.id === "customertype" && (
+                                        <span
+                                          className={`text-sm rounded-md px-3 py-1 ${cell.row.original.customertype ===
+                                            "People"
+                                            ? "bg-[#fff0f6] text-[#c41d7f]"
+                                            : "bg-[#e6f4ff] text-[#0958d9]"
+                                            }`}
+                                        >
+                                          {cell.row.original.customertype ===
+                                            "People"
+                                            ? "Individual"
+                                            : "Corporate"}
+                                        </span>
+                                      )}
+                                      {cell.column.id === "created_on" &&
+                                        row.original?.createdAt && (
+                                          <span>
+                                            {moment(
+                                              row.original?.createdAt
+                                            ).format("DD/MM/YYYY")}
+                                          </span>
+                                        )}
+                                      {cell.column.id === "status" && (
+                                        <span
+                                          className="text-sm rounded-md px-3 py-1"
+                                          style={{
+                                            backgroundColor: `${statusStyles[
+                                              row.original.status?.toLowerCase()
+                                            ]?.bg
+                                              }`,
+                                            color: `${statusStyles[
+                                              row.original.status?.toLowerCase()
+                                            ]?.text
+                                              }`,
+                                          }}
+                                        >
+                                          {row.original.status}
+                                        </span>
+                                      )}
+                                      {cell.column.id === "payment_received" && (
+                                        <div className="flex items-center justify-center">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => {
+                                              setSelectedCustomerForPayment(row.original);
+                                              onPaymentOpen();
+                                            }}
+                                          >
+                                            Details
+                                          </Button>
+                                        </div>
+                                      )}
+                                      {cell.column.id === "riFile" && (
+                                        <div className="flex justify-center">
+                                          {row.original.riFile ? (
+                                            <Button
+                                              size="sm"
+                                              colorScheme="blue"
+                                              variant="outline"
+                                              onClick={() =>
+                                                downloadRIFile(
+                                                  row.original._id,
+                                                  row.original.name
+                                                )
+                                              }
+                                              className="text-xs"
+                                            >
+                                              Download RI
+                                            </Button>
+                                          ) : (
+                                            <span className="text-gray-400 text-sm">
+                                              No RI File
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </Td>
+                                  );
+                                })}
+
+                                <Td className="text-center p-3">
+                                  <Menu>
+                                    <MenuButton
+                                      as={IconButton}
+                                      aria-label="Options"
+                                      icon={<MdMoreVert />}
+                                      variant="ghost"
+                                      size="sm"
                                       onClick={() =>
-                                        showDetailsHandler(row.original?._id)
+                                        setSelectedRowId(row.original?._id)
                                       }
-                                    >
-                                      View
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdEdit />}
-                                      onClick={() =>
-                                        editHandler(row.original?._id)
-                                      }
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                      icon={<MdDeleteOutline />}
-                                      onClick={() => {
-                                        setCustomerDeleteId(row.original?._id);
-                                        confirmDeleteHandler();
-                                      }}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </MenuList>
-                                  </Portal>
-                                </Menu>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                                    />
+                                    <Portal>
+                                      <MenuList>
+                                        <MenuItem
+                                          icon={<MdOutlineVisibility />}
+                                          onClick={() =>
+                                            showDetailsHandler(row.original?._id)
+                                          }
+                                        >
+                                          View
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdEdit />}
+                                          onClick={() =>
+                                            editHandler(row.original?._id)
+                                          }
+                                        >
+                                          Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdDeleteOutline />}
+                                          onClick={() => {
+                                            setCustomerDeleteId(row.original?._id);
+                                            confirmDeleteHandler();
+                                          }}
+                                        >
+                                          Delete
+                                        </MenuItem>
+                                      </MenuList>
+                                    </Portal>
+                                  </Menu>
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  )}
 
                   <div className="w-[max-content] m-auto my-7">
                     <button
@@ -765,8 +999,13 @@ const Customer = () => {
                   </div>
                 </div>
               )}
+
+
+
+
             </div>
           </div>
+        </div>
       )}
     </>
   );

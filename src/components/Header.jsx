@@ -341,7 +341,7 @@ import { MdMenu, MdClose } from "react-icons/md";
 import { notificationContext } from "./ctx/notificationContext";
 import { SocketContext } from "../socket";
 
-const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
+const Header = ({ isMenuOpen = false, setIsMenuOpen = () => { } }) => {
   const socket = useContext(SocketContext);
   const [showUserDetailsMenu, setShowUserDetailsMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
@@ -354,10 +354,16 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [dataId, setDataId] = useState();
   const [isIndiamartLead, setIsIndiamartLead] = useState(false);
+  const [subscriptionDays, setSubscriptionDays] = useState(null);
+  const [planName, setPlanName] = useState("");
   const baseURL = process.env.REACT_APP_BACKEND_URL;
   const notificationCtx = useContext(notificationContext);
+  // Show upgrade button if:
+  // 1. Not subscribed and trial not ended, OR
+  // 2. Subscription has ended/expired
   const shouldShowUpgradeButton =
-    !user?.isSubscribed && user?.isTrial && !user?.isTrialEnded;
+    (!user?.isSubscribed && user?.isTrial && !user?.isTrialEnded) ||
+    user?.isSubscriptionEnded;
 
   const toggleUserDetailsMenu = () => setShowUserDetailsMenu((prev) => !prev);
   const toggleNotificationsMenu = () => setShowNotificationsMenu((prev) => !prev);
@@ -418,14 +424,45 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
       socket.off("sendNotification", handleSendNotification);
       socket.off("newNotification", handleNewNotification);
     };
-  }, [user]); 
+  }, [user]);
 
   useEffect(() => {
     notificationCtx.getChatNotificationsHandler(user.id);
     notificationCtx.getUnseenchatNotificationCount();
   }, []);
 
-      
+  // Fetch subscription/trial days remaining
+  useEffect(() => {
+    const fetchSubscriptionDays = async () => {
+      try {
+        if (!cookies?.access_token) return;
+
+        const response = await fetch(`${baseURL}organization/subscription-days`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies.access_token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setSubscriptionDays(data.daysRemaining);
+            setPlanName(data.planName || "");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching subscription days:", error);
+      }
+    };
+
+    if (user?.id && cookies?.access_token) {
+      fetchSubscriptionDays();
+    }
+  }, [user?.id, cookies?.access_token, baseURL]);
+
+
   useEffect(() => {
     if (showNotificationsMenu) {
       notificationCtx.seenNotificationHandler();
@@ -506,11 +543,12 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   // };
 
   return (
-    <header className="sticky top-0 bg-white shadow-sm border-b border-gray-300">
+    <header className="sticky top-0 bg-white shadow-sm border-b border-gray-300 z-50">
       <div className="flex items-center justify-between px-3 py-2">
 
-        {/* Left Section */}
-        <div className="flex items-center gap-2">
+        {/* LEFT SECTION */}
+        <div className="flex items-center gap-3">
+
           {/* Mobile Menu Icon */}
           <div
             className="block xl:hidden text-3xl text-gray-700 cursor-pointer"
@@ -519,26 +557,59 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
             {isMenuOpen ? <MdClose /> : <MdMenu />}
           </div>
 
-          {/* Logo (hidden on mobile) */}
+          {/* Logo (hide at 840px) */}
           <img
             src={logo}
             alt="logo"
-            className="hidden sm:block w-[140px] object-contain"
+            className="w-[140px] object-contain hidden max-[840px]:hidden xl:block"
           />
 
-          {/* Welcome Text (always visible) */}
-          <div className="ml-1 sm:ml-6 flex flex-col sm:flex-row sm:items-center">
+          {/* Welcome Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center">
             <span className="font-semibold text-sm sm:text-base text-gray-700">
               Welcome!
             </span>
-            <span className="font-bold text-sm sm:text-base text-gray-900 ml-0 sm:ml-2 truncate max-w-[100px] sm:max-w-none">
+
+            <span className="font-bold text-sm sm:text-base text-gray-900 ml-0 sm:ml-2 truncate max-w-[110px] sm:max-w-none">
               {user?.name?.toUpperCase() || "USER"}
             </span>
           </div>
         </div>
 
-        {/* Right Section */}
+        {/* RIGHT SECTION */}
         <div className="flex items-center gap-3 sm:gap-5">
+
+          {/* Subscription Days */}
+          {/* Subscription / Trial Days - ALWAYS visible */}
+          {subscriptionDays !== null && subscriptionDays !== -1 && (
+            <div className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-blue-50 border border-blue-200 rounded-md">
+              <span className="text-[11px] sm:text-xs font-medium text-blue-700">
+                {planName}:
+              </span>
+              <span className="text-[11px] sm:text-xs font-bold text-blue-900">
+                {subscriptionDays} {subscriptionDays === 1 ? "day" : "days"} left
+              </span>
+            </div>
+          )}
+
+          {subscriptionDays === -1 && (
+            <div className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-green-50 border border-green-200 rounded-md">
+              <span className="text-[11px] sm:text-xs font-medium text-green-700">
+                {planName}
+              </span>
+            </div>
+          )}
+
+
+          {subscriptionDays === -1 && (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-md">
+              <span className="text-xs sm:text-sm font-medium text-green-700">
+                {planName}
+              </span>
+            </div>
+          )}
+
+          {/* Upgrade Button */}
           {shouldShowUpgradeButton && (
             <Link to="/pricing">
               <button className="border border-[#d61616] rounded-md px-3 sm:px-6 py-1.5 bg-[#d61616] text-white font-medium text-sm sm:text-base hover:bg-white hover:text-[#d61616] transition">
@@ -549,22 +620,23 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
             </Link>
           )}
 
+          {/* Raise Request Button (hide on mobile) */}
           <Link to="/contact">
-            <button className="hidden sm:inline-block rounded-lg  px-2 sm:px-4 py-2 bg-[#5173ec] text-white hover:bg-[#3f5cc4] text-sm transition">
+            <button className="hidden sm:inline-block rounded-lg px-2 sm:px-4 py-2 bg-[#5173ec] text-white hover:bg-[#3f5cc4] text-sm transition">
               Raise Request
             </button>
           </Link>
 
-          {/* Notifications */}
+          {/* Notification Icon */}
           <div className="relative cursor-pointer">
-            {notificationCtx.unseenNotifications +
-              notificationCtx.unseenchatNotifications >
-              0 && (
-              <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center">
-                {notificationCtx.unseenNotifications +
-                  notificationCtx.unseenchatNotifications}
-              </span>
-            )}
+            {(notificationCtx.unseenNotifications +
+              notificationCtx.unseenchatNotifications) > 0 && (
+                <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center">
+                  {notificationCtx.unseenNotifications +
+                    notificationCtx.unseenchatNotifications}
+                </span>
+              )}
+
             <IoIosNotifications
               className="hover:text-gray-600"
               size={25}
@@ -600,6 +672,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
             }}
           >
             <h1 className="text-lg font-semibold mb-2">Notifications</h1>
+
             {notificationCtx.isLoading ? (
               <div className="flex justify-center items-center h-full">
                 <Loading />
@@ -642,6 +715,7 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
       )}
     </header>
   );
+
 };
 
 export default Header;

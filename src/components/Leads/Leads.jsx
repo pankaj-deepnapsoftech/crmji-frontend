@@ -21,7 +21,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-  Portal,
+  Portal
 } from "@chakra-ui/react";
 import { BiTable, BiCard } from "react-icons/bi";
 import {
@@ -106,6 +106,7 @@ import sampleCSV from "../../assets/bulk-upload-sample.csv";
 import SMSDrawer from "../ui/Drawers/Add Drawers/SMSDrawer";
 import BulkAssignDrawer from "../ui/Drawers/Add Drawers/BulkAssignDrawer";
 import PieChart from "../ui/Charts/PieChart";
+import { BiTable, BiCard } from "react-icons/bi";
 
 // columns moved inside component
 
@@ -1699,336 +1700,443 @@ const Leads = () => {
                   </span>
                 </div>
               )}
-              {!loading && filteredData.length > 0 && (
-                <div>
-                  {viewMode === "table" ? (
-                    <TableContainer
-                      maxHeight="600px"
-                      overflowY="auto"
-                      className="shadow-lg rounded-lg bg-white"
-                    >
-                      <Table
-                        {...getTableProps()}
-                        borderWidth="1px"
-                        borderColor="#e0e0e0"
-                        className="min-w-full"
-                      >
-                        <Thead
-                          position="sticky"
-                          top={0}
-                          zIndex={1}
-                          bg="blue.400"
-                          color="white"
-                          boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
-                          className="text-lg font-semibold"
+
+             {/* VIEW MODE SWITCH */}
+            <div className="flex justify-end gap-2 mb-4">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`px-4 py-2 rounded-md font-medium ${
+                  viewMode === "table"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                <BiTable size={18} />
+              </button>
+
+              <button
+                onClick={() => setViewMode("card")}
+                className={`px-4 py-2 rounded-md font-medium ${
+                  viewMode === "card"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                <BiCard size={18} />
+              </button>
+            </div>
+
+            {viewMode === "card" && !loading && filteredData.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                {filteredData.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-white shadow-lg rounded-lg border border-gray-200 p-5 hover:shadow-xl transition"
+                  >
+                    <div className="flex justify-between items-start">
+                      <h2 className="text-xl font-semibold text-blue-600">
+                        {item.name}
+                      </h2>
+
+                      {/* Status Badge */}
+                      {item.status && (
+                        <span
+                          className="text-xs px-3 py-1 rounded-full font-semibold"
+                          style={{
+                            backgroundColor:
+                              statusStyles[item.status.toLowerCase()]?.bg,
+                            color: statusStyles[item.status.toLowerCase()]?.text,
+                          }}
                         >
-                          {headerGroups.map((hg) => {
-                            return (
-                              <Tr {...hg.getHeaderGroupProps()}>
-                                {hg.headers.map((column) => {
-                                  return (
-                                    <Th
-                                      bg="blue.400"
-                                      className={`${
-                                        column.id === "name"
-                                          ? "sticky top-0 left-[-2px]"
-                                          : ""
-                                      }`}
-                                      {...column.getHeaderProps(
-                                        column.getSortByToggleProps()
-                                      )}
-                                      textTransform="capitalize"
-                                      fontSize="15px"
-                                      fontWeight="700"
-                                      color="white"
-                                    >
-                                      <div className="flex items-center">
-                                        {column.render("Header")}
-                                        {column.isSorted && (
-                                          <span>
-                                            {column.isSortedDesc ? (
-                                              <FaCaretDown />
-                                            ) : (
-                                              <FaCaretUp />
-                                            )}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </Th>
-                                  );
-                                })}
+                          {item.status}
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-gray-400 text-sm mt-1">
+                      {moment(item.createdAt).format("DD/MM/YYYY")}
+                    </p>
+
+                    <div className="mt-4 space-y-1 text-sm">
+                      <p><b>Lead Type:</b> {item.leadtype}</p>
+                      <p><b>Source:</b> {item.source}</p>
+                      <p><b>Assigned:</b> {item.assigned || "Not Assigned"}</p>
+
+                      {item.followup_date && (
+                        <p>
+                          <b>Follow Up:</b>{" "}
+                          {moment(item.followup_date).format("DD/MM/YYYY")}
+                        </p>
+                      )}
+
+                      {item.followup_reason && (
+                        <p>
+                          <b>Reason:</b> {item.followup_reason?.substr(0, 20)}...
+                        </p>
+                      )}
+
+                      {item.leadCategory && (
+                        <Badge
+                          colorScheme={getCategoryColor(item.leadCategory)}
+                          className="px-3 py-1"
+                        >
+                          {item.leadCategory}
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* CARD ACTIONS */}
+                    <div className="flex justify-end gap-4 mt-4">
+                      <FaCalendarAlt
+                        className="text-blue-500 hover:scale-110 cursor-pointer"
+                        size={20}
+                        title="Schedule Meeting"
+                        onClick={() => {
+                          setDataId(item._id);
+                          dispatch(openMoveToDemoDrawer());
+                        }}
+                      />
+
+                      <MdOutlineVisibility
+                        size={20}
+                        className="text-blue-500 hover:scale-110 cursor-pointer"
+                        onClick={() => showDetailsHandler(item._id)}
+                      />
+
+                      <MdEdit
+                        size={20}
+                        className="text-yellow-500 hover:scale-110 cursor-pointer"
+                        onClick={() => editHandler(item._id)}
+                      />
+
+                      <MdDeleteOutline
+                        size={20}
+                        className="text-red-500 hover:scale-110 cursor-pointer"
+                        onClick={() => {
+                          setLeadDeleteId(item._id);
+                          confirmDeleteHandler();
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+              </div>
+            )}
+
+            {viewMode === "table" && !loading && filteredData.length > 0 && (
+              <div>
+                <TableContainer
+                  maxHeight="600px"
+                  overflowY="auto"
+                  className="shadow-lg rounded-lg bg-white"
+                >
+                  <Table
+                    {...getTableProps()}
+                    borderWidth="1px"
+                    borderColor="#e0e0e0"
+                    className="min-w-full"
+                  >
+                    <Thead
+                      position="sticky"
+                      top={0}
+                      zIndex={1}
+                      bg="blue.400"
+                      color="white"
+                      boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
+                      className="text-lg font-semibold"
+                    >
+                      {headerGroups.map((hg) => {
+                        return (
+                          <Tr {...hg.getHeaderGroupProps()}>
+                            {hg.headers.map((column) => {
+                              return (
                                 <Th
+                                  bg="blue.400"
+                                  className={`${column.id === "name"
+                                      ? "sticky top-0 left-[-2px]"
+                                      : ""
+                                    }`}
+                                  {...column.getHeaderProps(
+                                    column.getSortByToggleProps()
+                                  )}
                                   textTransform="capitalize"
                                   fontSize="15px"
                                   fontWeight="700"
                                   color="white"
-                                  borderLeft="1px solid #e0e0e0"
-                                  borderRight="1px solid #e0e0e0"
                                 >
-                                  Actions
+                                  <div className="flex items-center">
+                                    {column.render("Header")}
+                                    {column.isSorted && (
+                                      <span>
+                                        {column.isSortedDesc ? (
+                                          <FaCaretDown />
+                                        ) : (
+                                          <FaCaretUp />
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
                                 </Th>
-                              </Tr>
-                            );
-                          })}
-                        </Thead>
-                        <Tbody {...getTableBodyProps()}>
-                          {page.map((row) => {
-                            prepareRow(row);
-                            return (
-                              <Tr
-                                className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
-                                {...row.getRowProps()}
-                              >
-                                {row.cells.map((cell) => {
-                                  return (
-                                    <Td
-                                      className={
-                                        cell.column.id === "name"
-                                          ? "sticky left-0 bg-gray-50 hover:bg-gray-100"
-                                          : ""
-                                      }
-                                      fontWeight="600"
-                                      padding="16px"
-                                      {...cell.getCellProps()}
-                                    >
-                                      {cell.column.id !== "select" &&
-                                        cell.column.id !== "leadtype" &&
-                                        cell.column.id !== "status" &&
-                                        cell.column.id !== "source" &&
-                                        cell.column.id !== "assigned" &&
-                                        cell.column.id !== "followup_date" &&
-                                        cell.column.id !== "followup_reason" &&
-                                        cell.column.id !== "created_on" &&
-                                        cell.column.id !== "leadCategory" &&
-                                        cell.render("Cell")}
-
-                                      {cell.column.id === "select" && (
-                                        <input
-                                          value={cell.row.original._id}
-                                          name="select"
-                                          type="checkbox"
-                                          className="cursor-pointer"
-                                          checked={selectedIds.includes(
-                                            cell.row.original._id
-                                          )}
-                                          onChange={(e) => {
-                                            selectOneHandler(
-                                              e,
-                                              cell.row.original._id
-                                            );
-                                            // remove the old handleSelection call — it's redundant now
-                                          }}
-                                        />
-                                      )}
-
-                                      {/* Specific Column Renderings */}
-                                      {cell.column.id === "leadtype" && (
-                                        <span
-                                          className={`text-sm rounded-md px-3 py-1 ${
-                                            row.original.leadtype === "People"
-                                              ? "bg-[#fff0f6] text-[#c41d7f]"
-                                              : "bg-[#e6f4ff] text-[#0958d9]"
-                                          }`}
-                                        >
-                                          {row.original.leadtype === "People"
-                                            ? "Individual"
-                                            : "Corporate"}
-                                        </span>
-                                      )}
-
-                                      {/* Date & Reason Handling */}
-                                      {cell.column.id === "created_on" &&
-                                        row.original?.createdAt && (
-                                          <span>
-                                            {moment(
-                                              row.original?.createdAt
-                                            ).format("DD/MM/YYYY")}
-                                          </span>
-                                        )}
-                                      {cell.column.id === "followup_date" &&
-                                        row.original?.followup_date && (
-                                          <span>
-                                            {moment(
-                                              row.original?.followup_date
-                                            ).format("DD/MM/YYYY")}
-                                          </span>
-                                        )}
-                                      {cell.column.id === "followup_reason" &&
-                                        row.original?.followup_reason && (
-                                          <span>
-                                            {row.original?.followup_reason?.substr(
-                                              0,
-                                              10
-                                            )}
-                                            ...
-                                          </span>
-                                        )}
-
-                                      {/* Status Rendering */}
-                                      {cell.column.id === "status" && (
-                                        <span
-                                          className="text-sm rounded-md px-3 py-1"
-                                          style={{
-                                            backgroundColor:
-                                              statusStyles[
-                                                row.original.status.toLowerCase()
-                                              ]?.bg,
-                                            color:
-                                              statusStyles[
-                                                row.original.status.toLowerCase()
-                                              ]?.text,
-                                          }}
-                                        >
-                                          {row.original.status}
-                                        </span>
-                                      )}
-
-                                      {/* Source Rendering */}
-                                      {cell.column.id === "source" && (
-                                        <span
-                                          className="text-sm rounded-md px-3 py-1"
-                                          style={{
-                                            backgroundColor:
-                                              sourceStyles[
-                                                row?.original?.source?.toLowerCase()
-                                              ]?.bg,
-                                            color:
-                                              sourceStyles[
-                                                row?.original?.source?.toLowerCase()
-                                              ]?.text,
-                                          }}
-                                        >
-                                          {row.original.source}
-                                        </span>
-                                      )}
-
-                                      {/* Assigned */}
-                                      {cell.column.id === "assigned" && (
-                                        <span>
-                                          {row.original?.assigned ||
-                                            "Not Assigned"}
-                                        </span>
-                                      )}
-
-                                      {cell.column.id === "leadCategory" && (
-                                        <Badge
-                                          className="text-sm rounded-md px-3 py-1"
-                                          colorScheme={getCategoryColor(
-                                            row.original?.leadCategory
-                                          )}
-                                        >
-                                          {row.original?.leadCategory}
-                                        </Badge>
-                                      )}
-                                    </Td>
-                                  );
-                                })}
-
-                                {/* Actions */}
-                                <Td className="flex items-center gap-x-3">
-                                  {/* KYC Button */}
-
-                                  {/* This is the KYC Component below commented */}
-                                  {/* <FaUserShield size={20}
-                                  onClick={() => {
-                                    setDataId(row.original?._id);
-                                    dispatch(openKYCDrawer());
-                                  }} className="flex items-center justify-center text-blue-500" /> */}
-
-                                  {/* Schedule Demo */}
-                                  <FaCalendarAlt
-                                    className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
-                                    size={20}
-                                    title="Schedule Meeting"
-                                    onClick={() => {
-                                      setDataId(row.original?._id);
-                                      dispatch(openMoveToDemoDrawer());
-                                    }}
-                                  />
-
-                                  {/* Actions Dropdown */}
-                                  <Menu>
-                                    <MenuButton
-                                      as={IconButton}
-                                      icon={<MdMoreVert />}
-                                      variant="ghost"
-                                      size="sm"
-                                      className="hover:bg-gray-100"
-                                    />
-                                    <Portal>
-                                      <MenuList>
-                                        <MenuItem
-                                          icon={<MdOutlineVisibility />}
-                                          onClick={() =>
-                                            showDetailsHandler(
-                                              row.original?._id
-                                            )
-                                          }
-                                        >
-                                          View
-                                        </MenuItem>
-                                        <MenuItem
-                                          icon={<MdEdit />}
-                                          onClick={() =>
-                                            editHandler(row.original?._id)
-                                          }
-                                        >
-                                          Edit
-                                        </MenuItem>
-                                        <MenuItem
-                                          icon={<MdDeleteOutline />}
-                                          onClick={() => {
-                                            setLeadDeleteId(row.original?._id);
-                                            confirmDeleteHandler();
-                                          }}
-                                        >
-                                          Delete
-                                        </MenuItem>
-                                      </MenuList>
-                                    </Portal>
-                                  </Menu>
-                                </Td>
-                              </Tr>
-                            );
-                          })}
-                        </Tbody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {page.map((lead) => {
-                        prepareRow(lead);
-                        return (
-                          <div className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer">
-                            hello
-                            <div>f</div>
-                          </div>
+                              );
+                            })}
+                            <Th
+                              textTransform="capitalize"
+                              fontSize="15px"
+                              fontWeight="700"
+                              color="white"
+                              borderLeft="1px solid #e0e0e0"
+                              borderRight="1px solid #e0e0e0"
+                            >
+                              Actions
+                            </Th>
+                          </Tr>
                         );
                       })}
-                    </div>
-                  )}
+                    </Thead>
 
-                  <div className="w-[max-content] m-auto mt-4 mb-6">
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canPreviousPage}
-                      onClick={previousPage}
-                    >
-                      Prev
-                    </button>
-                    <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                      {pageIndex + 1} of {pageCount}
-                    </span>
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canNextPage}
-                      onClick={nextPage}
-                    >
-                      Next
-                    </button>
-                  </div>
+                    <Tbody {...getTableBodyProps()}>
+                      {page.map((row) => {
+                        prepareRow(row);
+                        return (
+                          <Tr
+                            className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
+                            {...row.getRowProps()}
+                          >
+                            {row.cells.map((cell) => {
+                              return (
+                                <Td
+                                  className={
+                                    cell.column.id === "name"
+                                      ? "sticky left-0 bg-gray-50 hover:bg-gray-100"
+                                      : ""
+                                  }
+                                  fontWeight="600"
+                                  padding="16px"
+                                  {...cell.getCellProps()}
+                                >
+                                  {/* DEFAULT CELLS */}
+                                  {cell.column.id !== "select" &&
+                                    cell.column.id !== "leadtype" &&
+                                    cell.column.id !== "status" &&
+                                    cell.column.id !== "source" &&
+                                    cell.column.id !== "assigned" &&
+                                    cell.column.id !== "followup_date" &&
+                                    cell.column.id !== "followup_reason" &&
+                                    cell.column.id !== "created_on" &&
+                                    cell.column.id !== "leadCategory" &&
+                                    cell.render("Cell")}
+
+                                  {/* SELECT CHECKBOX */}
+                                  {cell.column.id === "select" && (
+                                    <input
+                                      value={cell.row.original._id}
+                                      name="select"
+                                      type="checkbox"
+                                      className="cursor-pointer"
+                                      checked={selectedIds.includes(
+                                        cell.row.original._id
+                                      )}
+                                      onChange={(e) =>
+                                        selectOneHandler(
+                                          e,
+                                          cell.row.original._id
+                                        )
+                                      }
+                                    />
+                                  )}
+
+                                  {/* LEAD TYPE */}
+                                  {cell.column.id === "leadtype" && (
+                                    <span
+                                      className={`text-sm rounded-md px-3 py-1 ${
+                                        row.original.leadtype === "People"
+                                          ? "bg-[#fff0f6] text-[#c41d7f]"
+                                          : "bg-[#e6f4ff] text-[#0958d9]"
+                                      }`}
+                                    >
+                                      {row.original.leadtype === "People"
+                                        ? "Individual"
+                                        : "Corporate"}
+                                    </span>
+                                  )}
+
+                                  {/* CREATED DATE */}
+                                  {cell.column.id === "created_on" &&
+                                    row.original?.createdAt && (
+                                      <span>
+                                        {moment(
+                                          row.original?.createdAt
+                                        ).format("DD/MM/YYYY")}
+                                      </span>
+                                    )}
+
+                                  {/* FOLLOWUP DATE */}
+                                  {cell.column.id === "followup_date" &&
+                                    row.original?.followup_date && (
+                                      <span>
+                                        {moment(
+                                          row.original?.followup_date
+                                        ).format("DD/MM/YYYY")}
+                                      </span>
+                                    )}
+
+                                  {/* FOLLOW UP REASON */}
+                                  {cell.column.id === "followup_reason" &&
+                                    row.original?.followup_reason && (
+                                      <span>
+                                        {row.original?.followup_reason?.substr(
+                                          0,
+                                          10
+                                        )}
+                                        ...
+                                      </span>
+                                    )}
+
+                                  {/* STATUS */}
+                                  {cell.column.id === "status" && (
+                                    <span
+                                      className="text-sm rounded-md px-3 py-1"
+                                      style={{
+                                        backgroundColor:
+                                          statusStyles[
+                                            row.original.status.toLowerCase()
+                                          ]?.bg,
+                                        color:
+                                          statusStyles[
+                                            row.original.status.toLowerCase()
+                                          ]?.text,
+                                      }}
+                                    >
+                                      {row.original.status}
+                                    </span>
+                                  )}
+
+                                  {/* SOURCE */}
+                                  {cell.column.id === "source" && (
+                                    <span
+                                      className="text-sm rounded-md px-3 py-1"
+                                      style={{
+                                        backgroundColor:
+                                          sourceStyles[
+                                            row?.original?.source?.toLowerCase()
+                                          ]?.bg,
+                                        color:
+                                          sourceStyles[
+                                            row?.original?.source?.toLowerCase()
+                                          ]?.text,
+                                      }}
+                                    >
+                                      {row.original.source}
+                                    </span>
+                                  )}
+
+                                  {/* ASSIGNED */}
+                                  {cell.column.id === "assigned" && (
+                                    <span>
+                                      {row.original?.assigned || "Not Assigned"}
+                                    </span>
+                                  )}
+
+                                  {/* LEAD CATEGORY */}
+                                  {cell.column.id === "leadCategory" && (
+                                    <Badge
+                                      className="text-sm rounded-md px-3 py-1"
+                                      colorScheme={getCategoryColor(
+                                        row.original?.leadCategory
+                                      )}
+                                    >
+                                      {row.original?.leadCategory}
+                                    </Badge>
+                                  )}
+                                </Td>
+                              );
+                            })}
+
+                            {/* ROW ACTIONS */}
+                            <Td className="flex items-center gap-x-3">
+                              <FaCalendarAlt
+                                className="text-blue-500 hover:scale-110 transition-transform cursor-pointer"
+                                size={20}
+                                title="Schedule Meeting"
+                                onClick={() => {
+                                  setDataId(row.original?._id);
+                                  dispatch(openMoveToDemoDrawer());
+                                }}
+                              />
+
+                              <Menu>
+                                <MenuButton
+                                  as={IconButton}
+                                  icon={<MdMoreVert />}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="hover:bg-gray-100"
+                                />
+                                <Portal>
+                                  <MenuList>
+                                    <MenuItem
+                                      icon={<MdOutlineVisibility />}
+                                      onClick={() =>
+                                        showDetailsHandler(row.original?._id)
+                                      }
+                                    >
+                                      View
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<MdEdit />}
+                                      onClick={() =>
+                                        editHandler(row.original?._id)
+                                      }
+                                    >
+                                      Edit
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<MdDeleteOutline />}
+                                      onClick={() => {
+                                        setLeadDeleteId(row.original?._id);
+                                        confirmDeleteHandler();
+                                      }}
+                                    >
+                                      Delete
+                                    </MenuItem>
+                                  </MenuList>
+                                </Portal>
+                              </Menu>
+                            </Td>
+                          </Tr>
+                        );
+                      })}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+
+                {/* PAGINATION */}
+                <div className="w-[max-content] m-auto mt-4 mb-6">
+                  <button
+                    className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white rounded-3xl disabled:bg-gray-400 disabled:cursor-not-allowed md:text-lg"
+                    disabled={!canPreviousPage}
+                    onClick={previousPage}
+                  >
+                    Prev
+                  </button>
+
+                  <span className="mx-3 text-sm md:text-lg">
+                    {pageIndex + 1} of {pageCount}
+                  </span>
+
+                  <button
+                    className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white rounded-3xl disabled:bg-gray-400 disabled:cursor-not-allowed md:text-lg"
+                    disabled={!canNextPage}
+                    onClick={nextPage}
+                  >
+                    Next
+                  </button>
                 </div>
-              )}
+              </div>
+            )}
+
             </div>
           </div>
           <div className="w-full mx-auto mt-3">

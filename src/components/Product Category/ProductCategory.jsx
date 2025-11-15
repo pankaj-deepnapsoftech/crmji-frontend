@@ -50,6 +50,8 @@ import {
 import moment from "moment";
 import { checkAccess } from "../../utils/checkAccess";
 import { Link } from "react-router-dom";
+import { BiTable, BiCard } from "react-icons/bi";
+
 
 const columns = [
   {
@@ -224,6 +226,9 @@ const ProductCategory = () => {
     }
   }, [searchKey]);
 
+  const [viewMode, setViewMode] = useState("table"); // table or card
+
+
   return (
     <>
       {!isAllowed && (
@@ -397,158 +402,189 @@ const ProductCategory = () => {
                   </span>
                 </div>
               )}
-              {!loading && filteredData.length > 0 && (
-                <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    className="shadow-lg rounded-lg bg-white"
+             {!loading && filteredData.length > 0 && (
+              <div>
+
+                {/* VIEW MODE TOGGLE */}
+                <div className="flex justify-end gap-x-2 mb-4">
+                  <button
+                    onClick={() => setViewMode("table")}
+                    className={`p-2 rounded-md transition-colors duration-200 ${
+                      viewMode === "table" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    }`}
                   >
-                    <Table variant="simple" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-lg font-semibold text-gray-800">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr {...hg.getHeaderGroupProps()}>
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    className={`${
-                                      column.id === "categoryname"
-                                        ? "sticky top-0 left-[-2px] border-b-2 border-[#ccc]"
-                                        : "bg-blue-400"
-                                    } text-sm text-gray-700 px-4 py-3 border-l border-r border-[#e0e0e0] transition duration-300 ease-in-out`}
-                                    fontSize="15px"
-                                    fontWeight="700"
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                  >
-                                    <div className="flex items-center justify-between text-white">
-                                      <span>{column.render("Header")}</span>
-                                      {column.isSorted && (
-                                        <span className="ml-2">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </Th>
-                                );
-                              })}
-                              <Th
-                                textTransform="capitalize"
-                                className="bg-blue-400"
-                                fontSize="15px"
-                                fontWeight="700"
-                                color="black"
-                                borderLeft="1px solid #d7d7d7"
-                                borderRight="1px solid #d7d7d7"
-                              >
-                                <p className="text-white">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
+                    <BiTable size={20} />
+                  </button>
 
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
-
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-200 hover:cursor-pointer text-base lg:text-base transition-all duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={`${
-                                      cell.column.id === "categoryname"
-                                        ? "sticky top-0 left-[-2px]"
-                                        : ""
-                                    } font-semibold text-sm text-gray-700 px-4 py-3 border-l border-r border-[#e0e0e0] transition duration-300 ease-in-out`}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "description" &&
-                                      cell.column.id !== "creator" &&
-                                      cell.column.id !== "created_on" &&
-                                      cell.render("Cell")}
-                                    {cell.column.id === "description" && (
-                                      <span className="text-gray-600">
-                                        {row.original.description.substr(0, 50)}
-                                        {row.original.description.length > 50 &&
-                                          "..."}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "creator" && (
-                                      <span className="text-blue-600">
-                                        {row.original.creator.name}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "created_on" && (
-                                      <span className="text-gray-500">
-                                        {moment(row.original.createdAt).format(
-                                          "DD/MM/YYYY"
-                                        )}
-                                      </span>
-                                    )}
-                                  </Td>
-                                );
-                              })}
-                              <Td className="flex gap-x-2 justify-center items-center py-2">
-                                <MdOutlineVisibility
-                                  className="text-blue-600 hover:text-blue-800 hover:scale-110 transition-all duration-200"
-                                  size={20}
-                                  onClick={() =>
-                                    showDetailsHandler(row.original?._id)
-                                  }
-                                />
-                                <MdEdit
-                                  className="text-yellow-600 hover:text-yellow-800 hover:scale-110 transition-all duration-200"
-                                  size={20}
-                                  onClick={() => editHandler(row.original?._id)}
-                                />
-                                <MdDeleteOutline
-                                  className="text-red-600 hover:text-red-800 hover:scale-110 transition-all duration-200"
-                                  size={20}
-                                  onClick={() => {
-                                    setCategoryDeleteId(row.original?._id);
-                                    confirmDeleteHandler();
-                                  }}
-                                />
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
-
-                  <div className="w-[max-content] m-auto my-7">
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canPreviousPage}
-                      onClick={previousPage}
-                    >
-                      Prev
-                    </button>
-                    <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                      {pageIndex + 1} of {pageCount}
-                    </span>
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canNextPage}
-                      onClick={nextPage}
-                    >
-                      Next
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setViewMode("card")}
+                    className={`p-2 rounded-md transition-colors duration-200 ${
+                      viewMode === "card" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    }`}
+                  >
+                    <BiCard size={20} />
+                  </button>
                 </div>
-              )}
+
+                {/* TABLE VIEW */}
+                {viewMode === "table" && (
+                  <>
+                    <TableContainer
+                      maxHeight="600px"
+                      overflowY="auto"
+                      className="shadow-lg rounded-lg bg-white"
+                    >
+                      <Table variant="simple" {...getTableProps()}>
+                        <Thead className="bg-blue-400 text-lg font-semibold text-gray-800">
+                          {headerGroups.map((hg) => (
+                            <Tr {...hg.getHeaderGroupProps()}>
+                              {hg.headers.map((column) => (
+                                <Th
+                                  className="bg-blue-400 text-white px-4 py-3"
+                                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span>{column.render("Header")}</span>
+                                    {column.isSorted ? (
+                                      column.isSortedDesc ? <FaCaretDown /> : <FaCaretUp />
+                                    ) : ""}
+                                  </div>
+                                </Th>
+                              ))}
+                              <Th className="bg-blue-400 text-white">Actions</Th>
+                            </Tr>
+                          ))}
+                        </Thead>
+
+                        <Tbody {...getTableBodyProps()}>
+                          {page.map((row) => {
+                            prepareRow(row);
+                            return (
+                              <Tr {...row.getRowProps()} className="hover:bg-gray-200">
+                                {row.cells.map((cell) => (
+                                  <Td
+                                    {...cell.getCellProps()}
+                                    className="px-4 py-3 text-sm font-medium text-gray-700"
+                                  >
+                                    {cell.column.id === "description"
+                                      ? (row.original.description.length > 50
+                                          ? row.original.description.substring(0, 50) + "..."
+                                          : row.original.description)
+                                      : cell.column.id === "creator"
+                                      ? row.original.creator?.name
+                                      : cell.column.id === "created_on"
+                                      ? moment(row.original.createdAt).format("DD/MM/YYYY")
+                                      : cell.render("Cell")}
+                                  </Td>
+                                ))}
+
+                                <Td className="flex gap-x-3 py-2 justify-center">
+                                  <MdOutlineVisibility
+                                    className="text-blue-600 cursor-pointer hover:scale-110"
+                                    onClick={() => showDetailsHandler(row.original._id)}
+                                    size={20}
+                                  />
+                                  <MdEdit
+                                    className="text-yellow-600 cursor-pointer hover:scale-110"
+                                    onClick={() => editHandler(row.original._id)}
+                                    size={20}
+                                  />
+                                  <MdDeleteOutline
+                                    className="text-red-600 cursor-pointer hover:scale-110"
+                                    onClick={() => {
+                                      setCategoryDeleteId(row.original._id);
+                                      confirmDeleteHandler();
+                                    }}
+                                    size={20}
+                                  />
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+
+                    {/* PAGINATION */}
+                    <div className="w-[max-content] m-auto my-7">
+                      <button
+                        className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+                        disabled={!canPreviousPage}
+                        onClick={previousPage}
+                      >
+                        Prev
+                      </button>
+
+                      <span className="mx-3">{pageIndex + 1} of {pageCount}</span>
+
+                      <button
+                        className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+                        disabled={!canNextPage}
+                        onClick={nextPage}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* CARD VIEW */}
+                {viewMode === "card" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {page.map((row) => {
+                      prepareRow(row);
+                      const item = row.original;
+
+                      return (
+                        <div
+                          key={item._id}
+                          className="border rounded-lg p-4 shadow bg-white hover:shadow-lg transition"
+                        >
+                          <div className="font-semibold text-lg mb-1">
+                            {item.categoryname}
+                          </div>
+
+                          <div className="text-sm text-gray-600">
+                            {item.description?.length > 120
+                              ? item.description.substring(0, 120) + "..."
+                              : item.description}
+                          </div>
+
+                          <div className="mt-3 text-xs text-gray-500">
+                            Created by{" "}
+                            <span className="text-blue-500">
+                              {item.creator?.name}
+                            </span>{" "}
+                            on {moment(item.createdAt).format("DD/MM/YYYY")}
+                          </div>
+
+                          <div className="mt-3 flex justify-end gap-3">
+                            <MdOutlineVisibility
+                              size={20}
+                              className="text-blue-600 cursor-pointer hover:scale-110"
+                              onClick={() => showDetailsHandler(item._id)}
+                            />
+                            <MdEdit
+                              size={20}
+                              className="text-yellow-600 cursor-pointer hover:scale-110"
+                              onClick={() => editHandler(item._id)}
+                            />
+                            <MdDeleteOutline
+                              size={20}
+                              className="text-red-600 cursor-pointer hover:scale-110"
+                              onClick={() => {
+                                setCategoryDeleteId(item._id);
+                                confirmDeleteHandler();
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             </div>
           </div>
         </div>
