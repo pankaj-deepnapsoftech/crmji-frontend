@@ -34,7 +34,7 @@ const LeadsDrawer = ({
   const [isLoading, setIsLoading] = useState(false);
   const [productOptionsList, setProductOptionsList] = useState();
   const [selectedProducts, setSelectedProducts] = useState([]);
-const auth = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
   const [showSelectPeoples, setShowSelectPeoples] = useState(true);
   const [showSelectCompanies, setShowSelectCompanies] = useState(true);
   // console.log(auth)
@@ -756,9 +756,8 @@ const auth = useSelector((state) => state.auth);
           <Button
             type="submit"
             disabled={isLoading}
-            className={`mt-4 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center ${
-              isLoading ? "cursor-not-allowed bg-blue-400" : ""
-            }`}
+            className={`mt-4 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center ${isLoading ? "cursor-not-allowed bg-blue-400" : ""
+              }`}
             colorScheme="blue"
           >
             {isLoading ? (

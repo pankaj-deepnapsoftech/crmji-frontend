@@ -8,7 +8,7 @@ import {
   useStatStyles,
 } from "@chakra-ui/react";
 import { BiX } from "react-icons/bi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
@@ -40,17 +40,17 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
   const [followupDate, setFollowupDate] = useState();
   const [followupReason, setFollowupReason] = useState();
   const [category, setCategory] = useState(null);
-
+  const auth = useSelector((state) => state.auth);
   const notificationCtx = useContext(notificationContext);
-
-  const statusOptionsList = [
-    { value: "Meeting Scheduled", label: "Meeting Scheduled" },
-    { value: "Meeting Completed", label: "Meeting Completed" },
-    { value: "In Negotiation", label: "In Negotiation" },
-    { value: "Deal on Hold", label: "Deal on Hold" },
-    { value: "Deal Won", label: "Deal Won" },
-    { value: "Deal Lost", label: "Deal Lost" },
-  ];
+  const [statusOptionsList, setStatusOptionsList] = useState([]);
+  // const statusOptionsList = [
+  //   { value: "Meeting Scheduled", label: "Meeting Scheduled" },
+  //   { value: "Meeting Completed", label: "Meeting Completed" },
+  //   { value: "In Negotiation", label: "In Negotiation" },
+  //   { value: "Deal on Hold", label: "Deal on Hold" },
+  //   { value: "Deal Won", label: "Deal Won" },
+  //   { value: "Deal Lost", label: "Deal Lost" },
+  // ];
   const sourceOptionsList = [
     { value: "Linkedin", label: "Linkedin" },
     { value: "Social Media", label: "Social Media" },
@@ -272,6 +272,42 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
     }
   };
 
+
+  const getStatusList = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const res = await fetch(baseURL + "lead/status-list", {
+        headers: { authorization: `Bearer ${cookies?.access_token}` }
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        let list = data.statusList.map(s => ({
+          label: s,
+          value: s
+        }));
+
+        // 👉 Add button only for super admin
+        if (auth?.role === "Super Admin") {
+          list = [
+            { label: "+ Add New Status", value: "ADD_NEW_STATUS" },
+            ...list
+          ];
+        }
+
+        setStatusOptionsList(list);
+      }
+    } catch (err) {
+      toast.error("Failed to load statuses");
+    }
+  };
+
+  useEffect(()=>{
+    getStatusList()
+  },[])
+
   useEffect(() => {
     let options = [];
     options = options.concat(
@@ -323,15 +359,54 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
             <div className="mt-2 mb-5">
               <label className="font-bold text-[#4B5563]">Status</label>
               <Select
-                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+                className="rounded mt-2"
                 options={statusOptionsList}
                 placeholder="Select status"
                 value={statusId}
-                onChange={(d) => {
+                onChange={async (d) => {
+
+                  if (d.value === "ADD_NEW_STATUS") {
+                    const newStatus = prompt("Enter new status");
+
+                    if (!newStatus || newStatus.trim() === "") {
+                      return toast.error("Status cannot be empty");
+                    }
+
+                    const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+                    try {
+                      const res = await fetch(baseURL + "lead/add-status", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          authorization: `Bearer ${cookies?.access_token}`
+                        },
+                        body: JSON.stringify({ status: newStatus }),
+                      });
+
+                      const data = await res.json();
+
+                      if (!data.success) {
+                        return toast.error(data.message);
+                      }
+
+                      toast.success("Status Added Successfully");
+
+                      await getStatusList();
+
+                      setStatusId({ value: newStatus, label: newStatus });
+
+                    } catch (error) {
+                      toast.error("Failed to add status");
+                    }
+                    return;
+                  }
+
                   setStatusId(d);
                 }}
-                isSearchable={true}
+                isSearchable
               />
+
             </div>
 
             {/* Assigned Employee Selection (conditionally shown) */}
