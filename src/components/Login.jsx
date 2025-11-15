@@ -430,13 +430,13 @@ const Login = () => {
                     <IoEyeOffOutline
                       onClick={() => setShowPassword(true)}
                       size={20}
-                      className="absolute top-[50px] right-3"
+                      className="absolute top-[25px] right-3"
                     />
                   ) : (
                     <IoEyeOutline
                       onClick={() => setShowPassword(false)}
                       size={20}
-                      className="absolute top-[50px] right-3" 
+                      className="absolute top-[25px] right-3" 
                     />
                   )}
                 </div>
