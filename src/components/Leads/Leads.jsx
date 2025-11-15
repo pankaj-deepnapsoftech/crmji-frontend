@@ -2161,7 +2161,7 @@ const Leads = () => {
         </div>
       )}
 
-      {/* Bulk WhatsApp Modal - Commented out as per requirement */}
+        {/* Bulk WhatsApp Modal - Commented out as per requirement */}
       {/* <Modal isOpen={open} onClose={() => setOpen(false)}>
         <ModalOverlay />
         <ModalContent>
