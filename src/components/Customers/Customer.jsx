@@ -78,6 +78,7 @@ import {
 } from "@chakra-ui/react";
 import { checkAccess } from "../../utils/checkAccess";
 import { Link } from "react-router-dom";
+import { BiTable, BiCard } from "react-icons/bi";
 
 const columns = [
   {
@@ -144,6 +145,7 @@ const Customer = () => {
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [selectedCustomerForPayment, setSelectedCustomerForPayment] = useState(null);
   const dispatch = useDispatch();
+  const [viewMode, setViewMode] = useState("table");
 
   const {
     isOpen: isPaymentOpen,
@@ -511,53 +513,6 @@ const Customer = () => {
             </Modal>
           </>
           <div>
-            {/* <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
-              <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                Customer List
-              </div>
-
-              <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
-                <textarea
-                  className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
-                  rows="1"
-                  width="220px"
-                  placeholder="Search"
-                  value={searchKey}
-                  onChange={(e) => setSearchKey(e.target.value)}
-                />
-                <Button
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 100 }}
-                  onClick={fetchAllCustomers}
-                  leftIcon={<MdOutlineRefresh />}
-                  color="#1640d6"
-                  borderColor="#1640d6"
-                  variant="outline"
-                >
-                  Refresh
-                </Button>
-                <Select
-                  onChange={(e) => setPageSize(e.target.value)}
-                  width="80px"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                  <option value={100000}>All</option>
-                </Select>
-                <Button
-                  onClick={addCustomersHandler}
-                  color="white"
-                  backgroundColor="#1640d6"
-                >
-                  Add New Customer
-                </Button>
-              </div>
-            </div> */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-3">
               {/* Title */}
               <div className="text-lg md:text-xl font-semibold text-gray-800">
@@ -679,32 +634,156 @@ const Customer = () => {
                   </span>
                 </div>
               )}
+
+              {/* Card/Table Toggle */}
+              {!loading && filteredData.length > 0 && (
+              <div className="flex justify-end mb-4 gap-2">
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
+      ${viewMode === "table"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-blue-600 border-blue-600"}
+    `}
+                >
+                  <BiTable size={18} />
+
+                </button>
+
+                <button
+                  onClick={() => setViewMode("card")}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
+      ${viewMode === "card"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-blue-600 border-blue-600"}
+    `}
+                >
+                  <BiCard size={18} />
+
+                </button>
+              </div>
+              )}
+
+              {/* CARD VIEW */}
+              {viewMode === "card" && (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  {filteredData.map((cust) => (
+                    <div
+                      key={cust._id}
+                      className="bg-white p-4 rounded-lg shadow hover:shadow-md border border-gray-200 transition"
+                    >
+                      {/* ID */}
+                      <p className="text-sm text-gray-500 mb-1">
+                        <span className="font-semibold text-gray-700">ID: </span>
+                        {cust.uniqueId}
+                      </p>
+
+                      {/* Name */}
+                      <p className="text-lg font-semibold text-gray-900">{cust.name}</p>
+
+                      {/* Customer Type */}
+                      <p className="mt-1 text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-md text-xs ${cust.customertype === "People"
+                              ? "bg-pink-100 text-pink-600"
+                              : "bg-blue-100 text-blue-600"
+                            }`}
+                        >
+                          {cust.customertype === "People" ? "Individual" : "Corporate"}
+                        </span>
+                      </p>
+
+                      {/* Email / Phone */}
+                      <div className="mt-3 text-sm text-gray-700">
+                        <p><strong>Email:</strong> {cust.email || "N/A"}</p>
+                        <p><strong>Phone:</strong> {cust.phone || "N/A"}</p>
+                      </div>
+
+                      {/* Total Price */}
+                      <p className="mt-3 text-sm">
+                        <strong>Total Price: </strong>
+                        {typeof cust.totalInvoiceAmount === "number"
+                          ? cust.totalInvoiceAmount.toLocaleString("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                            minimumFractionDigits: 2,
+                          })
+                          : "₹0.00"}
+                      </p>
+
+                      {/* Products */}
+                      <p className="text-sm mt-1">
+                        <strong>Products: </strong>
+                        {Array.isArray(cust.products) && cust.products.length > 0
+                          ? cust.products.map((p) => p.name).join(", ")
+                          : "Not Available"}
+                      </p>
+
+                      {/* Payment Received */}
+                      <p className="text-sm mt-1">
+                        <strong>Payment: </strong>
+                        {cust.lastPaymentAmount || 0}
+                      </p>
+
+                      {/* ACTION BUTTONS */}
+                      <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
+                        <button
+                          className="text-blue-600 text-sm font-medium bg-blue-200 py-1 px-2 rounded-2xl"
+                          onClick={() => showDetailsHandler(cust._id)}
+                        >
+                          View
+                        </button>
+
+                        <button
+                          className="text-green-600 text-sm font-medium bg-green-200 py-1 px-2 rounded-2xl"
+                          onClick={() => editHandler(cust._id)}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="text-red-600 text-sm font-medium bg-red-200 py-1 px-2 rounded-2xl"
+                          onClick={() => {
+                            setCustomerDeleteId(cust._id);
+                            confirmDeleteHandler();
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    shadow="md"
-                    borderRadius="lg"
-                    border="1px solid"
-                    borderColor="gray.200"
-                  >
-                    <Table variant="striped" {...getTableProps()}>
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr
-                              {...hg.getHeaderGroupProps()}
-                              className="border-b-2 border-gray-300"
-                            >
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    className={`
+                  {viewMode === "table" && (
+                    <TableContainer
+                      maxHeight="600px"
+                      overflowY="auto"
+                      shadow="md"
+                      borderRadius="lg"
+                      border="1px solid"
+                      borderColor="gray.200"
+                    >
+                      <Table variant="striped" {...getTableProps()}>
+                        <Thead className="bg-blue-400 text-white text-lg font-semibold sticky top-0 z-10">
+                          {headerGroups.map((hg) => {
+                            return (
+                              <Tr
+                                {...hg.getHeaderGroupProps()}
+                                className="border-b-2 border-gray-300"
+                              >
+                                {hg.headers.map((column) => {
+                                  return (
+                                    <Th
+                                      className={`
                     ${column.id === "name"
-                                        ? "sticky top-0 left-[-2px]"
-                                        : "sticky top-0"
-                                      }
+                                          ? "sticky top-0 left-[-2px]"
+                                          : "sticky top-0"
+                                        }
                     text-transform: capitalize
                     font-size: 15px
                     font-weight: 700
@@ -716,187 +795,188 @@ const Customer = () => {
                     bg-blue-400
                     z-10
                   `}
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                  >
-                                    <div className="flex items-center justify-center text-white ">
-                                      {column.render("Header")}
-                                      {column.isSorted && (
-                                        <span className="ml-1 text-xs">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
+                                      {...column.getHeaderProps(
+                                        column.getSortByToggleProps()
                                       )}
-                                    </div>
-                                  </Th>
-                                );
-                              })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
-                                <p className="text-white">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
-
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
-
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={` ${cell.column.id === "name"
-                                      ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
-                                      : ""
-                                      } text-center border-b border-gray-200 p-3 `}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "customertype" &&
-                                      cell.column.id !== "status" &&
-                                      cell.column.id !== "created_on" &&
-                                      cell.column.id !== "riFile" &&
-                                      cell.column.id !== "payment_received" &&
-                                      cell.render("Cell")}
-                                    {cell.column.id === "customertype" && (
-                                      <span
-                                        className={`text-sm rounded-md px-3 py-1 ${cell.row.original.customertype ===
-                                          "People"
-                                          ? "bg-[#fff0f6] text-[#c41d7f]"
-                                          : "bg-[#e6f4ff] text-[#0958d9]"
-                                          }`}
-                                      >
-                                        {cell.row.original.customertype ===
-                                          "People"
-                                          ? "Individual"
-                                          : "Corporate"}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "created_on" &&
-                                      row.original?.createdAt && (
-                                        <span>
-                                          {moment(
-                                            row.original?.createdAt
-                                          ).format("DD/MM/YYYY")}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "status" && (
-                                      <span
-                                        className="text-sm rounded-md px-3 py-1"
-                                        style={{
-                                          backgroundColor: `${statusStyles[
-                                            row.original.status?.toLowerCase()
-                                          ]?.bg
-                                            }`,
-                                          color: `${statusStyles[
-                                            row.original.status?.toLowerCase()
-                                          ]?.text
-                                            }`,
-                                        }}
-                                      >
-                                        {row.original.status}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "payment_received" && (
-                                      <div className="flex items-center justify-center">
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => {
-                                            setSelectedCustomerForPayment(row.original);
-                                            onPaymentOpen();
-                                          }}
-                                        >
-                                          Details
-                                        </Button>
-                                      </div>
-                                    )}
-                                    {cell.column.id === "riFile" && (
-                                      <div className="flex justify-center">
-                                        {row.original.riFile ? (
-                                          <Button
-                                            size="sm"
-                                            colorScheme="blue"
-                                            variant="outline"
-                                            onClick={() =>
-                                              downloadRIFile(
-                                                row.original._id,
-                                                row.original.name
-                                              )
-                                            }
-                                            className="text-xs"
-                                          >
-                                            Download RI
-                                          </Button>
-                                        ) : (
-                                          <span className="text-gray-400 text-sm">
-                                            No RI File
+                                    >
+                                      <div className="flex items-center justify-center text-white ">
+                                        {column.render("Header")}
+                                        {column.isSorted && (
+                                          <span className="ml-1 text-xs">
+                                            {column.isSortedDesc ? (
+                                              <FaCaretDown />
+                                            ) : (
+                                              <FaCaretUp />
+                                            )}
                                           </span>
                                         )}
                                       </div>
-                                    )}
-                                  </Td>
-                                );
-                              })}
+                                    </Th>
+                                  );
+                                })}
+                                <Th className="text-center py-3 px-4 bg-blue-400 text-white sticky top-0 z-10">
+                                  <p className="text-white">Actions</p>
+                                </Th>
+                              </Tr>
+                            );
+                          })}
+                        </Thead>
 
-                              <Td className="text-center p-3">
-                                <Menu>
-                                  <MenuButton
-                                    as={IconButton}
-                                    aria-label="Options"
-                                    icon={<MdMoreVert />}
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      setSelectedRowId(row.original?._id)
-                                    }
-                                  />
-                                  <Portal>
-                                    <MenuList>
-                                      <MenuItem
-                                        icon={<MdOutlineVisibility />}
-                                        onClick={() =>
-                                          showDetailsHandler(row.original?._id)
-                                        }
-                                      >
-                                        View
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdEdit />}
-                                        onClick={() =>
-                                          editHandler(row.original?._id)
-                                        }
-                                      >
-                                        Edit
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdDeleteOutline />}
-                                        onClick={() => {
-                                          setCustomerDeleteId(row.original?._id);
-                                          confirmDeleteHandler();
-                                        }}
-                                      >
-                                        Delete
-                                      </MenuItem>
-                                    </MenuList>
-                                  </Portal>
-                                </Menu>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                        <Tbody {...getTableBodyProps()}>
+                          {page.map((row) => {
+                            prepareRow(row);
+
+                            return (
+                              <Tr
+                                className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
+                                {...row.getRowProps()}
+                              >
+                                {row.cells.map((cell) => {
+                                  return (
+                                    <Td
+                                      className={` ${cell.column.id === "name"
+                                        ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
+                                        : ""
+                                        } text-center border-b border-gray-200 p-3 `}
+                                      {...cell.getCellProps()}
+                                    >
+                                      {cell.column.id !== "customertype" &&
+                                        cell.column.id !== "status" &&
+                                        cell.column.id !== "created_on" &&
+                                        cell.column.id !== "riFile" &&
+                                        cell.column.id !== "payment_received" &&
+                                        cell.render("Cell")}
+                                      {cell.column.id === "customertype" && (
+                                        <span
+                                          className={`text-sm rounded-md px-3 py-1 ${cell.row.original.customertype ===
+                                            "People"
+                                            ? "bg-[#fff0f6] text-[#c41d7f]"
+                                            : "bg-[#e6f4ff] text-[#0958d9]"
+                                            }`}
+                                        >
+                                          {cell.row.original.customertype ===
+                                            "People"
+                                            ? "Individual"
+                                            : "Corporate"}
+                                        </span>
+                                      )}
+                                      {cell.column.id === "created_on" &&
+                                        row.original?.createdAt && (
+                                          <span>
+                                            {moment(
+                                              row.original?.createdAt
+                                            ).format("DD/MM/YYYY")}
+                                          </span>
+                                        )}
+                                      {cell.column.id === "status" && (
+                                        <span
+                                          className="text-sm rounded-md px-3 py-1"
+                                          style={{
+                                            backgroundColor: `${statusStyles[
+                                              row.original.status?.toLowerCase()
+                                            ]?.bg
+                                              }`,
+                                            color: `${statusStyles[
+                                              row.original.status?.toLowerCase()
+                                            ]?.text
+                                              }`,
+                                          }}
+                                        >
+                                          {row.original.status}
+                                        </span>
+                                      )}
+                                      {cell.column.id === "payment_received" && (
+                                        <div className="flex items-center justify-center">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => {
+                                              setSelectedCustomerForPayment(row.original);
+                                              onPaymentOpen();
+                                            }}
+                                          >
+                                            Details
+                                          </Button>
+                                        </div>
+                                      )}
+                                      {cell.column.id === "riFile" && (
+                                        <div className="flex justify-center">
+                                          {row.original.riFile ? (
+                                            <Button
+                                              size="sm"
+                                              colorScheme="blue"
+                                              variant="outline"
+                                              onClick={() =>
+                                                downloadRIFile(
+                                                  row.original._id,
+                                                  row.original.name
+                                                )
+                                              }
+                                              className="text-xs"
+                                            >
+                                              Download RI
+                                            </Button>
+                                          ) : (
+                                            <span className="text-gray-400 text-sm">
+                                              No RI File
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </Td>
+                                  );
+                                })}
+
+                                <Td className="text-center p-3">
+                                  <Menu>
+                                    <MenuButton
+                                      as={IconButton}
+                                      aria-label="Options"
+                                      icon={<MdMoreVert />}
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        setSelectedRowId(row.original?._id)
+                                      }
+                                    />
+                                    <Portal>
+                                      <MenuList>
+                                        <MenuItem
+                                          icon={<MdOutlineVisibility />}
+                                          onClick={() =>
+                                            showDetailsHandler(row.original?._id)
+                                          }
+                                        >
+                                          View
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdEdit />}
+                                          onClick={() =>
+                                            editHandler(row.original?._id)
+                                          }
+                                        >
+                                          Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                          icon={<MdDeleteOutline />}
+                                          onClick={() => {
+                                            setCustomerDeleteId(row.original?._id);
+                                            confirmDeleteHandler();
+                                          }}
+                                        >
+                                          Delete
+                                        </MenuItem>
+                                      </MenuList>
+                                    </Portal>
+                                  </Menu>
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  )}
 
                   <div className="w-[max-content] m-auto my-7">
                     <button
@@ -919,6 +999,10 @@ const Customer = () => {
                   </div>
                 </div>
               )}
+
+
+
+
             </div>
           </div>
         </div>
