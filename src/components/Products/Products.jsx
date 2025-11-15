@@ -6,6 +6,7 @@ import {
   MdDeleteOutline,
   MdOutlineVisibility,
 } from "react-icons/md";
+import { BiTable, BiCard } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import {
   closeShowDetailsProductsDrawer,
@@ -101,6 +102,7 @@ const Products = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchKey, setSearchKey] = useState("");
+  const [viewMode, setViewMode] = useState("table"); // table or card
   const dispatch = useDispatch();
 
   const [productDeleteId, setProductDeleteId] = useState();
@@ -348,6 +350,30 @@ const Products = () => {
             </div>
 
             <div>
+              <div className="flex justify-end gap-x-2 mb-4">
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`p-2 rounded-md transition-colors duration-200 ${
+                    viewMode === "table"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                  }`}
+                  title="Table View"
+                >
+                  <BiTable size={20} />
+                </button>
+                <button
+                  onClick={() => setViewMode("card")}
+                  className={`p-2 rounded-md transition-colors duration-200 ${
+                    viewMode === "card"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                  }`}
+                  title="Card View"
+                >
+                  <BiCard size={20} />
+                </button>
+              </div>
               {addProductsDrawerIsOpened && (
                 <ClickMenu
                   top={0}
@@ -414,185 +440,239 @@ const Products = () => {
               )}
               {!loading && filteredData.length > 0 && (
                 <div>
-                  <TableContainer className="shadow-lg rounded-lg bg-white">
-                    <Table variant="simple" {...getTableProps()}>
-                      <Thead className="text-lg font-semibold bg-blue-400">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr {...hg.getHeaderGroupProps()}>
-                              {hg.headers.map((column) => {
-                                return (
-                                  <Th
-                                    className={`${
-                                      column.id === "name"
-                                        ? "sticky top-0 left-[-2px] bg-blue-400 border-b-2 border-[#ccc]"
-                                        : ""
-                                    } 
+                  {viewMode === "table" ? (
+                    <>
+                      <TableContainer className="shadow-lg rounded-lg bg-white">
+                        <Table variant="simple" {...getTableProps()}>
+                          <Thead className="text-lg font-semibold bg-blue-400">
+                            {headerGroups.map((hg) => {
+                              return (
+                                <Tr {...hg.getHeaderGroupProps()}>
+                                  {hg.headers.map((column) => {
+                                    return (
+                                      <Th
+                                        className={`${
+                                          column.id === "name"
+                                            ? "sticky top-0 left-[-2px] bg-blue-400 border-b-2 border-[#ccc]"
+                                            : ""
+                                        } 
                   text-transform: capitalize font-semibold text-gray-800 px-4 py-3 border-l border-r border-[#e0e0e0] transition-all duration-300 ease-in-out`}
+                                        fontSize="15px"
+                                        fontWeight="700"
+                                        {...column.getHeaderProps(
+                                          column.getSortByToggleProps()
+                                        )}
+                                      >
+                                        <div className="flex items-center justify-between text-white">
+                                          <span>{column.render("Header")}</span>
+                                          {column.isSorted && (
+                                            <span className="ml-2">
+                                              {column.isSortedDesc ? (
+                                                <FaCaretDown />
+                                              ) : (
+                                                <FaCaretUp />
+                                              )}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </Th>
+                                    );
+                                  })}
+                                  <Th
+                                    textTransform="capitalize"
                                     fontSize="15px"
                                     fontWeight="700"
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
+                                    className="bg-blue-400 text-white"
+                                    borderLeft="1px solid #d7d7d7"
+                                    borderRight="1px solid #d7d7d7"
                                   >
-                                    <div className="flex items-center justify-between text-white">
-                                      <span>{column.render("Header")}</span>
-                                      {column.isSorted && (
-                                        <span className="ml-2">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
-                                      )}
-                                    </div>
+                                    <p className="text-white uppercase">Actions</p>
                                   </Th>
-                                );
-                              })}
-                              <Th
-                                textTransform="capitalize"
-                                fontSize="15px"
-                                fontWeight="700"
-                                className="bg-blue-400 text-white"
-                                borderLeft="1px solid #d7d7d7"
-                                borderRight="1px solid #d7d7d7"
-                              >
-                                <p className="text-white uppercase">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
+                                </Tr>
+                              );
+                            })}
+                          </Thead>
 
-                      <Tbody {...getTableBodyProps()}>
+                          <Tbody {...getTableBodyProps()}>
+                            {page.map((row) => {
+                              prepareRow(row);
+
+                              return (
+                                <Tr
+                                  className="relative hover:bg-gray-200 hover:cursor-pointer text-base lg:text-base transition-all duration-300 ease-in-out"
+                                  {...row.getRowProps()}
+                                >
+                                  {row.cells.map((cell) => {
+                                    return (
+                                      <Td
+                                        className={`${
+                                          cell.column.id === "name"
+                                            ? "sticky top-0 left-[-2px] bg-white z-10"
+                                            : ""
+                                        } font-semibold text-sm text-gray-700 px-4 py-3 border-l border-r border-[#e0e0e0] transition duration-300 ease-in-out`}
+                                        {...cell.getCellProps()}
+                                      >
+                                        {cell.column.id !== "imageUrl" &&
+                                          cell.column.id !== "price" &&
+                                          cell.column.id !== "creator" &&
+                                          cell.column.id !== "description" &&
+                                          cell.column.id !== "created_on" &&
+                                          cell.column.id !== "stock" &&
+                                          cell.render("Cell")}
+                                        {cell.column.id === "imageUrl" && (
+                                          <Avatar
+                                            size="sm"
+                                            src={row.original.imageUrl}
+                                          />
+                                        )}
+
+                                        {cell.column.id === "created_on" && (
+                                          <span className="text-gray-600">
+                                            {moment(row.original.createdAt).format(
+                                              "DD/MM/YYYY"
+                                            )}
+                                          </span>
+                                        )}
+
+                                        {cell.column.id === "creator" && (
+                                          <span className="text-blue-500">
+                                            {row.original.creator}
+                                          </span>
+                                        )}
+                                        {cell.column.id === "price" && (
+                                          <span className="text-green-600 font-semibold">
+                                            &#8377;{row.original.price}
+                                          </span>
+                                        )}
+                                        {cell.column.id === "stock" &&
+                                          row.original.stock > 10 && (
+                                            <span className="text-gray-600 font-extrabold h-[30px] w-[30px] rounded-full 
+                                        p-2 flex items-center justify-center">
+                                              {row.original.stock}
+                                            </span>
+                                          )}
+                                        {cell.column.id === "stock" &&
+                                          row.original.stock <= 10 && (
+                                            <span className="bg-red-500 text-white h-[30px] w-[30px] rounded-full
+                                         p-2 flex items-center justify-center">
+                                              {row.original.stock <= 9
+                                                ? "0" + row.original.stock
+                                                : row.original.stock}
+                                            </span>
+                                          )}
+                                        {cell.column.id === "description" && (
+                                          <span className="text-gray-700">
+                                            {row.original.description.length > 50
+                                              ? row.original.description.substr(
+                                                  0,
+                                                  50
+                                                ) + "..."
+                                              : row.original.description}
+                                          </span>
+                                        )}
+                                      </Td>
+                                    );
+                                  })}
+                                  <Td className="flex gap-x-2 py-1 justify-center items-center">
+                                    <MdOutlineVisibility
+                                      className="text-blue-600 hover:text-blue-800 hover:scale-110 transition-all duration-200"
+                                      size={23}
+                                      onClick={() =>
+                                        showDetailsHandler(row.original?._id)
+                                      }
+                                    />
+                                    <MdEdit
+                                      className="text-yellow-600 hover:text-yellow-800 hover:scale-110 transition-all duration-200"
+                                      size={23}
+                                      onClick={() => editHandler(row.original?._id)}
+                                    />
+                                    <MdDeleteOutline
+                                      className="text-red-600 hover:text-red-800 hover:scale-110 transition-all duration-200"
+                                      size={23}
+                                      onClick={() => {
+                                        setProductDeleteId(row.original?._id);
+                                        confirmDeleteHandler();
+                                      }}
+                                    />
+                                  </Td>
+                                </Tr>
+                              );
+                            })}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
+                    </>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {page.map((row) => {
                           prepareRow(row);
-
+                          const prod = row.original;
                           return (
-                            <Tr
-                              className="relative hover:bg-gray-200 hover:cursor-pointer text-base lg:text-base transition-all duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                  <Td
-                                    className={`${
-                                      cell.column.id === "name"
-                                        ? "sticky top-0 left-[-2px] bg-white z-10"
-                                        : ""
-                                    } font-semibold text-sm text-gray-700 px-4 py-3 border-l border-r border-[#e0e0e0] transition duration-300 ease-in-out`}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "imageUrl" &&
-                                      cell.column.id !== "price" &&
-                                      cell.column.id !== "creator" &&
-                                      cell.column.id !== "description" &&
-                                      cell.column.id !== "created_on" &&
-                                      cell.column.id !== "stock" &&
-                                      cell.render("Cell")}
-                                    {cell.column.id === "imageUrl" && (
-                                      <Avatar
-                                        size="sm"
-                                        src={row.original.imageUrl}
-                                      />
-                                    )}
-
-                                    {cell.column.id === "created_on" && (
-                                      <span className="text-gray-600">
-                                        {moment(row.original.createdAt).format(
-                                          "DD/MM/YYYY"
-                                        )}
-                                      </span>
-                                    )}
-
-                                    {cell.column.id === "creator" && (
-                                      <span className="text-blue-500">
-                                        {row.original.creator}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "price" && (
-                                      <span className="text-green-600 font-semibold">
-                                        &#8377;{row.original.price}
-                                      </span>
-                                    )}
-                                    {cell.column.id === "stock" &&
-                                      row.original.stock > 10 && (
-                                        <span className="text-gray-600 font-extrabold h-[30px] w-[30px] rounded-full 
-                                        p-2 flex items-center justify-center">
-                                          {row.original.stock}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "stock" &&
-                                      row.original.stock <= 10 && (
-                                        <span className="bg-red-500 text-white h-[30px] w-[30px] rounded-full
-                                         p-2 flex items-center justify-center">
-                                          {row.original.stock <= 9
-                                            ? "0" + row.original.stock
-                                            : row.original.stock}
-                                        </span>
-                                      )}
-                                    {cell.column.id === "description" && (
-                                      <span className="text-gray-700">
-                                        {row.original.description.length > 50
-                                          ? row.original.description.substr(
-                                              0,
-                                              50
-                                            ) + "..."
-                                          : row.original.description}
-                                      </span>
-                                    )}
-                                  </Td>
-                                );
-                              })}
-                              <Td className="flex gap-x-2 py-1 justify-center items-center">
+                            <div key={prod?._id} className="border rounded-lg p-4 shadow hover:shadow-md bg-white">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                  <Avatar size="md" src={prod?.imageUrl} />
+                                  <div>
+                                    <div className="font-semibold text-lg">{prod?.name}</div>
+                                    <div className="text-sm text-gray-500">{prod?.model || "-"}</div>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-green-600 font-semibold">₹{prod?.price}</div>
+                                  <div className="text-xs text-gray-500">{prod?.category}</div>
+                                </div>
+                              </div>
+                              <div className="mt-3 text-sm text-gray-700">
+                                <div className="text-gray-700">{prod?.description?.length > 120 ? prod.description.substr(0,120) + '...' : prod?.description}</div>
+                                <div className="mt-3 text-xs text-gray-500">Created by <span className="text-blue-500">{prod?.creator}</span> on {prod?.createdAt ? moment(prod.createdAt).format('DD/MM/YYYY') : '-'}</div>
+                              </div>
+                              <div className="mt-3 flex items-center justify-end gap-2">
                                 <MdOutlineVisibility
-                                  className="text-blue-600 hover:text-blue-800 hover:scale-110 transition-all duration-200"
-                                  size={23}
-                                  onClick={() =>
-                                    showDetailsHandler(row.original?._id)
-                                  }
+                                  className="text-blue-600 hover:text-blue-800 hover:scale-110 transition-all duration-200 cursor-pointer"
+                                  size={20}
+                                  onClick={() => showDetailsHandler(prod?._id)}
                                 />
                                 <MdEdit
-                                  className="text-yellow-600 hover:text-yellow-800 hover:scale-110 transition-all duration-200"
-                                  size={23}
-                                  onClick={() => editHandler(row.original?._id)}
+                                  className="text-yellow-600 hover:text-yellow-800 hover:scale-110 transition-all duration-200 cursor-pointer"
+                                  size={20}
+                                  onClick={() => editHandler(prod?._id)}
                                 />
                                 <MdDeleteOutline
-                                  className="text-red-600 hover:text-red-800 hover:scale-110 transition-all duration-200"
-                                  size={23}
+                                  className="text-red-600 hover:text-red-800 hover:scale-110 transition-all duration-200 cursor-pointer"
+                                  size={20}
                                   onClick={() => {
-                                    setProductDeleteId(row.original?._id);
+                                    setProductDeleteId(prod?._id);
                                     confirmDeleteHandler();
                                   }}
                                 />
-                              </Td>
-                            </Tr>
+                              </div>
+                            </div>
                           );
                         })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                      </div>
 
-                  <div className="w-[max-content] m-auto my-7">
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canPreviousPage}
-                      onClick={previousPage}
-                    >
-                      Prev
-                    </button>
-                    <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                      {pageIndex + 1} of {pageCount}
-                    </span>
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canNextPage}
-                      onClick={nextPage}
-                    >
-                      Next
-                    </button>
-                  </div>
+                      <div className="w-[max-content] m-auto my-7">
+                        <button
+                          className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
+                          disabled={!canPreviousPage}
+                          onClick={previousPage}
+                        >
+                          Prev
+                        </button>
+                        <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
+                          {pageIndex + 1} of {pageCount}
+                        </span>
+                        <button
+                          className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
+                          disabled={!canNextPage}
+                          onClick={nextPage}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>

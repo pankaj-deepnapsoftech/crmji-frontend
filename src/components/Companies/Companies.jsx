@@ -65,6 +65,10 @@ import { checkAccess } from "../../utils/checkAccess";
 import { FaFileCsv } from "react-icons/fa6";
 import * as XLSX from "xlsx";
 
+import { BiTable, BiCard } from "react-icons/bi";
+import { Avatar } from "@chakra-ui/react";
+
+
 const columns = [
   {
     Header: "ID",
@@ -433,6 +437,9 @@ const Companies = () => {
     }
   }, [searchKey]);
 
+  const [viewMode, setViewMode] = useState("table");  // table | card
+
+
   return (
     <>
       {!isAllowed && (
@@ -477,40 +484,52 @@ const Companies = () => {
             </AlertDialog>
           </>
           <div>
-            <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
-              <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                Corporate List
-              </div>
 
-              <div className="mt-2 md:mt-0 flex flex-wrap gap-y-1 gap-x-2 w-full md:w-fit">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+
+              {/* HEADER TITLE */}
+              <div className="text-lg md:text-xl font-semibold">Corporate List</div>
+
+              {/* ACTION BUTTONS + SEARCH */}
+              <div className="
+                  w-full md:w-auto 
+                  flex flex-col sm:flex-row 
+                  gap-3 flex-wrap
+                "
+              >
+                {/* Hidden file input */}
                 <input
                   ref={companyBulkInputRef}
                   type="file"
                   accept=".xlsx,.csv"
                   onChange={handleCompanyBulkFile}
-                  style={{ display: "none" }}
+                  className="hidden"
                 />
+
+                {/* Bulk Upload */}
                 <Button
                   onClick={() =>
                     companyBulkInputRef.current &&
                     companyBulkInputRef.current.click()
                   }
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 160 }}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   rightIcon={<FaFileCsv size={18} />}
                   color="white"
                   backgroundColor="#1640d6"
                 >
                   Bulk Upload
                 </Button>
+
+                {/* Download CSV */}
                 <Button
                   onClick={downloadCompanySampleCSV}
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 200 }}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   rightIcon={<FaFileCsv size={18} />}
                   color="#1640d6"
                   borderColor="#1640d6"
@@ -518,41 +537,54 @@ const Companies = () => {
                 >
                   Download Sample CSV
                 </Button>
+
+                {/* Search Box */}
                 <textarea
-                  className="rounded-[10px] w-full md:flex-1 px-2 py-2 md:px-3 md:py-2 text-sm focus:outline-[#1640d6] hover:outline:[#1640d6] border resize-none"
+                  className="
+                    rounded-[10px] 
+                    w-full sm:flex-1 
+                    px-3 py-2 text-sm 
+                    border 
+                    focus:outline-[#1640d6]
+                  "
                   rows="1"
-                  width="220px"
                   placeholder="Search"
                   value={searchKey}
                   onChange={(e) => setSearchKey(e.target.value)}
                 />
+
+                {/* Refresh */}
                 <Button
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 100 }}
-                  onClick={fetchAllCompanies}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   leftIcon={<MdOutlineRefresh />}
                   color="#1640d6"
                   borderColor="#1640d6"
                   variant="outline"
+                  onClick={fetchAllCompanies}
                 >
                   Refresh
                 </Button>
+
+                {/* Add Corporate */}
                 <Button
-                  fontSize={{ base: "14px", md: "14px" }}
-                  paddingX={{ base: "10px", md: "12px" }}
-                  paddingY={{ base: "0", md: "3px" }}
-                  width={{ base: "-webkit-fill-available", md: 200 }}
-                  onClick={addCompaniesHandler}
+                  className="w-full sm:w-auto"
+                  fontSize="14px"
+                  paddingX="12px"
+                  paddingY="3px"
                   color="white"
                   backgroundColor="#1640d6"
+                  onClick={addCompaniesHandler}
                 >
                   Add New Corporate
                 </Button>
+
+                {/* Page Size */}
                 <Select
                   onChange={(e) => setPageSize(e.target.value)}
-                  width="80px"
+                  width={{ base: "100%", sm: "80px" }}
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
@@ -674,177 +706,264 @@ const Companies = () => {
                 </div>
               )}
               {!loading && filteredData.length > 0 && (
-                <div>
-                  <TableContainer
-                    maxHeight="600px"
-                    overflowY="auto"
-                    overflowX="auto"
-                  >
-                    <Table
-                      variant="simple"
-                      {...getTableProps()}
-                      className="min-w-[1100px]"
-                    >
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr
-                              {...hg.getHeaderGroupProps()}
-                              className="border-b-2 border-gray-300"
-                            >
-                              {hg.headers.map((column) => {
-                                return (
+                <div className="mt-6">
+
+                  {/* VIEW TOGGLE */}
+                  <div className="flex justify-end mb-5">
+                    <div className="flex bg-gray-100 p-1 rounded-lg shadow-inner gap-2">
+
+                      {/* TABLE BUTTON */}
+                      <button
+                        onClick={() => setViewMode("table")}
+                        className={`px-4 py-2 rounded-md flex items-center gap-1 transition-all ${viewMode === "table"
+                          ? "bg-blue-600 text-white shadow"
+                          : "text-gray-600 hover:bg-gray-200"
+                          }`}
+                      >
+                        <BiTable size={18} />
+                        {/* <span className="hidden sm:block"></span> */}
+                      </button>
+
+                      {/* CARD BUTTON */}
+                      <button
+                        onClick={() => setViewMode("card")}
+                        className={`px-4 py-2 rounded-md flex items-center gap-1 transition-all ${viewMode === "card"
+                          ? "bg-blue-600 text-white shadow"
+                          : "text-gray-600 hover:bg-gray-200"
+                          }`}
+                      >
+                        <BiCard size={18} />
+                        {/* <span className="hidden sm:block"></span> */}
+                      </button>
+
+                    </div>
+                  </div>
+
+                  {/* ================= TABLE VIEW ================= */}
+                  {viewMode === "table" && (
+                    <div>
+                      <TableContainer maxHeight="600px" overflowY="auto" overflowX="auto">
+                        <Table variant="simple" {...getTableProps()} className="min-w-[1100px]">
+
+                          {/* TABLE HEAD */}
+                          <Thead className="bg-blue-400 text-white text-lg font-semibold">
+                            {headerGroups.map((hg) => (
+                              <Tr
+                                {...hg.getHeaderGroupProps()}
+                                className="border-b-2 border-gray-300"
+                              >
+                                {hg.headers.map((column) => (
                                   <Th
-                                    className={`text-transform: capitalize font-size: 15px font-weight: 700 
-                                    text-center border-r border-gray-300 py-3 px-4 cursor-pointer bg-blue-400
-                                    ${
-                                      column.id === "uniqueId"
+                                    className={`text-center py-3 px-4 bg-blue-400 border-r border-gray-300 text-[15px] font-[700]
+                                        ${column.id === "uniqueId"
                                         ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,1)]"
                                         : ""
-                                    }
-                                    
-                                    `}
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
+                                      }
+                                      `}
+                                    {...column.getHeaderProps(column.getSortByToggleProps())}
                                   >
-                                    <div className="flex items-center justify-center text-white">
+                                    <div className="flex justify-center items-center text-white">
                                       {column.render("Header")}
                                       {column.isSorted && (
                                         <span className="ml-1 text-xs">
-                                          {column.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
+                                          {column.isSortedDesc ? <FaCaretDown /> : <FaCaretUp />}
                                         </span>
                                       )}
                                     </div>
                                   </Th>
-                                );
-                              })}
-                              <Th className="text-center py-3 px-4 bg-blue-400 whitespace-nowrap">
-                                <p className="text-white">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
+                                ))}
 
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row) => {
-                          prepareRow(row);
+                                <Th className="bg-blue-400 text-center py-3 px-4 text-white whitespace-nowrap">
+                                  Actions
+                                </Th>
+                              </Tr>
+                            ))}
+                          </Thead>
 
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-100 text-base text-gray-700 transition duration-300 ease-in-out"
-                              {...row.getRowProps()}
-                            >
-                              {row.cells.map((cell) => {
-                                return (
-                                 <Td
-                                    className={`
-                    ${
-                      cell.column.id === "uniqueId"
-                        ? "sticky top-0 left-[-1px] z-20 bg-gray-50"
-                        : ""
-                    }
-                    text-center
-                    border-b border-gray-200
-                     border-l border-r 
-                    p-3
-                  `}
-                                    {...cell.getCellProps()}
-                                  >
-                                    {cell.column.id !== "created_on" &&
-                                      cell.column.id !== "creator" &&
-                                      cell.render("Cell")}
-                                    {cell.column.id === "created_on" &&
-                                      row.original?.createdAt && (
-                                        <span>
-                                          {moment(
-                                            row.original?.createdAt
-                                          ).format("DD/MM/YYYY")}
+                          {/* TABLE BODY */}
+                          <Tbody {...getTableBodyProps()}>
+                            {page.map((row) => {
+                              prepareRow(row);
+
+                              return (
+                                <Tr
+                                  {...row.getRowProps()}
+                                  className="hover:bg-gray-100 transition text-base text-gray-700"
+                                >
+                                  {row.cells.map((cell) => (
+                                    <Td
+                                      {...cell.getCellProps()}
+                                      className={`text-center border-b border-l border-r p-3
+                                          ${cell.column.id === "uniqueId"
+                                          ? "sticky left-0 bg-gray-50 z-20 shadow-[4px_0_6px_-3px_rgba(0,0,0,1)]"
+                                          : ""
+                                        }
+                                        `}
+                                    >
+                                      {/* normal cells */}
+                                      {cell.column.id !== "created_on" &&
+                                        cell.column.id !== "creator" &&
+                                        cell.render("Cell")}
+
+                                      {/* created on */}
+                                      {cell.column.id === "created_on" &&
+                                        row.original.createdAt && (
+                                          <span>
+                                            {moment(row.original.createdAt).format("DD/MM/YYYY")}
+                                          </span>
+                                        )}
+
+                                      {/* creator */}
+                                      {cell.column.id === "creator" && (
+                                        <span className="text-blue-500 font-semibold">
+                                          {row.original.creator?.name}
                                         </span>
                                       )}
-                                    {cell.column.id === "creator" && (
-                                      <span className="text-blue-500 text-semibold">
-                                        {row.original.creator.name}
-                                      </span>
-                                    )}
+                                    </Td>
+                                  ))}
+
+                                  {/* ACTION BUTTONS */}
+                                  <Td className="p-3 flex justify-center items-center">
+                                    <Menu placement="bottom-end">
+                                      <MenuButton
+                                        as={IconButton}
+                                        icon={<MdMoreVert />}
+                                        variant="ghost"
+                                        size="sm"
+                                      />
+                                      <Portal>
+                                        <MenuList zIndex={2000}>
+                                          <MenuItem
+                                            icon={<MdOutlineVisibility />}
+                                            onClick={() => showDetailsHandler(row.original._id)}
+                                          >
+                                            View
+                                          </MenuItem>
+                                          <MenuItem
+                                            icon={<MdEdit />}
+                                            onClick={() => editHandler(row.original._id)}
+
+                                          >
+                                            Edit
+                                          </MenuItem>
+                                          <MenuItem
+                                            icon={<MdDeleteOutline />}
+                                            onClick={() => {
+                                              setCompanyDeleteId(row.original._id);
+                                              confirmDeleteHandler();
+                                            }}
+                                          >
+                                            Delete
+                                          </MenuItem>
+                                        </MenuList>
+                                      </Portal>
+                                    </Menu>
                                   </Td>
-                                );
-                              })}
+                                </Tr>
+                              );
+                            })}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
 
-                              <Td className="flex justify-center items-center p-3">
-                                {/* Actions Dropdown */}
-                                <Menu placement="bottom-end">
-                                  <MenuButton
-                                    as={IconButton}
-                                    icon={<MdMoreVert />}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="hover:bg-gray-100"
-                                  />
-                                  <Portal>
-                                    <MenuList zIndex={2000}>
-                                      <MenuItem
-                                        icon={<MdOutlineVisibility />}
-                                        onClick={() =>
-                                          showDetailsHandler(row.original?._id)
-                                        }
-                                      >
-                                        View
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdEdit />}
-                                        onClick={() =>
-                                          editHandler(row.original?._id)
-                                        }
-                                      >
-                                        Edit
-                                      </MenuItem>
-                                      <MenuItem
-                                        icon={<MdDeleteOutline />}
-                                        onClick={() => {
-                                          setCompanyDeleteId(row.original?._id);
-                                          confirmDeleteHandler();
-                                        }}
-                                      >
-                                        Delete
-                                      </MenuItem>
-                                    </MenuList>
-                                  </Portal>
-                                </Menu>
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                      {/* PAGINATION */}
+                      <div className="flex justify-center items-center gap-4 my-7">
+                        <button
+                          className="bg-[#1640d6] text-white px-5 py-1 rounded-full disabled:bg-gray-400"
+                          disabled={!canPreviousPage}
+                          onClick={previousPage}
+                        >
+                          Prev
+                        </button>
 
-                  <div className="w-[max-content] m-auto my-7">
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canPreviousPage}
-                      onClick={previousPage}
-                    >
-                      Prev
-                    </button>
-                    <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                      {pageIndex + 1} of {pageCount}
-                    </span>
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canNextPage}
-                      onClick={nextPage}
-                    >
-                      Next
-                    </button>
-                  </div>
+                        <span className="font-medium">
+                          {pageIndex + 1} of {pageCount}
+                        </span>
+
+                        <button
+                          className="bg-[#1640d6] text-white px-5 py-1 rounded-full disabled:bg-gray-400"
+                          disabled={!canNextPage}
+                          onClick={nextPage}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ================= CARD VIEW ================= */}
+                  {viewMode === "card" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {page.map((row) => {
+                        prepareRow(row);
+                        const c = row.original;
+
+                        return (
+                          <div
+                            key={c._id}
+                            className="bg-white border rounded-xl p-5 shadow hover:shadow-lg transition"
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex gap-3">
+                                <Avatar name={c.companyname} size="md" />
+                                <div>
+                                  <div className="font-semibold text-lg">{c.companyname}</div>
+                                  <div className="text-sm text-gray-500">ID: {c.uniqueId}</div>
+                                </div>
+                              </div>
+
+                              <span
+                                className={`px-2 py-1 text-xs rounded-full ${c.verify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                                  }`}
+                              >
+                                {c.verify ? "Verified" : "Not Verified"}
+                              </span>
+                            </div>
+
+                            <div className="mt-3 text-sm space-y-1">
+                              <p>
+                                <span className="font-semibold">Contact:</span>{" "}
+                                {c.contactPersonName || "-"}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Phone:</span> {c.phone}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Status:</span> {c.status}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Created: {moment(c.createdAt).format("DD/MM/YYYY")}
+                              </p>
+                            </div>
+
+                            <div className="mt-4 flex justify-end gap-4 text-lg">
+                              <MdOutlineVisibility
+                                className="text-blue-600 hover:scale-110 cursor-pointer"
+                                onClick={() => showDetailsHandler(c._id)}
+                              />
+                              <MdEdit
+                                className="text-yellow-600 hover:scale-110 cursor-pointer"
+                                onClick={() => editHandler(c._id)}
+                              />
+                              <MdDeleteOutline
+                                className="text-red-600 hover:scale-110 cursor-pointer"
+                                onClick={() => {
+                                  setCompanyDeleteId(c._id);
+                                  confirmDeleteHandler();
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                 </div>
               )}
+
             </div>
           </div>
         </div>
