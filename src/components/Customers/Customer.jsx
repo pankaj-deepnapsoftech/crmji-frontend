@@ -124,6 +124,16 @@ const columns = [
     accessor: "email",
   },
   {
+    Header: "Sale Date",
+    accessor: "saleDate",
+    id: "sale_date",
+  },
+  {
+    Header: "Delivery Date",
+    accessor: "deliveryDate",
+    id: "delivery_date",
+  },
+  {
     Header: "Payment Received",
     accessor: "lastPaymentAmount",
     id: "payment_received",
@@ -442,6 +452,22 @@ const Customer = () => {
                                 {typeof selectedCustomerForPayment.lastPaymentAmount === 'number'
                                   ? selectedCustomerForPayment.lastPaymentAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })
                                   : '₹0.00'}
+                              </Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Sale Date</Text>
+                              <Text>
+                                {selectedCustomerForPayment.saleDate
+                                  ? moment(selectedCustomerForPayment.saleDate).format('DD/MM/YYYY')
+                                  : 'N/A'}
+                              </Text>
+                            </HStack>
+                            <HStack justify="space-between">
+                              <Text fontWeight={600}>Delivery Date</Text>
+                              <Text>
+                                {selectedCustomerForPayment.deliveryDate
+                                  ? moment(selectedCustomerForPayment.deliveryDate).format('DD/MM/YYYY')
+                                  : 'N/A'}
                               </Text>
                             </HStack>
 
@@ -766,6 +792,8 @@ const Customer = () => {
                                       cell.column.id !== "created_on" &&
                                       cell.column.id !== "riFile" &&
                                       cell.column.id !== "payment_received" &&
+                                      cell.column.id !== "sale_date" &&
+                                      cell.column.id !== "delivery_date" &&
                                       cell.render("Cell")}
                                     {cell.column.id === "customertype" && (
                                       <span
@@ -819,6 +847,20 @@ const Customer = () => {
                                           Details
                                         </Button>
                                       </div>
+                                    )}
+                                    {cell.column.id === "sale_date" && (
+                                      <span>
+                                        {row.original?.saleDate
+                                          ? moment(row.original.saleDate).format("DD/MM/YYYY")
+                                          : "N/A"}
+                                      </span>
+                                    )}
+                                    {cell.column.id === "delivery_date" && (
+                                      <span>
+                                        {row.original?.deliveryDate
+                                          ? moment(row.original.deliveryDate).format("DD/MM/YYYY")
+                                          : "N/A"}
+                                      </span>
                                     )}
                                     {cell.column.id === "riFile" && (
                                       <div className="flex justify-center">

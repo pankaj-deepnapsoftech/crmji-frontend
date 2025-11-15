@@ -1838,7 +1838,7 @@ const Leads = () => {
                                         style={{
                                           backgroundColor:
                                             statusStyles[
-                                              row.original.status.toLowerCase()
+                                              row?.original?.status?.toLowerCase()
                                             ]?.bg,
                                           color:
                                             statusStyles[

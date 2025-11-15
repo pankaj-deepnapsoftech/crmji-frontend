@@ -36,11 +36,13 @@ const AddDynamicItemFields = ({
     setInputs(inputsArr);
   };
 
+  console.log(allProducts)
+
   const onChangeHandler = (name, value, ind) => {
     const inputsArr = [...inputs];
     inputsArr[ind][name] = value;
-    
-    if(name === 'price' || name === 'quantity'){
+
+    if (name === 'price' || name === 'quantity') {
       inputsArr[ind]['total'] = inputsArr[ind]['price'] * inputsArr[ind]['quantity']
     }
     setInputs(inputsArr);
@@ -82,6 +84,8 @@ const AddDynamicItemFields = ({
     getAllProducts();
   }, []);
 
+  console.log(inputs)
+
   return (
     <div>
       {inputs.map((item, ind) => {
@@ -102,9 +106,15 @@ const AddDynamicItemFields = ({
                     navigate("/crm/products");
                   }
                   const selectedProds = [...selectedProducts];
-                  selectedProds[ind] = {...d};
+                  selectedProds[ind] = { ...d };
                   setSelectedProducts(selectedProds);
                   onChangeHandler("item", d.value, ind);
+
+                  // Auto-populate price from selected product
+                  const selectedProduct = allProducts?.find(p => p._id === d.value);
+                  if (selectedProduct) {
+                    onChangeHandler("price", selectedProduct.price, ind);
+                  }
                 }}
                 isSearchable={true}
               />

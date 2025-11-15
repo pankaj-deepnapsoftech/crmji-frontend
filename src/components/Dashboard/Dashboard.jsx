@@ -41,7 +41,7 @@ const Dashboard = () => {
   const { isAllowed, msg } = checkAccess(auth, "dashboard");
   const [cookies] = useCookies();
   const today = new Date();
-
+ 
   const [startDate, setStartDate] = useState(
     new Date(`${today.getMonth() + 1}/02/${today.getFullYear()}`)
       .toISOString()
@@ -626,9 +626,9 @@ const Dashboard = () => {
           Dashboard
         </p>
       {!isAllowed && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-bold text-[#ff6f6f] flex gap-x-2">
-          {/* {!isSubscribed ? 'Subscribe to unlock!' : 'You do not have access to this route. Contact your Super Admin for further action.'} */}
-          {msg}
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-bold text-[#ff6f6f] flex gap-x-2">
+        {/* //   {!isSubscribed ? 'Subscribe to unlock!' : 'You do not have access to this route. Contact your Super Admin for further action.'}// */}
+           {msg} 
         </div>
       )}
 

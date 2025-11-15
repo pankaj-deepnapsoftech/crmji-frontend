@@ -10,7 +10,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { BiX } from "react-icons/bi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { closeAddLeadsDrawer } from "../../../../redux/reducers/misc";
 import { toast } from "react-toastify";
 import { useContext, useEffect, useState } from "react";
@@ -34,10 +34,10 @@ const LeadsDrawer = ({
   const [isLoading, setIsLoading] = useState(false);
   const [productOptionsList, setProductOptionsList] = useState();
   const [selectedProducts, setSelectedProducts] = useState([]);
-
+const auth = useSelector((state) => state.auth);
   const [showSelectPeoples, setShowSelectPeoples] = useState(true);
   const [showSelectCompanies, setShowSelectCompanies] = useState(true);
-
+  // console.log(auth)
   const [peopleOptionsList, setPeopleOptionsList] = useState();
   const [selectedPeopleOption, setPeopleSelectedOption] = useState();
 
@@ -52,15 +52,16 @@ const LeadsDrawer = ({
     { value: "Company", label: "Corporate" },
     { value: "People", label: "Individual" },
   ];
-
-  const statusOptionsList = [
-    { value: "Meeting Scheduled", label: "Meeting Scheduled" },
-    { value: "Meeting Completed", label: "Meeting Completed" },
-    { value: "In Negotiation", label: "In Negotiation" },
-    { value: "Deal on Hold", label: "Deal on Hold" },
-    { value: "Deal Won", label: "Deal Won" },
-    { value: "Deal Lost", label: "Deal Lost" },
-  ];
+  const [statusOptionsList, setStatusOptionsList] = useState([]);
+  const [defaultStatusCount, setDefaultStatusCount] = useState(0);
+  // const statusOptionsList = [
+  //   { value: "Meeting Scheduled", label: "Meeting Scheduled" },
+  //   { value: "Meeting Completed", label: "Meeting Completed" },
+  //   { value: "In Negotiation", label: "In Negotiation" },
+  //   { value: "Deal on Hold", label: "Deal on Hold" },
+  //   { value: "Deal Won", label: "Deal Won" },
+  //   { value: "Deal Lost", label: "Deal Lost" },
+  // ];
   const sourceOptionsList = [
     { value: "Linkedin", label: "Linkedin" },
     { value: "Social Media", label: "Social Media" },
@@ -332,6 +333,43 @@ const LeadsDrawer = ({
     }
   };
 
+  const getStatusList = async () => {
+    const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+    const res = await fetch(baseURL + "lead/status-list", {
+      headers: { authorization: `Bearer ${cookies?.access_token}` }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      // 👉 Save how many default statuses came from backend
+      setDefaultStatusCount(data.statusList.length);
+
+      let dynamicOptions = data.statusList.map(s => ({
+        label: s,
+        value: s
+      }));
+
+      // 👉 Add button only for super admin
+      if (auth?.role === "Super Admin") {
+        dynamicOptions = [
+          { label: "+ Add New Status", value: "ADD_NEW_STATUS" },
+          ...dynamicOptions
+        ];
+      }
+
+      setStatusOptionsList(dynamicOptions);
+    }
+  };
+
+  useEffect(() => {
+    getStatusList();
+  }, []);
+
+
+
   useEffect(() => {
     getAllCompanies();
     getAllPeoples();
@@ -449,7 +487,59 @@ const LeadsDrawer = ({
               options={statusOptionsList}
               placeholder="Select status"
               value={statusId}
-              onChange={(d) => setStatusId(d)}
+              onChange={async (d) => {
+                if (d.value === "ADD_NEW_STATUS") {
+
+                  // Block non–super admins (extra safety)
+                  if (auth?.role !== "Super Admin") {
+                    return toast.error("Only Super Admin can add new statuses");
+                  }
+
+                  // Enforce maximum limit 10 statuses
+                  const actualStatusCount = statusOptionsList.length - 1;
+                  if (actualStatusCount >= 20) {
+                    return toast.error("You can only add up to 10 statuses.");
+                  }
+
+                  const newStatus = prompt("Enter new status name:");
+
+                  if (!newStatus || newStatus.trim() === "") {
+                    return toast.error("Status cannot be empty");
+                  }
+
+                  const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+                  try {
+                    const res = await fetch(baseURL + "lead/add-status", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        authorization: `Bearer ${cookies?.access_token}`,
+                      },
+                      body: JSON.stringify({ status: newStatus }),
+                    });
+
+                    const data = await res.json();
+
+                    if (!data.success) {
+                      return toast.error(data.message);
+                    }
+
+                    toast.success("Status Added Successfully");
+
+                    // Refresh list
+                    getStatusList();
+
+                    // Auto select the new one
+                    setStatusId({ value: newStatus, label: newStatus });
+
+                  } catch (error) {
+                    toast.error("Failed to add status");
+                  }
+                }
+
+              }}
+
               isSearchable={true}
             />
           </div>
