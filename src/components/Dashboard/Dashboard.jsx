@@ -919,14 +919,14 @@ const Dashboard = () => {
 
           {/* Charts and Analytics Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="w-full">
+            {/* <div className="w-full">
               <PieChart
                 totalLeads={totalLeads}
                 canceledLeads={cancelledLeads}
                 completedLeads={completedLeads}
                 followupLeads={followupLeads}
               />
-            </div>
+            </div> */}
 
             <div className="w-full">
               <ListCard
