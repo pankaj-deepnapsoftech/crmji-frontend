@@ -677,7 +677,7 @@ const Dashboard = () => {
     />
   </Link>
 
-  <Link to="leads">
+  {/* <Link to="leads">
     <Cards
       label="Total Whatsapp"
       content={totalWhatsapp}
@@ -685,7 +685,7 @@ const Dashboard = () => {
       Icon={FaWhatsapp}
       iconColor="text-green-700"
     />
-  </Link>
+  </Link> */}
 
   <Link to="leads">
     <Cards
