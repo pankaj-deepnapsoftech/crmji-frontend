@@ -96,12 +96,12 @@ const Dashboard = () => {
   const [totalProformaInvoices, setTotalProformaInvoices] = useState(0);
   const [totalOffers, setTotalOffers] = useState(0);
   const [totalUnpaidInvoices, setTotalUnpaidInvoices] = useState(0);
-    const [smsData, setSmsData] = useState([]);
-    const [emailData, setEmailData] = useState([]);
-    const [whatsappData, setWhatsappData] = useState([]);
-    const [totalSms, setTotalSms] = useState(0);
-    const [totalEmail, setTotalEmail] = useState(0);
-    const [totalWhatsapp, setTotalWhatsapp] = useState(0);
+  const [smsData, setSmsData] = useState([]);
+  const [emailData, setEmailData] = useState([]);
+  const [whatsappData, setWhatsappData] = useState([]);
+  const [totalSms, setTotalSms] = useState(0);
+  const [totalEmail, setTotalEmail] = useState(0);
+  const [totalWhatsapp, setTotalWhatsapp] = useState(0);
 
   const progressStyles = {
     draft: {
@@ -538,7 +538,7 @@ const Dashboard = () => {
     setSmsData(res.data.logs);
   };
 
-  const fetchBulkEmail = async() => {
+  const fetchBulkEmail = async () => {
     const res = await axios.get(
       `${process.env.REACT_APP_BACKEND_URL}people/get-bulk-mail`,
       {
@@ -551,7 +551,7 @@ const Dashboard = () => {
     setEmailData(res.data.data);
   }
 
-  const fetchBulkWhatsapp = async() => {
+  const fetchBulkWhatsapp = async () => {
     const res = await axios.get(
       `${process.env.REACT_APP_BACKEND_URL}totalWhatsapp`,
       {
@@ -565,7 +565,7 @@ const Dashboard = () => {
     setWhatsappData(res.data.total);
   }
 
- 
+
   useEffect(() => {
     fetchBulkSms();
     fetchBulkEmail();
@@ -573,11 +573,11 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-      setTotalSms(countTotalMessages());
-      setTotalEmail(emailData.length);
-      setTotalWhatsapp(whatsappData.length);
-    }, [smsData, emailData, whatsappData]);
-  
+    setTotalSms(countTotalMessages());
+    setTotalEmail(emailData.length);
+    setTotalWhatsapp(whatsappData.length);
+  }, [smsData, emailData, whatsappData]);
+
 
 
   const countTotalMessages = () => {
@@ -587,7 +587,7 @@ const Dashboard = () => {
   const countMessagesByDateRange = (fromDate, toDate) => {
     const startDate = new Date(fromDate).toISOString().split('T')[0];
     const endDate = new Date(toDate).toISOString().split('T')[0];
-  
+
     const filteredData = smsData.filter((data) => {
       const messageDate = new Date(data.timestamp).toISOString().split('T')[0];
       return messageDate >= startDate && messageDate <= endDate;
@@ -598,7 +598,7 @@ const Dashboard = () => {
   const countTotalEmailSentByRange = (fromDate, toDate) => {
     const startDate = new Date(fromDate).toISOString().split('T')[0];
     const endDate = new Date(toDate).toISOString().split('T')[0];
-  
+
     const filteredData = emailData.filter((data) => {
       const messageDate = new Date(data.emailSentDate).toISOString().split('T')[0];
       return messageDate >= startDate && messageDate <= endDate;
@@ -609,22 +609,22 @@ const Dashboard = () => {
   const countTotalWhatsappSentByRange = (fromDate, toDate) => {
     const startDate = new Date(fromDate).toISOString().split('T')[0];
     const endDate = new Date(toDate).toISOString().split('T')[0];
-  
+
     const filteredData = whatsappData.filter((data) => {
       const messageDate = new Date(data.date).toISOString().split('T')[0];
       return messageDate >= startDate && messageDate <= endDate;
     });
     setTotalWhatsapp(filteredData.length);
   };
-  
+
 
 
 
   return (
     <>
-   <p className="text-[20px] font-semibold text-gray-500 ml-6">
-          Dashboard
-        </p>
+      <p className="text-[20px] font-semibold text-gray-500 ml-6">
+        Dashboard
+      </p>
       {!isAllowed && (
          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-bold text-[#ff6f6f] flex gap-x-2">
         {/* //   {!isSubscribed ? 'Subscribe to unlock!' : 'You do not have access to this route. Contact your Super Admin for further action.'}// */}
@@ -633,51 +633,51 @@ const Dashboard = () => {
       )}
 
       {isAllowed && (
-        
+
         <div className="px-2 py-4 md:px-4 lg:px-6">
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mb-6 w-full">
-  <Link to="admins">
-    <Cards
-      label="Total Employees"
-      content={totalEmployees}
-      bg="bg-indigo-50"
-      Icon={RiUserStarLine}
-      iconColor="text-indigo-500"
-    />
-  </Link>
+            <Link to="admins">
+              <Cards
+                label="Total Employees"
+                content={totalEmployees}
+                bg="bg-indigo-50"
+                Icon={RiUserStarLine}
+                iconColor="text-indigo-500"
+              />
+            </Link>
 
-  <Link to="individuals">
-    <Cards
-      label="Total Individuals"
-      content={totalPeople}
-      bg="bg-orange-100"
-      Icon={TbUsersGroup}
-      iconColor="text-orange-700"
-    />
-  </Link>
+            <Link to="individuals">
+              <Cards
+                label="Total Individuals"
+                content={totalPeople}
+                bg="bg-orange-100"
+                Icon={TbUsersGroup}
+                iconColor="text-orange-700"
+              />
+            </Link>
 
-  <Link to="corporates">
-    <Cards
-      label="Total Corporates"
-      content={totalCompanies}
-      bg="bg-blue-50"
-      Icon={RiUserStarLine}
-      iconColor="text-blue-500"
-    />
-  </Link>
+            <Link to="corporates">
+              <Cards
+                label="Total Corporates"
+                content={totalCompanies}
+                bg="bg-blue-50"
+                Icon={RiUserStarLine}
+                iconColor="text-blue-500"
+              />
+            </Link>
 
-  <Link to="leads">
-    <Cards
-      label="Total Bulk SMS"
-      content={totalSms}
-      bg="bg-yellow-100"
-      Icon={MdOutlineSms}
-      iconColor="text-yellow-600"
-    />
-  </Link>
+            <Link to="leads">
+              <Cards
+                label="Total Bulk SMS"
+                content={totalSms}
+                bg="bg-yellow-100"
+                Icon={MdOutlineSms}
+                iconColor="text-yellow-600"
+              />
+            </Link>
 
-  <Link to="leads">
+            {/* <Link to="leads">
     <Cards
       label="Total Whatsapp"
       content={totalWhatsapp}
@@ -685,18 +685,18 @@ const Dashboard = () => {
       Icon={FaWhatsapp}
       iconColor="text-green-700"
     />
-  </Link>
+  </Link> */}
 
-  <Link to="leads">
-    <Cards
-      label="Total Bulk Email"
-      content={totalEmail}
-      bg="bg-red-100"
-      Icon={AiOutlineMail}
-      iconColor="text-red-600"
-    />
-  </Link>
-</div>
+            <Link to="leads">
+              <Cards
+                label="Total Bulk Email"
+                content={totalEmail}
+                bg="bg-red-100"
+                Icon={AiOutlineMail}
+                iconColor="text-red-600"
+              />
+            </Link>
+          </div>
 
           {/* Date Range and Duration Filters */}
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 mb-6">
@@ -737,7 +737,7 @@ const Dashboard = () => {
                       max={today?.toISOString()?.split('T')[0]}
                       type="date"
                       placeholder="Date"
-                    
+
                       size="sm"
                     />
                   </FormControl>
