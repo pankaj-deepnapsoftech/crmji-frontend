@@ -354,10 +354,16 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [dataId, setDataId] = useState();
   const [isIndiamartLead, setIsIndiamartLead] = useState(false);
+  const [subscriptionDays, setSubscriptionDays] = useState(null);
+  const [planName, setPlanName] = useState("");
   const baseURL = process.env.REACT_APP_BACKEND_URL;
   const notificationCtx = useContext(notificationContext);
+  // Show upgrade button if:
+  // 1. Not subscribed and trial not ended, OR
+  // 2. Subscription has ended/expired
   const shouldShowUpgradeButton =
-    !user?.isSubscribed && user?.isTrial && !user?.isTrialEnded;
+    (!user?.isSubscribed && user?.isTrial && !user?.isTrialEnded) ||
+    user?.isSubscriptionEnded;
 
   const toggleUserDetailsMenu = () => setShowUserDetailsMenu((prev) => !prev);
   const toggleNotificationsMenu = () => setShowNotificationsMenu((prev) => !prev);
@@ -424,6 +430,37 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
     notificationCtx.getChatNotificationsHandler(user.id);
     notificationCtx.getUnseenchatNotificationCount();
   }, []);
+
+  // Fetch subscription/trial days remaining
+  useEffect(() => {
+    const fetchSubscriptionDays = async () => {
+      try {
+        if (!cookies?.access_token) return;
+
+        const response = await fetch(`${baseURL}organization/subscription-days`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies.access_token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setSubscriptionDays(data.daysRemaining);
+            setPlanName(data.planName || "");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching subscription days:", error);
+      }
+    };
+
+    if (user?.id && cookies?.access_token) {
+      fetchSubscriptionDays();
+    }
+  }, [user?.id, cookies?.access_token, baseURL]);
 
       
   useEffect(() => {
@@ -539,6 +576,25 @@ const Header = ({ isMenuOpen = false, setIsMenuOpen = () => {} }) => {
 
         {/* Right Section */}
         <div className="flex items-center gap-3 sm:gap-5">
+          {/* Subscription/Trial Days Display */}
+          {subscriptionDays !== null && subscriptionDays !== -1 && (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-md">
+              <span className="text-xs sm:text-sm font-medium text-blue-700">
+                {planName}:
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-blue-900">
+                {subscriptionDays} {subscriptionDays === 1 ? "day" : "days"} left
+              </span>
+            </div>
+          )}
+          {subscriptionDays === -1 && (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-md">
+              <span className="text-xs sm:text-sm font-medium text-green-700">
+                {planName}
+              </span>
+            </div>
+          )}
+
           {shouldShowUpgradeButton && (
             <Link to="/pricing">
               <button className="border border-[#d61616] rounded-md px-3 sm:px-6 py-1.5 bg-[#d61616] text-white font-medium text-sm sm:text-base hover:bg-white hover:text-[#d61616] transition">
