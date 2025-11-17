@@ -223,6 +223,12 @@ const LeadsDrawer = ({
       return;
     }
 
+    if (!statusId?.value) {
+      toast.error("Status not selected");
+      setIsLoading(false);
+      return;
+    }
+
     if (selectedProducts.length === 0) {
       toast.error("At least 1 product should be selected");
       setIsLoading(false); // 👈 ADD THIS
@@ -536,6 +542,8 @@ const LeadsDrawer = ({
                   } catch (error) {
                     toast.error("Failed to add status");
                   }
+                } else {
+                  setStatusId(d);
                 }
 
               }}

@@ -87,7 +87,7 @@ const Register = ({
       setRegistered(true);
       setOtpVerfication(true);
       setIsRegistering(false);
-      setProfileImage(null);
+      // setProfileImage(null);   
     } catch (err) {
       toast.error(err.message);
       console.log(err);

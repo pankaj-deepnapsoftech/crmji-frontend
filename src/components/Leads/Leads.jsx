@@ -1724,8 +1724,8 @@ const Leads = () => {
                           className="text-xs px-3 py-1 rounded-full font-semibold"
                           style={{
                             backgroundColor:
-                              statusStyles[item.status.toLowerCase()]?.bg,
-                            color: statusStyles[item.status.toLowerCase()]?.text,
+                              statusStyles[item.status?.toLowerCase()]?.bg,
+                            color: statusStyles[item.status?.toLowerCase()]?.text,
                           }}
                         >
                           {item.status}
@@ -1881,7 +1881,7 @@ const Leads = () => {
                         return (
                           <Tr
                             className="relative hover:bg-gray-100 cursor-pointer text-base lg:text-base"
-                            {...row.getRowProps()}
+                            {...row?.getRowProps()}
                           >
                             {row.cells.map((cell) => {
                               return (
@@ -1980,11 +1980,11 @@ const Leads = () => {
                                       style={{
                                         backgroundColor:
                                           statusStyles[
-                                            row.original.status.toLowerCase()
+                                            row?.original?.status?.toLowerCase()
                                           ]?.bg,
                                         color:
                                           statusStyles[
-                                            row.original.status.toLowerCase()
+                                            row?.original?.status?.toLowerCase()
                                           ]?.text,
                                       }}
                                     >
@@ -2066,7 +2066,7 @@ const Leads = () => {
                                     <MenuItem
                                       icon={<MdEdit />}
                                       onClick={() =>
-                                        editHandler(row.original?._id)
+                                        editHandler(row?.original?._id)
                                       }
                                     >
                                       Edit
