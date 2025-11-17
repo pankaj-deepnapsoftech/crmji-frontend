@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import CustomSelect from "../../CustomSelect";
 
+const defaultStatusOptions = ["Not Pick", "Not Interested", "Switch Off"];
+
 const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
   const [cookies] = useCookies();
   const [companies, setCompanies] = useState([]);
@@ -118,10 +120,12 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
         throw new Error(data.message);
       }
 
-      setStatusOptions(data.statuses.map(status => status.name));
+      const fetched = data.statuses.map((status) => status.name);
+      const merged = Array.from(new Set([...defaultStatusOptions, ...fetched]));
+      setStatusOptions(merged);
     } catch (err) {
-      // If no statuses exist, use default ones
-      setStatusOptions(["Not Pick", "Not Interested", "Switch Off"]);
+      // If no statuses exist or API fails, use default ones
+      setStatusOptions(defaultStatusOptions);
     }
   };
 

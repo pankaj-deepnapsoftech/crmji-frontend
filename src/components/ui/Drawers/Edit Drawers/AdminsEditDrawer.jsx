@@ -155,7 +155,17 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
         throw new Error(data.message);
       }
 
-      const permissions = data.permissions.map((p) => {
+      const excludedPermissions = [
+        "expense",
+        "expense-category",
+        "support",  
+        "emails",
+      ];
+      const filteredPermissions = data.permissions.filter(
+        (permission) => !excludedPermissions.includes(permission)
+      );
+
+      const permissions = filteredPermissions.map((p) => {
         return {
           value: p,
           label: p,
@@ -251,7 +261,7 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
             <div className="mt-2 mb-5">
               <label className="font-bold text-[#4B5563]">Permissions</label>
               <Select
-                className="rounded mt-2 p-3 border focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="rounded mt-2 p-3 border focus:outline-none focus:ring-2 focus:ring-blue-400 capitalize"
                 options={permissionOptions}
                 placeholder="Select permissions"
                 value={selectedPermissions}
@@ -264,7 +274,7 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
             <Button
               type="submit"
               className="mt-1 w-full py-3 text-white font-bold rounded-lg"
-             colorScheme="blue"
+              colorScheme="blue"
             >
               Submit
             </Button>

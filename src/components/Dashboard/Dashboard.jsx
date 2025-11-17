@@ -855,7 +855,7 @@ const Dashboard = () => {
           <Divider className="my-6" />
 
           {/* Stats Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
             <Link to="admins">
               <Cards
                 label="Total User"
@@ -896,7 +896,7 @@ const Dashboard = () => {
               />
             </Link>
 
-            {/* <Link to="leads">
+            <Link to="leads">
               <Cards
                 label="Total Whatsapp"
                 content={totalWhatsapp}
@@ -904,7 +904,7 @@ const Dashboard = () => {
                 Icon={FaWhatsapp}
                 iconColor="text-rose-500"
               />
-            </Link> */}
+            </Link>
 
             <Link to="leads">
               <Cards
@@ -915,7 +915,7 @@ const Dashboard = () => {
                 iconColor="text-slate-500"
               />
             </Link>
-          </div>
+          </div> */}
 
           {/* Charts and Analytics Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
