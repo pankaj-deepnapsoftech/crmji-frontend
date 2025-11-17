@@ -133,28 +133,16 @@ const CompaniesEditDrawer = ({
       });
 
       const data = await response.json();
-      if (data.success && data.data.length > 0) {
-        setStatusOptions(data.data.map(s => ({ value: s.name, label: s.name })));
+      if (data.success && Array.isArray(data.data)) {
+        const fetched = data.data.map((s) => s.name);
+        const unique = Array.from(new Set(fetched));
+        setStatusOptions(unique.map((name) => ({ value: name, label: name })));
       } else {
-        setStatusOptions([
-          { value: "Active", label: "Active" },
-          { value: "Inactive", label: "Inactive" },
-          { value: "Prospect", label: "Prospect" },
-          { value: "Customer", label: "Customer" },
-          { value: "Not Interested", label: "Not Interested" },
-          { value: "On Hold", label: "On Hold" },
-        ]);
+        setStatusOptions([]);
       }
     } catch (err) {
       console.error("Error fetching status options:", err);
-      setStatusOptions([
-        { value: "Active", label: "Active" },
-        { value: "Inactive", label: "Inactive" },
-        { value: "Prospect", label: "Prospect" },
-        { value: "Customer", label: "Customer" },
-        { value: "Not Interested", label: "Not Interested" },
-        { value: "On Hold", label: "On Hold" },
-      ]);
+      setStatusOptions([]);
     }
   };
 

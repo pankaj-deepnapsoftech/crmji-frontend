@@ -167,7 +167,9 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
 
       const data = await response.json();
       if (data.success && Array.isArray(data.data)) {
-        setStatusOptions(data.data.map((s) => ({ value: s.name, label: s.name })));
+        const fetched = data.data.map((s) => s.name);
+        const unique = Array.from(new Set(fetched));
+        setStatusOptions(unique.map((name) => ({ value: name, label: name })));
       } else {
         setStatusOptions([]);
       }
