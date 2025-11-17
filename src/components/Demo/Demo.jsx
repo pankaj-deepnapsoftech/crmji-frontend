@@ -558,6 +558,61 @@ const Demo = () => {
       console.error("Error fetching lead KYC:", err);
     }
   };
+
+  const showDetailsHandler = async (leadId) => {
+    setDataId(leadId);
+
+    // Fetch lead details for view
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}lead/lead-details`,
+        { leadId: leadId },
+        {
+          headers: {
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        const lead = response?.data?.lead;
+        setLeadData(lead);
+        setIsLeadModalOpen(true);
+      }
+    } catch (err) {
+      console.error("Error fetching lead details:", err);
+      toast.error("Failed to fetch lead details");
+    }
+  };
+
+  const editHandler = async (leadId) => {
+    setDataId(leadId);
+
+    // Fetch lead details for edit
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}lead/lead-details`,
+        { leadId: leadId },
+        {
+          headers: {
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        const lead = response?.data?.lead;
+        setLeadData(lead);
+        setNewStatus(lead.status || "");
+        setRemark(lead.meeting?.remark || "");
+        setIsLeadModalOpen(true);
+      }
+    } catch (err) {
+      console.error("Error fetching lead details:", err);
+      toast.error("Failed to fetch lead details");
+    }
+  };
+
   useEffect(() => {
     hanldeEditStatus();
   }, []);
