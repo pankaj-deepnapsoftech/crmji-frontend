@@ -1721,8 +1721,8 @@ const Leads = () => {
                             className="text-center rounded-md px-3 py-1 text-sm font-semibold"
                             style={{
                               backgroundColor:
-                                statusStyles[item.status.toLowerCase()]?.bg,
-                              color: statusStyles[item.status.toLowerCase()]?.text,
+                                statusStyles[String(item.status || '').toLowerCase()]?.bg,
+                              color: statusStyles[String(item.status || '').toLowerCase()]?.text,
                             }}
                           >
                             {item.status}
@@ -1988,11 +1988,11 @@ const Leads = () => {
                                         style={{
                                           backgroundColor:
                                             statusStyles[
-                                              row.original.status.toLowerCase()
+                                              String(row.original?.status || '').toLowerCase()
                                             ]?.bg,
                                           color:
                                             statusStyles[
-                                              row.original.status.toLowerCase()
+                                              String(row.original?.status || '').toLowerCase()
                                             ]?.text,
                                         }}
                                       >
@@ -2007,11 +2007,11 @@ const Leads = () => {
                                         style={{
                                           backgroundColor:
                                             sourceStyles[
-                                              row?.original?.source?.toLowerCase()
+                                              String(row?.original?.source || '').toLowerCase()
                                             ]?.bg,
                                           color:
                                             sourceStyles[
-                                              row?.original?.source?.toLowerCase()
+                                              String(row?.original?.source || '').toLowerCase()
                                             ]?.text,
                                         }}
                                       >
