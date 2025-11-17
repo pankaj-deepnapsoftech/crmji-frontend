@@ -22,7 +22,7 @@ import { useCookies } from "react-cookie";
 import Loading from "../ui/Loading";
 import { FcDatabase } from "react-icons/fc";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-
+import { BiTable, BiCard } from "react-icons/bi";
 import {
   Table,
   Thead,
@@ -318,6 +318,8 @@ const Payments = () => {
     }
   }, [searchKey]);
 
+    const [viewMode, setViewMode] = useState("table");
+
   return (
     <>
       {!isAllowed && (
@@ -442,190 +444,280 @@ const Payments = () => {
                 </ClickMenu>
               )}
 
-              {loading && (
-                <div>
-                  <Loading />
-                </div>
-              )}
-              {!loading && filteredData.length === 0 && (
-                <div className="flex items-center justify-center flex-col">
-                  <FcDatabase color="red" size={80} />
-                  <span className="mt-1 font-semibold text-2xl">
-                    No data found.
-                  </span>
-                </div>
-              )}
-              {!loading && filteredData.length > 0 && (
-                <div>
-                  <TableContainer maxHeight="600px" overflowY="auto">
-                    <Table
-                      variant="simple"
-                      {...getTableProps()}
-                      className="shadow-lg rounded-lg"
-                    >
-                      <Thead className="bg-blue-400 text-white text-lg font-semibold">
-                        {headerGroups.map((hg) => {
-                          return (
-                            <Tr {...hg.getHeaderGroupProps()}>
-                              {hg?.headers?.map((column) => {
-                                return (
-                                  <Th
-                                    className={`text-sm font-semibold text-left py-3 px-4
-                    ${
-                      column?.id === "customer"
-                        ? "sticky top-0 left-[-2px] bg-blue-400"
-                        : ""
-                    }
-                    border-b-2 border-gray-200`}
-                                    {...column?.getHeaderProps(
-                                      column?.getSortByToggleProps()
-                                    )}
-                                  >
-                                    <div className="flex items-center text-white">
-                                      {column?.render("Header")}
-                                      {column?.isSorted && (
-                                        <span className="ml-2">
-                                          {column?.isSortedDesc ? (
-                                            <FaCaretDown />
-                                          ) : (
-                                            <FaCaretUp />
-                                          )}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </Th>
-                                );
-                              })}
-                              <Th className="text-sm font-semibold text-left py-3 px-4 border-b-2 border-gray-200">
-                                <p className="text-white">Actions</p>
-                              </Th>
-                            </Tr>
-                          );
-                        })}
-                      </Thead>
-                      <Tbody {...getTableBodyProps()}>
-                        {page.map((row, ind) => {
-                          prepareRow(row);
-                          return (
-                            <Tr
-                              className="relative hover:bg-gray-100 hover:cursor-pointer text-base transition-all duration-300 ease-in-out"
-                              {...row?.getRowProps()}
-                            >
-                              {row?.cells?.map((cell) => {
-                                return (
-                                  <Td
-                                    className={`py-3 px-4 ${
-                                      cell?.column?.id === "customer"
-                                        ? "sticky top-0 left-[-2px] "
-                                        : ""
-                                    }`}
-                                    fontWeight="600"
-                                    {...cell?.getCellProps()}
-                                  >
-                                    {cell?.column?.id !== "number" &&
-                                      cell?.column?.id !== "createdAt" &&
-                                      cell?.column?.id !== "amount" &&
-                                      cell?.column?.id !== "customer" &&
-                                      cell?.column?.id !== "creator" &&
-                                      cell?.column?.id !== "created_on" &&
-                                      cell.render("Cell")}
+             {/* ------------------- LOADING ------------------- */}
+{loading && (
+  <div>
+    <Loading />
+  </div>
+)}
 
-                                    {cell?.column?.id === "customer" && (
-                                      <span>
-                                        {row?.original?.invoice?.customer
-                                          ?.people
-                                          ? row?.original?.invoice?.customer
-                                              ?.people.firstname +
-                                            " " +
-                                            (row?.original?.invoice?.customer
-                                              ?.people.lastname || "")
-                                          : row?.original?.invoice?.customer
-                                              ?.company?.companyname}
-                                      </span>
-                                    )}
+{/* ------------------- NO DATA ------------------- */}
+{!loading && filteredData.length === 0 && (
+  <div className="flex items-center justify-center flex-col">
+    <FcDatabase color="red" size={80} />
+    <span className="mt-1 font-semibold text-2xl">No data found.</span>
+  </div>
+)}
 
-                                    {cell?.column?.id === "number" && (
-                                      <span>{ind + 1}</span>
-                                    )}
-                                    {cell?.column?.id === "creator" && (
-                                      <span className="text-blue-500">
-                                        {row?.original?.creator?.name}
-                                      </span>
-                                    )}
-                                    {cell?.column?.id === "created_on" && (
-                                      <span>
-                                        {moment(
-                                          row?.original?.createdAt
-                                        ).format("DD/MM/YYYY")}
-                                      </span>
-                                    )}
-                                    {cell?.column?.id === "amount" && (
-                                      <span>
-                                        &#8377;{row?.original?.amount}
-                                      </span>
-                                    )}
-                                    {cell?.column?.id === "date" && (
-                                      <span>
-                                        {moment(
-                                          row?.original?.createdAt
-                                        ).format("DD/MM/YYYY")}
-                                      </span>
-                                    )}
-                                  </Td>
-                                );
-                              })}
-                              <Td className="flex gap-x-3 py-3 px-4">
-                                <MdDownload
-                                  className="hover:scale-110 transition-all duration-300 ease-in-out text-green-500 hover:text-green-600"
-                                  size={20}
-                                  onClick={() =>
-                                    downloadHandler(row?.original?._id)
-                                  }
-                                />
-                                <MdOutlineVisibility
-                                  className="hover:scale-110 transition-all duration-300 ease-in-out text-blue-500 hover:text-blue-600"
-                                  size={20}
-                                  onClick={() =>
-                                    showDetailsHandler(row?.original?._id)
-                                  }
-                                />
-                                <MdEdit
-                                  className="hover:scale-110 transition-all duration-300 ease-in-out text-orange-500 hover:text-orange-600"
-                                  size={20}
-                                  onClick={() =>
-                                    editHandler(row?.original?._id)
-                                  }
-                                />
-                                {/* Removed delete icon for now */}
-                              </Td>
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+{/* ------------------- HAS DATA ------------------- */}
+{!loading && filteredData.length > 0 && (
+  <div>
 
-                  <div className="w-[max-content] m-auto my-7">
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canPreviousPage}
-                      onClick={previousPage}
+    {/* VIEW MODE TOGGLE */}
+    <div className="flex justify-end gap-x-2 mb-4">
+      <button
+        onClick={() => setViewMode("table")}
+        className={`p-2 rounded-md transition ${
+          viewMode === "table"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+        }`}
+      >
+        <BiTable size={20} />
+      </button>
+
+      <button
+        onClick={() => setViewMode("card")}
+        className={`p-2 rounded-md transition ${
+          viewMode === "card"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+        }`}
+      >
+        <BiCard size={20} />
+      </button>
+    </div>
+
+    {/* ---------------------------------------------------------------- */}
+    {/* --------------------------- TABLE VIEW -------------------------- */}
+    {/* ---------------------------------------------------------------- */}
+    {viewMode === "table" && (
+      <>
+        <TableContainer maxHeight="600px" overflowY="auto">
+          <Table variant="simple" {...getTableProps()} className="shadow-lg rounded-lg">
+            <Thead className="bg-blue-400 text-white text-lg font-semibold">
+              {headerGroups.map((hg) => (
+                <Tr {...hg.getHeaderGroupProps()}>
+                  {hg.headers.map((column) => (
+                    <Th
+                      className={`text-sm font-semibold text-left py-3 px-4
+                      ${column.id === "customer" ? "sticky top-0 left-[-2px] bg-blue-400" : ""}
+                      border-b-2 border-gray-200`}
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
                     >
-                      Prev
-                    </button>
-                    <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                      {pageIndex + 1} of {pageCount}
-                    </span>
-                    <button
-                      className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                      disabled={!canNextPage}
-                      onClick={nextPage}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+                      <div className="flex items-center text-white">
+                        {column.render("Header")}
+                        {column.isSorted && (
+                          <span className="ml-2">
+                            {column.isSortedDesc ? <FaCaretDown /> : <FaCaretUp />}
+                          </span>
+                        )}
+                      </div>
+                    </Th>
+                  ))}
+                  <Th className="text-sm font-semibold py-3 px-4 border-b-2 border-gray-200">
+                    <p className="text-white">Actions</p>
+                  </Th>
+                </Tr>
+              ))}
+            </Thead>
+
+            <Tbody {...getTableBodyProps()}>
+              {page.map((row, ind) => {
+                prepareRow(row);
+
+                const inv = row.original;
+                const cust = inv?.invoice?.customer || {};
+                const company = cust?.company;
+                const people = cust?.people;
+
+                return (
+                  <Tr
+                    className="relative hover:bg-gray-100 cursor-pointer text-base transition-all duration-300"
+                    {...row.getRowProps()}
+                  >
+                    {row.cells.map((cell) => (
+                      <Td
+                        className={`py-3 px-4 ${
+                          cell.column.id === "customer"
+                            ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
+                            : ""
+                        }`}
+                        fontWeight="600"
+                        {...cell.getCellProps()}
+                      >
+
+                        {/* DEFAULT CELLS */}
+                        {[
+                          "number",
+                          "createdAt",
+                          "amount",
+                          "customer",
+                          "creator",
+                          "created_on"
+                        ].includes(cell.column.id) === false &&
+                          cell.render("Cell")}
+
+                        {/* NUMBER */}
+                        {cell.column.id === "number" && <span>{ind + 1}</span>}
+
+                        {/* CUSTOMER */}
+                        {cell.column.id === "customer" && (
+                          <span>
+                            {people
+                              ? `${people?.firstname || ""} ${people?.lastname || ""}`
+                              : company?.companyname || "Unknown Customer"}
+                          </span>
+                        )}
+
+                        {/* CREATOR */}
+                        {cell.column.id === "creator" && (
+                          <span className="text-blue-500">
+                            {inv?.creator?.name || "Unknown"}
+                          </span>
+                        )}
+
+                        {/* CREATED ON */}
+                        {cell.column.id === "created_on" && (
+                          <span>
+                            {inv?.createdAt
+                              ? moment(inv.createdAt).format("DD/MM/YYYY")
+                              : "--"}
+                          </span>
+                        )}
+
+                        {/* AMOUNT */}
+                        {cell.column.id === "amount" && (
+                          <span>
+                            ₹{inv?.amount || 0}
+                          </span>
+                        )}
+                      </Td>
+                    ))}
+
+                    {/* ACTIONS */}
+                    <Td className="flex gap-x-3 py-3 px-4">
+                      <MdDownload
+                        size={20}
+                        className="hover:scale-110 text-green-500 hover:text-green-600 transition"
+                        onClick={() => inv?._id && downloadHandler(inv._id)}
+                      />
+
+                      <MdOutlineVisibility
+                        size={20}
+                        className="hover:scale-110 text-blue-500 hover:text-blue-600 transition"
+                        onClick={() => inv?._id && showDetailsHandler(inv._id)}
+                      />
+
+                      <MdEdit
+                        size={20}
+                        className="hover:scale-110 text-orange-500 hover:text-orange-600 transition"
+                        onClick={() => inv?._id && editHandler(inv._id)}
+                      />
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
+
+        {/* PAGINATION */}
+        <div className="w-[max-content] m-auto my-7">
+          <button
+            className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+            disabled={!canPreviousPage}
+            onClick={previousPage}
+          >
+            Prev
+          </button>
+
+          <span className="mx-3">{pageIndex + 1} of {pageCount}</span>
+
+          <button
+            className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+            disabled={!canNextPage}
+            onClick={nextPage}
+          >
+            Next
+          </button>
+        </div>
+      </>
+    )}
+
+    {/* ---------------------------------------------------------------- */}
+    {/* --------------------------- CARD VIEW -------------------------- */}
+    {/* ---------------------------------------------------------------- */}
+    {viewMode === "card" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {page.map((row) => {
+          prepareRow(row);
+          const inv = row.original;
+          const cust = inv?.invoice?.customer || {};
+          const company = cust?.company;
+          const people = cust?.people;
+
+          return (
+            <div
+              key={inv?._id}
+              className="border p-5 rounded-2xl bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all"
+            >
+              {/* NAME */}
+              <div className="text-xl font-semibold text-gray-800 mb-2">
+                {people
+                  ? `${people?.firstname || ""} ${people?.lastname || ""}`
+                  : company?.companyname || "Unknown Customer"}
+              </div>
+
+              {/* AMOUNT */}
+              <p className="text-sm text-gray-700 mt-1">
+                <strong>Amount: </strong>₹{inv?.amount || 0}
+              </p>
+
+              {/* CREATED ON */}
+              <p className="text-sm text-gray-600">
+                <strong>Date:</strong>{" "}
+                {inv?.createdAt
+                  ? moment(inv.createdAt).format("DD/MM/YYYY")
+                  : "--"}
+              </p>
+
+              {/* CREATOR */}
+              <p className="text-xs text-gray-500 mt-1">
+                Created by{" "}
+                <span className="text-blue-600">
+                  {inv?.creator?.name || "Unknown"}
+                </span>
+              </p>
+
+              {/* ACTIONS */}
+              <div className="flex justify-center space-x-10 border-t pt-3 mt-4">
+                <MdOutlineVisibility
+                  size={22}
+                  className="text-blue-600 hover:scale-110 cursor-pointer"
+                  onClick={() => inv?._id && showDetailsHandler(inv._id)}
+                />
+
+                <MdEdit
+                  size={22}
+                  className="text-orange-600 hover:scale-110 cursor-pointer"
+                  onClick={() => inv?._id && editHandler(inv._id)}
+                />
+
+                <MdDownload
+                  size={22}
+                  className="text-green-600 hover:scale-110 cursor-pointer"
+                  onClick={() => inv?._id && downloadHandler(inv._id)}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
             </div>
           </div>
         </div>

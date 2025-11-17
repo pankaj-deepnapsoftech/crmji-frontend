@@ -32,7 +32,7 @@ import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
 import Loading from "../ui/Loading";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-
+import { BiTable, BiCard } from "react-icons/bi";
 import {
   Table,
   Thead,
@@ -295,21 +295,25 @@ const Invoices = () => {
           d?.paymentstatus?.toLowerCase().includes(searchKey.toLowerCase()) ||
           (d?.customer?.people
             ? (
-                d?.customer?.people?.firstname +
-                " " +
-                d?.customer?.people?.lastname
-              )
-                .toLowerCase()
-                .includes(searchKey.toLowerCase())
+              d?.customer?.people?.firstname +
+              " " +
+              d?.customer?.people?.lastname
+            )
+              .toLowerCase()
+              .includes(searchKey.toLowerCase())
             : d.customer.company.companyname
-                .toLowerCase()
-                .includes(searchKey.toLowerCase()))
+              .toLowerCase()
+              .includes(searchKey.toLowerCase()))
       );
       setFilteredData(searchedData);
     } else {
       setFilteredData(data);
     }
   }, [searchKey]);
+
+
+  const [viewMode, setViewMode] = useState("table"); // table or card
+
 
   return (
     <>
@@ -338,9 +342,6 @@ const Invoices = () => {
           <div>
             <div className="flex flex-col items-start justify-start md:flex-row gap-y-1 md:justify-between md:items-center mb-8">
               <div className="flex text-lg md:text-xl font-semibold items-center gap-y-1">
-                {/* <span className="mr-2">
-                  <MdArrowBack />
-                </span> */}
                 Invoice List
               </div>
 
@@ -463,236 +464,357 @@ const Invoices = () => {
                 <Loading />
               </div>
             )}
+
             {!loading && filteredData.length === 0 && (
               <div className="flex items-center justify-center flex-col">
                 <FcDatabase color="red" size={80} />
-                <span className="mt-1 font-semibold text-2xl">
-                  No data found.
-                </span>
+                <span className="mt-1 font-semibold text-2xl">No data found.</span>
               </div>
             )}
+
             {!loading && filteredData.length > 0 && (
               <div>
-                <TableContainer maxHeight="600px" overflowY="auto">
-                  <Table
-                    variant="simple"
-                    {...getTableProps()}
-                    className="rounded-lg shadow-md"
+
+                {/* VIEW MODE TOGGLE BUTTONS */}
+                <div className="flex justify-end gap-x-2 mb-4">
+                  <button
+                    onClick={() => setViewMode("table")}
+                    className={`p-2 rounded-md transition-colors duration-200 ${viewMode === "table"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      }`}
                   >
-                    <Thead className="bg-blue-400 text-white text-lg font-semibold">
-                      {headerGroups.map((hg) => {
-                        return (
-                          <Tr {...hg.getHeaderGroupProps()}>
-                            {hg?.headers?.map((column) => {
-                              return (
+                    <BiTable size={20} />
+                  </button>
+
+                  <button
+                    onClick={() => setViewMode("card")}
+                    className={`p-2 rounded-md transition-colors duration-200 ${viewMode === "card"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      }`}
+                  >
+                    <BiCard size={20} />
+                  </button>
+                </div>
+
+              
+                {viewMode === "table" && (
+                  <>
+                    <TableContainer maxHeight="600px" overflowY="auto">
+                      <Table
+                        variant="simple"
+                        {...getTableProps()}
+                        className="rounded-lg shadow-md"
+                      >
+                        <Thead className="bg-blue-400 text-white text-lg font-semibold">
+                          {headerGroups.map((hg) => (
+                            <Tr {...hg.getHeaderGroupProps()}>
+                              {hg.headers.map((column) => (
                                 <Th
                                   className={`text-sm font-semibold text-left py-3 px-4 
-                    ${
-                      column?.id === "customer"
-                        ? "sticky top-0 left-[-2px] bg-blue-400"
-                        : ""
-                    } 
-                    border-b-2 border-gray-200`}
-                                  {...column?.getHeaderProps(
-                                    column?.getSortByToggleProps()
-                                  )}
+                        ${column.id === "customer"
+                                      ? "sticky top-0 left-[-2px] bg-blue-400"
+                                      : ""
+                                    } border-b-2 border-gray-200`}
+                                  {...column.getHeaderProps(column.getSortByToggleProps())}
                                 >
                                   <div className="flex items-center text-white">
-                                    {column?.render("Header")}
-                                    {column?.isSorted && (
+                                    {column.render("Header")}
+                                    {column.isSorted && (
                                       <span className="ml-2">
-                                        {column?.isSortedDesc ? (
-                                          <FaCaretDown />
-                                        ) : (
-                                          <FaCaretUp />
-                                        )}
+                                        {column.isSortedDesc ? <FaCaretDown /> : <FaCaretUp />}
                                       </span>
                                     )}
                                   </div>
                                 </Th>
-                              );
-                            })}
-                            <Th className="text-sm font-semibold text-left py-3 px-4 border-b-2 border-gray-200">
-                              <p className="text-white">Actions</p>
-                            </Th>
-                          </Tr>
-                        );
-                      })}
-                    </Thead>
-                    <Tbody {...getTableBodyProps()}>
-                      {page.map((row, ind) => {
-                        prepareRow(row);
-                        return (
-                          <Tr
-                            className="relative hover:bg-gray-200 cursor-pointer transition-all duration-300 ease-in-out"
-                            {...row?.getRowProps()}
-                          >
-                            {row?.cells?.map((cell) => {
-                              return (
-                                <Td
-                                  className={`py-3 px-4 ${
-                                    cell?.column?.id === "customer"
-                                      ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
-                                      : ""
-                                  }`}
-                                  fontWeight="600"
-                                  {...cell.getCellProps()}
-                                >
-                                  {cell?.column?.id !== "number" &&
-                                    cell?.column?.id !== "startdate" &&
-                                    cell?.column?.id !== "status" &&
-                                    cell?.column?.id !== "customer" &&
-                                    cell?.column?.id !== "total" &&
-                                    cell?.column?.id !== "subtotal" &&
-                                    cell?.column?.id !== "expiredate" &&
-                                    cell?.column?.id !== "paymentstatus" &&
-                                    cell?.column?.id !== "creator" &&
-                                    cell?.column?.id !== "created_on" &&
-                                    cell.render("Cell")}
-                                  {cell?.column?.id === "total" && (
-                                    <span>&#8377;{row.original.total}</span>
-                                  )}
-                                  {cell?.column?.id === "subtotal" && (
-                                    <span>&#8377;{row.original.subtotal}</span>
-                                  )}
-                                  {cell?.column?.id === "creator" && (
-                                    <span className="text-blue-500">
-                                      {row.original.creator.name}
-                                    </span>
-                                  )}
-                                  {cell?.column?.id === "created_on" && (
-                                    <span>
-                                      {moment(row.original.createdAt).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                    </span>
-                                  )}
-                                  {cell?.column?.id === "customer" && (
-                                    <span>
-                                      {row?.original?.customer?.company
-                                        ? row?.original?.customer?.company
-                                            .companyname
-                                        : row?.original?.customer?.people
-                                            ?.firstname +
-                                          " " +
-                                          (row?.original?.customer?.people
-                                            ?.lastname || "")}
-                                    </span>
-                                  )}
-                                  {cell?.column?.id === "number" && (
-                                    <span>{ind + 1}</span>
-                                  )}
-                                  {cell?.column?.id === "startdate" && (
-                                    <span>
-                                      {moment(row?.original?.startdate).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                    </span>
-                                  )}
-                                  {cell?.column?.id === "expiredate" && (
-                                    <span>
-                                      {moment(row?.original?.expiredate).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                    </span>
-                                  )}
-                                  {cell?.column?.id === "status" && (
-                                    <span
-                                      className="text-sm rounded-md px-3 py-1"
-                                      style={{
-                                        backgroundColor: `${
-                                          statusStyles[
-                                            row?.original?.status.toLowerCase()
-                                          ].bg
-                                        }`,
-                                        color: `${
-                                          statusStyles[
-                                            row?.original?.status.toLowerCase()
-                                          ].text
-                                        }`,
-                                      }}
-                                    >
-                                      {row?.original?.status}
-                                    </span>
-                                  )}
-                                  {cell?.column?.id === "paymentstatus" && (
-                                    <span
-                                      className="text-sm rounded-md px-3 py-1"
-                                      style={{
-                                        backgroundColor: `${
-                                          paymentStatusStyles[
-                                            row?.original?.paymentstatus.toLowerCase()
-                                          ].bg
-                                        }`,
-                                        color: `${
-                                          paymentStatusStyles[
-                                            row?.original?.paymentstatus.toLowerCase()
-                                          ].text
-                                        }`,
-                                      }}
-                                    >
-                                      {row?.original?.paymentstatus}
-                                    </span>
-                                  )}
-                                </Td>
-                              );
-                            })}
-                            <Td className="flex gap-x-3 py-3 px-4">
-                              <MdDownload
-                                className="hover:scale-110 text-green-500 hover:text-green-600 transition-all duration-300 ease-in-out "
-                                size={20}
-                                onClick={() =>
-                                  downloadHandler(row?.original?._id)
-                                }
-                              />
-                              <MdOutlineVisibility
-                                className="hover:scale-110 transition-all duration-300 ease-in-out text-blue-500 hover:text-blue-600"
-                                size={20}
-                                onClick={() =>
-                                  showDetailsHandler(row?.original?._id)
-                                }
-                              />
-                              <MdEdit
-                                className="hover:scale-110 transition-all duration-300 ease-in-out text-orange-500 hover:text-orange-600"
-                                size={20}
-                                onClick={() => editHandler(row?.original?._id)}
-                              />
-                              <MdPayment
-                                className="hover:scale-110 transition-all duration-300 ease-in-out text-red-500 hover:text-red-600"
-                                size={20}
-                                onClick={() =>
-                                  paymentHandler(row?.original?._id)
-                                }
-                              />
-                            </Td>
-                          </Tr>
-                        );
-                      })}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                              ))}
+                              <Th className="text-sm font-semibold py-3 px-4 border-b-2 border-gray-200">
+                                Actions
+                              </Th>
+                            </Tr>
+                          ))}
+                        </Thead>
 
-                <div className="w-[max-content] m-auto my-7">
-                  <button
-                    className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                    disabled={!canPreviousPage}
-                    onClick={previousPage}
-                  >
-                    Prev
-                  </button>
-                  <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                    {pageIndex + 1} of {pageCount}
-                  </span>
-                  <button
-                    className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                    disabled={!canNextPage}
-                    onClick={nextPage}
-                  >
-                    Next
-                  </button>
-                </div>
+                        <Tbody {...getTableBodyProps()}>
+                          {page.map((row, ind) => {
+                            prepareRow(row);
+                            return (
+                              <Tr
+                                className="hover:bg-gray-200 transition-all"
+                                {...row.getRowProps()}
+                              >
+                                {row.cells.map((cell) => (
+                                  <Td
+                                    className={`py-3 px-4 ${cell.column.id === "customer"
+                                        ? "sticky left-[-2px] bg-[#f9fafc]"
+                                        : ""
+                                      }`}
+                                    {...cell.getCellProps()}
+                                  >
+                                    {/* General cell */}
+                                    {[
+                                      "number",
+                                      "total",
+                                      "subtotal",
+                                      "creator",
+                                      "created_on",
+                                      "customer",
+                                      "startdate",
+                                      "expiredate",
+                                      "status",
+                                      "paymentstatus",
+                                    ].includes(cell.column.id) === false && cell.render("Cell")}
+
+                                    {/* number */}
+                                    {cell.column.id === "number" && <span>{ind + 1}</span>}
+
+                                    {/* Creator */}
+                                    {cell.column.id === "creator" && (
+                                      <span className="text-blue-500">
+                                        {row.original?.creator?.name || "Unknown"}
+                                      </span>
+                                    )}
+
+                                    {/* Created Date */}
+                                    {cell.column.id === "created_on" && (
+                                      <span>
+                                        {row.original?.createdAt
+                                          ? moment(row.original.createdAt).format("DD/MM/YYYY")
+                                          : "--"}
+                                      </span>
+                                    )}
+
+                                    {/* Customer SAFE */}
+                                    {cell.column.id === "customer" && (
+                                      <span>
+                                        {row.original?.customer?.company
+                                          ? row.original.customer.company.companyname
+                                          : row.original?.customer?.people
+                                            ? `${row.original.customer.people.firstname || ""} ${row.original.customer.people.lastname || ""
+                                            }`
+                                            : "Unknown"}
+                                      </span>
+                                    )}
+
+                                    {/* Dates */}
+                                    {cell.column.id === "startdate" && (
+                                      <span>
+                                        {row.original?.startdate
+                                          ? moment(row.original.startdate).format("DD/MM/YYYY")
+                                          : "--"}
+                                      </span>
+                                    )}
+
+                                    {cell.column.id === "expiredate" && (
+                                      <span>
+                                        {row.original?.expiredate
+                                          ? moment(row.original.expiredate).format("DD/MM/YYYY")
+                                          : "--"}
+                                      </span>
+                                    )}
+
+                                    {/* Amount */}
+                                    {cell.column.id === "total" && (
+                                      <span>&#8377;{row.original?.total || 0}</span>
+                                    )}
+
+                                    {cell.column.id === "subtotal" && (
+                                      <span>&#8377;{row.original?.subtotal || 0}</span>
+                                    )}
+
+                                    {/* Status */}
+                                    {cell.column.id === "status" && (
+                                      <span
+                                        className="text-sm rounded-md px-3 py-1"
+                                        style={{
+                                          backgroundColor:
+                                            statusStyles[
+                                              row.original?.status?.toLowerCase() || "default"
+                                            ]?.bg,
+                                          color:
+                                            statusStyles[
+                                              row.original?.status?.toLowerCase() || "default"
+                                            ]?.text,
+                                        }}
+                                      >
+                                        {row.original?.status || "--"}
+                                      </span>
+                                    )}
+
+                                    {/* Payment Status */}
+                                    {cell.column.id === "paymentstatus" && (
+                                      <span
+                                        className="text-sm rounded-md px-3 py-1"
+                                        style={{
+                                          backgroundColor:
+                                            paymentStatusStyles[
+                                              row.original?.paymentstatus?.toLowerCase() ||
+                                              "default"
+                                            ]?.bg,
+                                          color:
+                                            paymentStatusStyles[
+                                              row.original?.paymentstatus?.toLowerCase() ||
+                                              "default"
+                                            ]?.text,
+                                        }}
+                                      >
+                                        {row.original?.paymentstatus || "--"}
+                                      </span>
+                                    )}
+                                  </Td>
+                                ))}
+
+                                {/* Actions */}
+                                <Td className="flex gap-x-3 py-3 px-4">
+                                  <MdDownload
+                                    className="hover:scale-110 text-green-500"
+                                    size={20}
+                                    onClick={() =>
+                                      row.original?._id && downloadHandler(row.original._id)
+                                    }
+                                  />
+
+                                  <MdOutlineVisibility
+                                    className="hover:scale-110 text-blue-500"
+                                    size={20}
+                                    onClick={() =>
+                                      row.original?._id &&
+                                      showDetailsHandler(row.original._id)
+                                    }
+                                  />
+
+                                  <MdEdit
+                                    className="hover:scale-110 text-orange-500"
+                                    size={20}
+                                    onClick={() =>
+                                      row.original?._id && editHandler(row.original._id)
+                                    }
+                                  />
+
+                                  <MdPayment
+                                    className="hover:scale-110 text-red-500"
+                                    size={20}
+                                    onClick={() =>
+                                      row.original?._id && paymentHandler(row.original._id)
+                                    }
+                                  />
+                                </Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+
+                    {/* Pagination */}
+                    <div className="w-[max-content] m-auto my-7">
+                      <button
+                        className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+                        disabled={!canPreviousPage}
+                        onClick={previousPage}
+                      >
+                        Prev
+                      </button>
+
+                      <span className="mx-3">
+                        {pageIndex + 1} of {pageCount}
+                      </span>
+
+                      <button
+                        className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+                        disabled={!canNextPage}
+                        onClick={nextPage}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                
+                {viewMode === "card" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {page.map((row) => {
+                      prepareRow(row);
+                      const item = row.original;
+
+                      return (
+                        <div
+                          key={item?._id}
+                          className="border rounded-2xl p-5 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                        >
+                          {/* Title */}
+                          <div className="font-semibold text-xl text-gray-800 mb-2">
+                            {item?.customer?.company
+                              ? item.customer.company.companyname
+                              : item?.customer?.people
+                                ? `${item.customer.people.firstname} ${item.customer.people.lastname || ""
+                                }`
+                                : "No Name"}
+                          </div>
+
+                          {/* Description */}
+                          <div className="text-sm text-gray-600 leading-relaxed">
+                            {item?.description
+                              ? item.description.length > 140
+                                ? item.description.substring(0, 140) + "..."
+                                : item.description
+                              : "No description available."}
+                          </div>
+
+                          {/* Footer */}
+                          <div className="mt-4 text-xs text-gray-500">
+                            Created by{" "}
+                            <span className="text-blue-600 font-medium">
+                              {item?.creator?.name || "Unknown"}
+                            </span>{" "}
+                            on{" "}
+                            {item?.createdAt
+                              ? moment(item.createdAt).format("DD/MM/YYYY")
+                              : "--"}
+                          </div>
+
+                          {/* CARD ACTION BUTTONS */}
+                          <div className="flex justify-center space-x-8 border-t pt-3 mt-4">
+                            <button
+                              onClick={() => item?._id && showDetailsHandler(item._id)}
+                              className="p-2 rounded-full hover:bg-blue-50 transition"
+                            >
+                              <MdOutlineVisibility
+                                size={22}
+                                className="text-blue-600 hover:text-blue-800"
+                              />
+                            </button>
+
+                            <button
+                              onClick={() => item?._id && editHandler(item._id)}
+                              className="p-2 rounded-full hover:bg-yellow-50 transition"
+                            >
+                              <MdEdit
+                                size={22}
+                                className="text-yellow-600 hover:text-yellow-800"
+                              />
+                            </button>
+
+                            <button
+                              onClick={() => item?._id && paymentHandler(item._id)}
+                              className="p-2 rounded-full hover:bg-red-50 transition"
+                            >
+                              <MdPayment
+                                size={22}
+                                className="text-red-600 hover:text-red-800"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
+
           </div>
         </div>
       )}
