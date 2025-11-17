@@ -124,9 +124,18 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
       setDesignation(data.admin.designation);
 
       const permissions = data.admin.allowedroutes.map((p) => {
+        let displayLabel = p;
+
+        // Change permission display names to match dropdown options
+        if (p === "people") {
+          displayLabel = "individual";
+        } else if (p === "company") {
+          displayLabel = "corporate";
+        }
+
         return {
-          value: p,
-          label: p,
+          value: p, // Keep original value for backend
+          label: displayLabel, // Display custom label
         };
       });
 
@@ -158,7 +167,7 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
       const excludedPermissions = [
         "expense",
         "expense-category",
-        "support",  
+        "support",
         "emails",
       ];
       const filteredPermissions = data.permissions.filter(
@@ -166,9 +175,17 @@ const AdminsEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
       );
 
       const permissions = filteredPermissions.map((p) => {
+        let displayLabel = p;
+
+        if (p === "people") {
+          displayLabel = "individual";
+        } else if (p === "company") {
+          displayLabel = "corporate";
+        }
+
         return {
           value: p,
-          label: p,
+          label: displayLabel,
         };
       });
       setPermissionOptions(permissions);
