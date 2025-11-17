@@ -51,7 +51,7 @@ import ProformaInvoicesDrawer from "../ui/Drawers/Add Drawers/ProformaInvoicesDr
 import moment from "moment";
 import ProformaInvoicesEditDrawer from "../ui/Drawers/Edit Drawers/ProformaInvoiceEditDrawer";
 import ProformaInvoicesDetailsDrawer from "../ui/Drawers/Details Drawers/ProformaInvoicesDetailsDrawer";
-
+import { BiTable, BiCard } from "react-icons/bi";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -288,6 +288,8 @@ const ProformaInvoices = () => {
     }
   }, [searchKey]);
 
+    const [viewMode, setViewMode] = useState("table");
+
   return (
     <>
       {!isAllowed && (
@@ -448,263 +450,375 @@ const ProformaInvoices = () => {
                 />
               </ClickMenu>
             )}
-            {loading && (
-              <div>
-                <Loading />
-              </div>
-            )}
-            {!loading && filteredData.length === 0 && (
-              <div className="flex items-center justify-center flex-col">
-                <FcDatabase color="red" size={80} />
-                <span className="mt-1 font-semibold text-2xl">
-                  No data found.
-                </span>
-              </div>
-            )}
-            {!loading && filteredData.length > 0 && (
-              <div>
-                <TableContainer maxHeight="600px" overflowY="auto">
-                  <Table variant="simple" {...getTableProps()}>
-                    <Thead
-                      position="sticky"
-                      top={0}
-                      zIndex={1}
-                      bg="blue.400"
+           {/* ------------------- LOADING ------------------- */}
+{loading && (
+  <div>
+    <Loading />
+  </div>
+)}
+
+{/* ------------------- NO DATA ------------------- */}
+{!loading && filteredData.length === 0 && (
+  <div className="flex items-center justify-center flex-col">
+    <FcDatabase color="red" size={80} />
+    <span className="mt-1 font-semibold text-2xl">No data found.</span>
+  </div>
+)}
+
+{/* ------------------- HAS DATA ------------------- */}
+{!loading && filteredData.length > 0 && (
+  <div>
+
+    {/* VIEW MODE TOGGLE */}
+    <div className="flex justify-end gap-x-2 mb-4">
+      <button
+        onClick={() => setViewMode("table")}
+        className={`p-2 rounded-md transition ${
+          viewMode === "table"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+        }`}
+      >
+        <BiTable size={20} />
+      </button>
+
+      <button
+        onClick={() => setViewMode("card")}
+        className={`p-2 rounded-md transition ${
+          viewMode === "card"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+        }`}
+      >
+        <BiCard size={20} />
+      </button>
+    </div>
+
+    {/* ---------------------------------------------------------------- */}
+    {/* ------------------------- TABLE VIEW --------------------------- */}
+    {/* ---------------------------------------------------------------- */}
+    {viewMode === "table" && (
+      <>
+        <TableContainer maxHeight="600px" overflowY="auto">
+          <Table variant="simple" {...getTableProps()}>
+            <Thead
+              position="sticky"
+              top={0}
+              zIndex={1}
+              bg="blue.400"
+              color="white"
+              boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
+              className="text-lg font-semibold"
+            >
+              {headerGroups.map((hg) => (
+                <Tr {...hg.getHeaderGroupProps()}>
+                  {hg.headers.map((column) => (
+                    <Th
+                      className={
+                        column.id === "customer"
+                          ? "sticky top-0 left-[-2px]"
+                          : ""
+                      }
+                      textTransform="capitalize"
+                      fontSize="15px"
+                      fontWeight="700"
                       color="white"
-                      boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
-                      className="text-lg font-semibold"
+                      {...column.getHeaderProps(
+                        column.getSortByToggleProps()
+                      )}
                     >
-                      {headerGroups.map((hg) => {
-                        return (
-                          <Tr {...hg.getHeaderGroupProps()}>
-                            {hg.headers.map((column) => {
-                              return (
-                                <Th
-                                  className={
-                                    column.id === "customer"
-                                      ? "sticky top-0 left-[-2px] "
-                                      : ""
-                                  }
-                                  textTransform="capitalize"
-                                  fontSize="15px"
-                                  fontWeight="700"
-                                  color="black"
-                                  {...column.getHeaderProps(
-                                    column.getSortByToggleProps()
-                                  )}
-                                >
-                                  <p className="flex text-white">
-                                    {column.render("Header")}
-                                    {column.isSorted && (
-                                      <span>
-                                        {column.isSortedDesc ? (
-                                          <FaCaretDown />
-                                        ) : (
-                                          <FaCaretUp />
-                                        )}
-                                      </span>
-                                    )}
-                                  </p>
-                                </Th>
-                              );
-                            })}
-                            <Th
-                              textTransform="capitalize"
-                              fontSize="15px"
-                              fontWeight="700"
-                              color="white"
-                              borderLeft="1px solid #e0e0e0"
-                              borderRight="1px solid #e0e0e0"
+                      <p className="flex items-center gap-1">
+                        {column.render("Header")}
+                        {column.isSorted && (
+                          <span>
+                            {column.isSortedDesc ? <FaCaretDown /> : <FaCaretUp />}
+                          </span>
+                        )}
+                      </p>
+                    </Th>
+                  ))}
+
+                  <Th
+                    fontSize="15px"
+                    fontWeight="700"
+                    color="white"
+                    borderLeft="1px solid #e0e0e0"
+                  >
+                    Actions
+                  </Th>
+                </Tr>
+              ))}
+            </Thead>
+
+            <Tbody {...getTableBodyProps()}>
+              {page.map((row, ind) => {
+                prepareRow(row);
+
+                const customer = row.original?.customer || {};
+                const company = customer?.company;
+                const people = customer?.people;
+
+                return (
+                  <Tr
+                    className="hover:bg-gray-100 text-base"
+                    {...row.getRowProps()}
+                  >
+                    {row.cells.map((cell) => {
+                      return (
+                        <Td
+                          className={
+                            cell.column.id === "customer"
+                              ? "sticky left-[-2px] bg-[#f9fafc]"
+                              : ""
+                          }
+                          fontWeight="600"
+                          {...cell.getCellProps()}
+                        >
+                          {/* DEFAULT CELL RENDER */}
+                          {[
+                            "number",
+                            "startdate",
+                            "status",
+                            "customer",
+                            "expiredate",
+                            "total",
+                            "subtotal",
+                            "created_on",
+                            "creator",
+                          ].includes(cell.column.id) === false &&
+                            cell.render("Cell")}
+
+                          {/* Number */}
+                          {cell.column.id === "number" && <span>{ind + 1}</span>}
+
+                          {/* Total */}
+                          {cell.column.id === "total" && (
+                            <span>&#8377;{row.original?.total || 0}</span>
+                          )}
+
+                          {/* Subtotal */}
+                          {cell.column.id === "subtotal" && (
+                            <span>&#8377;{row.original?.subtotal || 0}</span>
+                          )}
+
+                          {/* Creator */}
+                          {cell.column.id === "creator" && (
+                            <span className="text-blue-600">
+                              {row.original?.creator?.name || "Unknown"}
+                            </span>
+                          )}
+
+                          {/* Created On */}
+                          {cell.column.id === "created_on" && (
+                            <span>
+                              {row.original?.createdAt
+                                ? moment(row.original.createdAt).format(
+                                    "DD/MM/YYYY"
+                                  )
+                                : "--"}
+                            </span>
+                          )}
+
+                          {/* CUSTOMER SAFE HANDLING */}
+                          {cell.column.id === "customer" && (
+                            <span>
+                              {company?.companyname ||
+                                (people
+                                  ? `${people.firstname || ""} ${
+                                      people.lastname || ""
+                                    }`
+                                  : "Unknown Customer")}
+                            </span>
+                          )}
+
+                          {/* Start Date */}
+                          {cell.column.id === "startdate" && (
+                            <span>
+                              {row.original?.startdate
+                                ? moment(row.original.startdate).format(
+                                    "DD/MM/YYYY"
+                                  )
+                                : "--"}
+                            </span>
+                          )}
+
+                          {/* Status */}
+                          {cell.column.id === "status" && (
+                            <span
+                              className="text-sm rounded-md px-3 py-1"
+                              style={{
+                                backgroundColor:
+                                  statusStyles[
+                                    row.original?.status?.toLowerCase() ||
+                                      "default"
+                                  ]?.bg,
+                                color:
+                                  statusStyles[
+                                    row.original?.status?.toLowerCase() ||
+                                      "default"
+                                  ]?.text,
+                              }}
                             >
-                              Actions
-                            </Th>
-                          </Tr>
-                        );
-                      })}
-                    </Thead>
-                    <Tbody {...getTableBodyProps()}>
-                      {page.map((row, ind) => {
-                        prepareRow(row);
+                              {row.original?.status || "--"}
+                            </span>
+                          )}
+                        </Td>
+                      );
+                    })}
 
-                        return (
-                          <Tr
-                            className="relative hover:cursor-pointer text-base lg:text-base"
-                            {...row.getRowProps()}
-                          >
-                            {row.cells.map((cell) => {
-                              return (
-                                <Td
-                                  className={
-                                    cell.column.id === "customer"
-                                      ? "sticky top-0 left-[-2px] bg-[#f9fafc]"
-                                      : ""
-                                  }
-                                  fontWeight="600"
-                                  {...cell.getCellProps()}
-                                >
-                                  {cell.column.id !== "number" &&
-                                    cell.column.id !== "startdate" &&
-                                    cell.column.id !== "status" &&
-                                    cell.column.id !== "customer" &&
-                                    cell.column.id !== "expiredate" &&
-                                    cell.column.id !== "total" &&
-                                    cell.column.id !== "subtotal" &&
-                                    cell.column.id !== "created_on" &&
-                                    cell.column.id !== "creator" &&
-                                    cell.render("Cell")}
-                                  {cell.column.id === "total" && (
-                                    <span>&#8377;{row.original?.total}</span>
-                                  )}
-                                  {cell.column.id === "subtotal" && (
-                                    <span>&#8377;{row.original?.subtotal}</span>
-                                  )}
-                                  {cell.column.id === "creator" && (
-                                    <span className="text-blue-500">
-                                      {row.original?.creator?.name}
-                                    </span>
-                                  )}
-                                  {cell.column.id === "created_on" && (
-                                    <span>
-                                      {moment(row.original?.createdAt).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                    </span>
-                                  )}
-                                  {cell.column.id === "customer" && (
-                                    <span>
-                                      {/* {row.original.customer?.company
-                                        ? row.original.customer.company
-                                            .companyname
-                                        : row.original.customer.people
-                                            .firstname +
-                                          " " +
-                                          row.original.customer.people.lastname} */}
-                                      {row.original?.company
-                                        ? row.original?.company?.companyname
-                                        : row.original?.people?.firstname +
-                                          " " +
-                                          (row.original?.people?.lastname ||
-                                            "")}
-                                    </span>
-                                  )}
-                                  {cell.column.id === "number" && (
-                                    <span>{ind + 1}</span>
-                                  )}
-                                  {cell.column.id === "startdate" && (
-                                    <span>
-                                      {moment(row.original?.startdate).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                    </span>
-                                  )}
-                                  {/* {cell.column.id === "expiredate" && (
-                                    <span>
-                                      {moment(row.original.expiredate).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                    </span>
-                                  )} */}
-                                  {cell.column.id === "status" && (
-                                    <span
-                                      className="text-sm rounded-md px-3 py-1"
-                                      style={{
-                                        backgroundColor: `${
-                                          statusStyles[
-                                            row.original?.status.toLowerCase()
-                                          ].bg
-                                        }`,
+                    {/* ACTIONS */}
+                    <Td className="flex gap-x-3">
+                      <MdDownload
+                        className="hover:scale-110 text-green-500"
+                        size={20}
+                        onClick={() =>
+                          row.original?._id &&
+                          downloadHandler(row.original._id)
+                        }
+                      />
 
-                                        color: `${
-                                          statusStyles[
-                                            row.original?.status.toLowerCase()
-                                          ].text
-                                        }`,
-                                      }}
-                                    >
-                                      {row.original?.status}
-                                    </span>
-                                  )}
+                      <MdOutlineVisibility
+                        className="hover:scale-110 text-blue-500"
+                        size={20}
+                        onClick={() =>
+                          row.original?._id &&
+                          showDetailsHandler(row.original._id)
+                        }
+                      />
 
-                                  {cell.column.id === "source" && (
-                                    <span
-                                      className={`text-sm rounded-md px-3 py-1`}
-                                      style={{
-                                        backgroundColor: `${
-                                          statusStyles[
-                                            row.original?.status?.toLowerCase()
-                                          ].bg
-                                        }`,
+                      <MdEdit
+                        className="hover:scale-110 text-orange-500"
+                        size={20}
+                        onClick={() =>
+                          row.original?._id &&
+                          editHandler(row.original._id)
+                        }
+                      />
 
-                                        color: `${
-                                          statusStyles[
-                                            row.original?.status?.toLowerCase()
-                                          ].text
-                                        }`,
-                                      }}
-                                    >
-                                      {row.original?.status}
-                                    </span>
-                                  )}
-                                </Td>
-                              );
-                            })}
-                            <Td className="flex gap-x-2">
-                              <MdDownload
-                                className="hover:scale-110 text-green-500 hover:text-green-600"
-                                size={20}
-                                onClick={() =>
-                                  downloadHandler(row.original?._id)
-                                }
-                              />
-                              <MdOutlineVisibility
-                                className="hover:scale-110 text-blue-500 hover:text-blue-600"
-                                size={20}
-                                onClick={() =>
-                                  showDetailsHandler(row.original?._id)
-                                }
-                              />
-                              <MdEdit
-                                className="hover:scale-110 text-orange-500 hover:text-orange-600"
-                                size={20}
-                                onClick={() => editHandler(row.original?._id)}
-                              />
-                              <MdDeleteOutline
-                                className="hover:scale-110 text-red-500 hover:text-red-600"
-                                size={20}
-                                onClick={() => {
-                                  setProformaInvoiceDeleteId(row.original?._id);
-                                  confirmDeleteHandler();
-                                }}
-                              />
-                            </Td>
-                          </Tr>
-                        );
-                      })}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                      <MdDeleteOutline
+                        className="hover:scale-110 text-red-500"
+                        size={20}
+                        onClick={() => {
+                          if (row.original?._id) {
+                            setProformaInvoiceDeleteId(row.original._id);
+                            confirmDeleteHandler();
+                          }
+                        }}
+                      />
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
 
-                <div className="w-[max-content] m-auto my-7">
-                  <button
-                    className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                    disabled={!canPreviousPage}
-                    onClick={previousPage}
-                  >
-                    Prev
-                  </button>
-                  <span className="mx-3 text-sm md:text-lg lg:text-xl xl:text-base">
-                    {pageIndex + 1} of {pageCount}
-                  </span>
-                  <button
-                    className="text-sm mt-2 bg-[#1640d6] py-1 px-4 text-white border-[1px] border-[#1640d6] rounded-3xl disabled:bg-[#b2b2b2] disabled:border-[#b2b2b2] disabled:cursor-not-allowed md:text-lg md:py-1 md:px-4 lg:text-xl lg:py-1 xl:text-base"
-                    disabled={!canNextPage}
-                    onClick={nextPage}
-                  >
-                    Next
-                  </button>
-                </div>
+        {/* PAGINATION */}
+        <div className="w-[max-content] m-auto my-7">
+          <button
+            className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+            disabled={!canPreviousPage}
+            onClick={previousPage}
+          >
+            Prev
+          </button>
+
+          <span className="mx-3">
+            {pageIndex + 1} of {pageCount}
+          </span>
+
+          <button
+            className="bg-[#1640d6] text-white px-4 py-1 rounded-3xl disabled:bg-gray-300"
+            disabled={!canNextPage}
+            onClick={nextPage}
+          >
+            Next
+          </button>
+        </div>
+      </>
+    )}
+
+    {/* ---------------------------------------------------------------- */}
+    {/* ------------------------- CARD VIEW ---------------------------- */}
+    {/* ---------------------------------------------------------------- */}
+    {viewMode === "card" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {page.map((row) => {
+          prepareRow(row);
+          const item = row.original;
+
+          const customer = item?.customer || {};
+          const company = customer?.company;
+          const people = customer?.people;
+
+          return (
+            <div
+              key={item?._id}
+              className="border rounded-2xl p-5 bg-white shadow-sm hover:shadow-lg transition-all"
+            >
+              {/* NAME */}
+              <div className="text-xl font-semibold text-gray-800 mb-2">
+                {company?.companyname ||
+                  (people
+                    ? `${people.firstname || ""} ${
+                        people.lastname || ""
+                      }`
+                    : "Unknown Customer")}
               </div>
-            )}
+
+              {/* Description */}
+              <div className="text-sm text-gray-600">
+                {item?.description
+                  ? item.description.length > 140
+                    ? item.description.substring(0, 140) + "..."
+                    : item.description
+                  : "No description"}
+              </div>
+
+              {/* Footer */}
+              <div className="text-xs text-gray-500 mt-3">
+                Created by{" "}
+                <span className="text-blue-600">
+                  {item?.creator?.name || "Unknown"}
+                </span>{" "}
+                on{" "}
+                {item?.createdAt
+                  ? moment(item.createdAt).format("DD/MM/YYYY")
+                  : "--"}
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-center gap-6 border-t pt-4 mt-4">
+                <MdOutlineVisibility
+                  size={22}
+                  className="text-blue-600 hover:scale-110 cursor-pointer"
+                  onClick={() => item?._id && showDetailsHandler(item._id)}
+                />
+
+                <MdEdit
+                  size={22}
+                  className="text-orange-600 hover:scale-110 cursor-pointer"
+                  onClick={() => item?._id && editHandler(item._id)}
+                />
+
+                <MdDeleteOutline
+                  size={22}
+                  className="text-red-600 hover:scale-110 cursor-pointer"
+                  onClick={() =>
+                    item?._id &&
+                    (setProformaInvoiceDeleteId(item._id),
+                    confirmDeleteHandler())
+                  }
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
           </div>
         </div>
       )}

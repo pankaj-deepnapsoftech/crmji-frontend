@@ -301,22 +301,20 @@ const Admins = () => {
             <div className="flex justify-end gap-x-2 mb-4">
               <button
                 onClick={() => setViewMode("table")}
-                className={`p-2 rounded-md transition-colors duration-200 ${
-                  viewMode === "table"
+                className={`p-2 rounded-md transition-colors duration-200 ${viewMode === "table"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                }`}
+                  }`}
                 title="Table View"
               >
                 <BiTable size={20} />
               </button>
               <button
                 onClick={() => setViewMode("card")}
-                className={`p-2 rounded-md transition-colors duration-200 ${
-                  viewMode === "card"
+                className={`p-2 rounded-md transition-colors duration-200 ${viewMode === "card"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                }`}
+                  }`}
                 title="Card View"
               >
                 <BiCard size={20} />
@@ -398,11 +396,10 @@ const Admins = () => {
                                     border-b-2 border-gray-300
                                     text-center
                                     bg-blue-400
-                                     ${
-                                    column.id === "name"
-                                      ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,0.2)]"
-                                      : ""
-                                  }
+                                     ${column.id === "name"
+                                        ? "sticky left-0 z-[10] text-left pl-4 shadow-[4px_0_6px_-3px_rgba(0,0,0,0.2)]"
+                                        : ""
+                                      }
 
                                   `}
                                     borderLeft="1px solid #d7d7d7"
@@ -411,8 +408,7 @@ const Admins = () => {
                                     )}
                                   >
                                     <div className={`flex items-center justify-center text-white
-                                       ${
-                                        column.id === "name" ? "justify-start" : "justify-center"
+                                       ${column.id === "name" ? "justify-start" : "justify-center"
                                       }
                                       `}>
                                       {column.render("Header")}
@@ -445,28 +441,26 @@ const Admins = () => {
                                   {...row.getRowProps()}
                                 >
                                   {row.cells.map((cell) => (
-                            <Td
-  className={`
-    ${
-      cell.column.id === "name"
-        ? "sticky left-0 z-[5] bg-white font-semibold text-left"
-        : "text-center"
-    }
+                                    <Td
+                                      className={`
+    ${cell.column.id === "name"
+                                          ? "sticky left-0 z-[5] bg-white font-semibold text-left"
+                                          : "text-center"
+                                        }
     border-b border-gray-200 whitespace-nowrap px-4 py-2
   `}
-  {...cell.getCellProps()}
->
+                                      {...cell.getCellProps()}
+                                    >
 
                                       {cell.column.id !== "verified" &&
                                         cell.column.id !== "createdAt" &&
                                         cell.render("Cell")}
                                       {cell.column.id === "verified" && (
                                         <span
-                                          className={`text-sm rounded-md px-3 py-1 ${
-                                            row.original.verified
+                                          className={`text-sm rounded-md px-3 py-1 ${row.original.verified
                                               ? "bg-green-500 text-white"
                                               : "bg-red-500 text-white"
-                                          }`}
+                                            }`}
                                         >
                                           {row.original.verified
                                             ? "Verified"
@@ -549,11 +543,10 @@ const Admins = () => {
                                 {userId}
                               </div>
                               <div
-                                className={`text-center rounded-md px-3 py-1 text-sm font-semibold ${
-                                  user.verified
+                                className={`text-center rounded-md px-3 py-1 text-sm font-semibold ${user.verified
                                     ? "bg-green-500 text-white"
                                     : "bg-red-500 text-white"
-                                }`}
+                                  }`}
                               >
                                 {user.verified ? "Verified" : "Not Verified"}
                               </div>

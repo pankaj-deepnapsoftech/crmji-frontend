@@ -530,59 +530,78 @@ const ProductCategory = () => {
 
                 {/* CARD VIEW */}
                 {viewMode === "card" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {page.map((row) => {
-                      prepareRow(row);
-                      const item = row.original;
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    {page.map((row) => {
+      prepareRow(row);
+      const item = row.original;
 
-                      return (
-                        <div
-                          key={item._id}
-                          className="border rounded-lg p-4 shadow bg-white hover:shadow-lg transition"
-                        >
-                          <div className="font-semibold text-lg mb-1">
-                            {item.categoryname}
-                          </div>
+      return (
+        <div
+          key={item._id}
+          className="border rounded-2xl p-5 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+        >
+          {/* Title */}
+          <div className="font-semibold text-xl text-gray-800 mb-2">
+            {item.categoryname}
+          </div>
 
-                          <div className="text-sm text-gray-600">
-                            {item.description?.length > 120
-                              ? item.description.substring(0, 120) + "..."
-                              : item.description}
-                          </div>
+          {/* Description */}
+          <div className="text-sm text-gray-600 leading-relaxed">
+            {item.description?.length > 140
+              ? item.description.substring(0, 140) + "..."
+              : item.description}
+          </div>
 
-                          <div className="mt-3 text-xs text-gray-500">
-                            Created by{" "}
-                            <span className="text-blue-500">
-                              {item.creator?.name}
-                            </span>{" "}
-                            on {moment(item.createdAt).format("DD/MM/YYYY")}
-                          </div>
+          {/* Footer Info */}
+          <div className="mt-4 text-xs text-gray-500">
+            Created by{" "}
+            <span className="text-blue-600 font-medium">
+              {item.creator?.name || "Unknown"}
+            </span>{" "}
+            on {moment(item.createdAt).format("DD/MM/YYYY")}
+          </div>
 
-                          <div className="mt-3 flex justify-end gap-3">
-                            <MdOutlineVisibility
-                              size={20}
-                              className="text-blue-600 cursor-pointer hover:scale-110"
-                              onClick={() => showDetailsHandler(item._id)}
-                            />
-                            <MdEdit
-                              size={20}
-                              className="text-yellow-600 cursor-pointer hover:scale-110"
-                              onClick={() => editHandler(item._id)}
-                            />
-                            <MdDeleteOutline
-                              size={20}
-                              className="text-red-600 cursor-pointer hover:scale-110"
-                              onClick={() => {
-                                setCategoryDeleteId(item._id);
-                                confirmDeleteHandler();
-                              }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+          {/* Action Buttons */}
+          <div className="flex justify-center space-x-10 border-t pt-3 mt-4">
+            <button
+              onClick={() => showDetailsHandler(item._id)}
+              className="p-2 rounded-full hover:bg-blue-50 transition"
+            >
+              <MdOutlineVisibility
+                size={22}
+                className="text-blue-600 hover:text-blue-800 transition"
+              />
+            </button>
+
+            <button
+              onClick={() => editHandler(item._id)}
+              className="p-2 rounded-full hover:bg-yellow-50 transition"
+            >
+              <MdEdit
+                size={22}
+                className="text-yellow-600 hover:text-yellow-800 transition"
+              />
+            </button>
+
+            <button
+              onClick={() => {
+                setCategoryDeleteId(item._id);
+                confirmDeleteHandler();
+              }}
+              className="p-2 rounded-full hover:bg-red-50 transition"
+            >
+              <MdDeleteOutline
+                size={22}
+                className="text-red-600 hover:text-red-800 transition"
+              />
+            </button>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
+
               </div>
             )}
             </div>
