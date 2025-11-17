@@ -340,14 +340,14 @@ const LeadsDrawer = ({
       headers: { authorization: `Bearer ${cookies?.access_token}` }
     });
 
-    const data = await res.json();
+    const data = await res?.json();
 
     if (data.success) {
 
       // 👉 Save how many default statuses came from backend
-      setDefaultStatusCount(data.statusList.length);
+      setDefaultStatusCount(data?.statusList?.length);
 
-      let dynamicOptions = data.statusList.map(s => ({
+      let dynamicOptions = data?.statusList?.map(s => ({
         label: s,
         value: s
       }));
