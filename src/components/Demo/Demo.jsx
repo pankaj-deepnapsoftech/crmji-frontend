@@ -732,7 +732,7 @@ const Demo = () => {
 
 
 
-      {viewMode === "card" && (
+      {/* {viewMode === "card" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
 
           {filteredData.map((item) => (
@@ -740,12 +740,12 @@ const Demo = () => {
               key={item._id}
               className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all"
             >
-              {/* NAME */}
+              
               <p className="text-lg font-semibold text-blue-700">
                 {item.name}
               </p>
 
-              {/* LEAD TYPE */}
+              
               <p className="text-sm mt-1">
                 <span
                   className={`px-3 py-1 rounded-md text-sm ${item.leadtype === "People"
@@ -757,7 +757,7 @@ const Demo = () => {
                 </span>
               </p>
 
-              {/* STATUS */}
+              
               <p className="mt-2 text-sm">
                 <span
                   className="px-3 py-1 rounded-md text-sm"
@@ -772,13 +772,13 @@ const Demo = () => {
                 </span>
               </p>
 
-              {/* CREATED ON */}
+              
               <p className="text-[13px] text-gray-600 mt-2">
                 Created:{" "}
                 {moment(item.createdAt).format("DD/MM/YYYY")}
               </p>
 
-              {/* MEETING DATE */}
+              
               <p className="text-[13px] text-gray-600">
                 Meeting:{" "}
                 {item.meeting?.meetingDateTime
@@ -788,15 +788,15 @@ const Demo = () => {
                   : "Not Set"}
               </p>
 
-              {/* MEETING TYPE */}
+            
               <p className="text-[13px] text-gray-600">
                 Type: {item.meeting?.meetingType || "N/A"}
               </p>
 
-              {/* ACTIONS */}
+              
               <div className="flex items-center justify-end gap-4 mt-4">
 
-                {/* VIEW */}
+              
                 <MdOutlineVisibility
                   className="text-blue-500 cursor-pointer hover:scale-110 transition"
                   size={20}
@@ -806,14 +806,14 @@ const Demo = () => {
                   }}
                 />
 
-                {/* EDIT */}
+               
                 <MdEdit
                   className="text-yellow-500 cursor-pointer hover:scale-110 transition"
                   size={20}
                   onClick={() => editHandler(item._id)}
                 />
 
-                {/* MOVE TO CUSTOMER */}
+                
                 <FaUserShield
                   className="text-green-600 cursor-pointer hover:scale-110 transition"
                   size={20}
@@ -851,7 +851,7 @@ const Demo = () => {
                   }}
                 />
 
-                {/* DELETE */}
+                
                 <MdDeleteOutline
                   className="text-red-500 cursor-pointer hover:scale-110 transition"
                   size={20}
@@ -863,7 +863,145 @@ const Demo = () => {
             </div>
           ))}
         </div>
-      )}
+      )} */}
+
+      {viewMode === "card" && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
+
+    {filteredData.map((item) => (
+      <div
+        key={item._id}
+        className="border rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
+      >
+        {/* HEADER BADGES */}
+        <div className="flex justify-between items-center mb-3">
+          {/* Lead Type Badge */}
+          <div
+            className={`px-3 py-1 rounded-md text-sm font-semibold ${
+              item.leadtype === "People"
+                ? "bg-pink-100 text-pink-600"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            {item.leadtype === "People" ? "Individual" : "Corporate"}
+          </div>
+
+          {/* Status Badge */}
+          {item.status && (
+            <div
+              className="px-3 py-1 text-sm font-semibold rounded-md"
+              style={{
+                backgroundColor:
+                  statusStyles[item.status.toLowerCase()]?.bg,
+                color: statusStyles[item.status.toLowerCase()]?.text,
+              }}
+            >
+              {item.status}
+            </div>
+          )}
+        </div>
+
+        {/* NAME */}
+        <h2 className="font-semibold text-lg text-gray-800">{item.name}</h2>
+
+        {/* INFO SECTION */}
+        <div className="mt-3 space-y-1.5 text-sm text-gray-700">
+          <p>
+            <span className="font-medium">Created:</span>{" "}
+            {moment(item.createdAt).format("DD/MM/YYYY")}
+          </p>
+
+          <p>
+            <span className="font-medium">Meeting:</span>{" "}
+            {item.meeting?.meetingDateTime
+              ? moment(item.meeting.meetingDateTime).format(
+                  "DD/MM/YYYY HH:mm"
+                )
+              : "Not Set"}
+          </p>
+
+          <p>
+            <span className="font-medium">Type:</span>{" "}
+            {item.meeting?.meetingType || "N/A"}
+          </p>
+        </div>
+
+        {/* ACTION BAR */}
+        <div className="flex justify-center space-x-10 border-t pt-3 mt-4">
+
+          {/* VIEW */}
+          <MdOutlineVisibility
+            size={20}
+            className="text-blue-500 cursor-pointer hover:scale-110 transition-transform"
+            title="View"
+            onClick={() => {
+              setDataId(item._id);
+              showDetailsHandler(item._id);
+            }}
+          />
+
+          {/* EDIT */}
+          <MdEdit
+            size={20}
+            className="text-yellow-500 cursor-pointer hover:scale-110 transition-transform"
+            title="Edit"
+            onClick={() => editHandler(item._id)}
+          />
+
+          {/* MOVE TO CUSTOMER */}
+          <FaUserShield
+            size={20}
+            className="text-green-600 cursor-pointer hover:scale-110 transition-transform"
+            title="Move to Customer"
+            onClick={async () => {
+              try {
+                const response = await fetch(
+                  `${process.env.REACT_APP_BACKEND_URL}lead/edit-schedule-demo`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${cookies?.access_token}`,
+                    },
+                    body: JSON.stringify({
+                      leadId: item._id,
+                      status: "Completed",
+                      remark:
+                        remark ||
+                        "Converted to customer from Scheduled Meetings",
+                    }),
+                  }
+                );
+
+                const result = await response.json();
+                if (result.success) {
+                  toast.success(result.message);
+                  fetchScheduledDemoLeads();
+                } else {
+                  toast.error(result.message);
+                }
+              } catch (error) {
+                console.error(error);
+                toast.error("Move to Customer failed");
+              }
+            }}
+          />
+
+          {/* DELETE */}
+          <MdDeleteOutline
+            size={20}
+            className="text-red-500 cursor-pointer hover:scale-110 transition-transform"
+            title="Delete"
+            onClick={() => {
+              toast.info("Delete functionality to be implemented");
+            }}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
 
 
       {viewMode === "table" && (

@@ -664,12 +664,6 @@ const Invoices = () => {
                                   paymentHandler(row?.original?._id)
                                 }
                               />
-                              {/* Uncomment below for delete functionality */}
-                              {/* <MdDeleteOutline
-                className="hover:scale-110 transition-all duration-300 ease-in-out text-gray-600"
-                size={20}
-                onClick={() => deleteHandler(row.original?._id)}
-              /> */}
                             </Td>
                           </Tr>
                         );
