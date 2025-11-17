@@ -221,7 +221,12 @@ const Checkout = () => {
           }}
           className="subscription-font h-12 w-full text-white text-xl py-3 px-4"
         >
-          Economical-Plan ₹{(employeeCount * amount).toFixed(2) || 0}/-
+          Economical-Plan ₹{(() => {
+            const subtotal = (employeeCount || 0) * amount;
+            const gst = subtotal * 0.18;
+            const total = subtotal + gst;
+            return total.toFixed(2);
+          })() || 0}/-
         </h1>
         <div className="flex-col text-center flex items-center justify-center">
           <span className="subscription-font w-1/2 leading-6 pt-6">
