@@ -274,10 +274,10 @@ const Login = () => {
 
   const registerVerify = async (e) => {
     e.preventDefault();
-    if (otp.length < 4) {
-      toast.error("Invalid OTP");
-      return;
-    }
+    // if (otp.length < 4) {
+    //   toast.error("Invalid OTP");
+    //   return;
+    // }
 
     try {
       const baseUrl = process.env.REACT_APP_BACKEND_URL;

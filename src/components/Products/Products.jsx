@@ -604,7 +604,7 @@ const Products = () => {
                     </>
                   ) : (
                     <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {page.map((row) => {
                           prepareRow(row);
                           const prod = row.original;
@@ -650,7 +650,90 @@ const Products = () => {
                             </div>
                           );
                         })}
-                      </div>
+                      </div> */}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {page.map((row) => {
+    prepareRow(row);
+    const prod = row.original; // ✅ FIX HERE
+
+    return (
+      <div
+        key={prod?._id}
+        className="border rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 bg-white hover:-translate-y-1"
+      >
+        {/* Top Section */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <Avatar size="lg" src={prod?.imageUrl} />
+            <div>
+              <div className="font-semibold text-xl text-gray-800">{prod?.name}</div>
+              <div className="text-sm text-gray-500">Model: {prod?.model || "-"}</div>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <div className="text-green-600 text-lg font-bold">₹{prod?.price}</div>
+            <div className="inline-block mt-1 text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+              {prod?.category}
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="mt-4 text-sm text-gray-700 leading-relaxed">
+          {prod?.description?.length > 130
+            ? prod.description.substr(0, 130) + "..."
+            : prod?.description}
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-3 text-xs text-gray-500">
+          Created by{" "}
+          <span className="text-blue-600 font-medium">{prod?.creator}</span>{" "}
+          on {prod?.createdAt ? moment(prod.createdAt).format("DD/MM/YYYY") : "-"}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center space-x-10 border-t pt-3 mt-4">
+          <button
+            onClick={() => showDetailsHandler(prod?._id)}
+            className="p-2 rounded-full hover:bg-blue-50 transition"
+          >
+            <MdOutlineVisibility
+              className="text-blue-600 hover:text-blue-800 transition"
+              size={22}
+            />
+          </button>
+
+          <button
+            onClick={() => editHandler(prod?._id)}
+            className="p-2 rounded-full hover:bg-yellow-50 transition"
+          >
+            <MdEdit
+              className="text-yellow-600 hover:text-yellow-800 transition"
+              size={22}
+            />
+          </button>
+
+          <button
+            onClick={() => {
+              setProductDeleteId(prod?._id);
+              confirmDeleteHandler();
+            }}
+            className="p-2 rounded-full hover:bg-red-50 transition"
+          >
+            <MdDeleteOutline
+              className="text-red-600 hover:text-red-800 transition"
+              size={22}
+            />
+          </button>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
 
                       <div className="w-[max-content] m-auto my-7">
                         <button

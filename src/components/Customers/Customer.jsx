@@ -663,124 +663,135 @@ const Customer = () => {
 
               {/* Card/Table Toggle */}
               {!loading && filteredData.length > 0 && (
-              <div className="flex justify-end mb-4 gap-2">
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
+                <div className="flex justify-end mb-4 gap-2">
+                  <button
+                    onClick={() => setViewMode("table")}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
       ${viewMode === "table"
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-blue-600 border-blue-600"}
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-blue-600 border-blue-600"}
     `}
-                >
-                  <BiTable size={18} />
+                  >
+                    <BiTable size={18} />
 
-                </button>
+                  </button>
 
-                <button
-                  onClick={() => setViewMode("card")}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
+                  <button
+                    onClick={() => setViewMode("card")}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-md border transition
       ${viewMode === "card"
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-blue-600 border-blue-600"}
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-blue-600 border-blue-600"}
     `}
-                >
-                  <BiCard size={18} />
+                  >
+                    <BiCard size={18} />
 
-                </button>
-              </div>
+                  </button>
+                </div>
               )}
 
               {/* CARD VIEW */}
               {viewMode === "card" && (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
                   {filteredData.map((cust) => (
                     <div
                       key={cust._id}
-                      className="bg-white p-4 rounded-lg shadow hover:shadow-md border border-gray-200 transition"
+                      className="border rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
                     >
-                      {/* ID */}
-                      <p className="text-sm text-gray-500 mb-1">
-                        <span className="font-semibold text-gray-700">ID: </span>
-                        {cust.uniqueId}
-                      </p>
+                      {/* TOP BADGES */}
+                      <div className="flex justify-between items-center mb-3">
+                        {/* UNIQUE ID */}
+                        <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-md text-sm font-semibold">
+                          {cust.uniqueId || "N/A"}
+                        </div>
 
-                      {/* Name */}
-                      <p className="text-lg font-semibold text-gray-900">{cust.name}</p>
-
-                      {/* Customer Type */}
-                      <p className="mt-1 text-sm">
-                        <span
-                          className={`px-2 py-1 rounded-md text-xs ${cust.customertype === "People"
+                        {/* Customer Type Badge */}
+                        <div
+                          className={`px-3 py-1 rounded-md text-sm font-semibold ${cust.customertype === "People"
                               ? "bg-pink-100 text-pink-600"
                               : "bg-blue-100 text-blue-600"
                             }`}
                         >
                           {cust.customertype === "People" ? "Individual" : "Corporate"}
-                        </span>
-                      </p>
-
-                      {/* Email / Phone */}
-                      <div className="mt-3 text-sm text-gray-700">
-                        <p><strong>Email:</strong> {cust.email || "N/A"}</p>
-                        <p><strong>Phone:</strong> {cust.phone || "N/A"}</p>
+                        </div>
                       </div>
 
-                      {/* Total Price */}
-                      <p className="mt-3 text-sm">
-                        <strong>Total Price: </strong>
-                        {typeof cust.totalInvoiceAmount === "number"
-                          ? cust.totalInvoiceAmount.toLocaleString("en-IN", {
-                            style: "currency",
-                            currency: "INR",
-                            minimumFractionDigits: 2,
-                          })
-                          : "₹0.00"}
-                      </p>
+                      {/* NAME */}
+                      <p className="font-semibold text-lg text-gray-900">{cust.name}</p>
 
-                      {/* Products */}
-                      <p className="text-sm mt-1">
-                        <strong>Products: </strong>
-                        {Array.isArray(cust.products) && cust.products.length > 0
-                          ? cust.products.map((p) => p.name).join(", ")
-                          : "Not Available"}
-                      </p>
-
-                      {/* Payment Received */}
-                      <p className="text-sm mt-1">
-                        <strong>Payment: </strong>
-                        {cust.lastPaymentAmount || 0}
-                      </p>
+                      {/* CUSTOMER INFO */}
+                      <div className="mt-3 space-y-1 text-sm text-gray-700">
+                        <p>
+                          <strong>Email:</strong> {cust.email || "N/A"}
+                        </p>
+                        <p>
+                          <strong>Phone:</strong> {cust.phone || "N/A"}
+                        </p>
+                        <p>
+                          <strong>Total Price:</strong>{" "}
+                          {typeof cust.totalInvoiceAmount === "number"
+                            ? cust.totalInvoiceAmount.toLocaleString("en-IN", {
+                              style: "currency",
+                              currency: "INR",
+                              minimumFractionDigits: 2,
+                            })
+                            : "₹0.00"}
+                        </p>
+                        <p>
+                          <strong>Products:</strong>{" "}
+                          {Array.isArray(cust.products) && cust.products.length > 0
+                            ? cust.products.map((p) => p.name).join(", ")
+                            : "Not Available"}
+                        </p>
+                        <p>
+                          <strong>Payment:</strong>{" "}
+                          {cust.lastPaymentAmount || 0}
+                        </p>
+                      </div>
 
                       {/* ACTION BUTTONS */}
-                      <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
-                        <button
-                          className="text-blue-600 text-sm font-medium bg-blue-200 py-1 px-2 rounded-2xl"
-                          onClick={() => showDetailsHandler(cust._id)}
+                      <div className="flex justify-center gap-3 pt-3 border-t border-gray-200">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorScheme="blue"
+                          onClick={() => showDetailsHandler(user._id)}
+                          leftIcon={<MdOutlineVisibility />}
                         >
                           View
-                        </button>
+                        </Button>
 
-                        <button
-                          className="text-green-600 text-sm font-medium bg-green-200 py-1 px-2 rounded-2xl"
-                          onClick={() => editHandler(cust._id)}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorScheme="orange"
+                          onClick={() => editHandler(user._id)}
+                          leftIcon={<MdEdit />}
                         >
                           Edit
-                        </button>
+                        </Button>
 
-                        <button
-                          className="text-red-600 text-sm font-medium bg-red-200 py-1 px-2 rounded-2xl"
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorScheme="red"
                           onClick={() => {
-                            setCustomerDeleteId(cust._id);
-                            confirmDeleteHandler();
+                            onOpen();
+                            setDeleteEmployeeSelectedId(user._id);
                           }}
+                          leftIcon={<MdDeleteOutline />}
                         >
                           Delete
-                        </button>
+                        </Button>
                       </div>
+
                     </div>
                   ))}
+
                 </div>
               )}
+
 
 
               {!loading && filteredData.length > 0 && (
