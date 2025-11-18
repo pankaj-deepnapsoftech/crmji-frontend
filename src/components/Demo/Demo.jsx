@@ -1454,14 +1454,18 @@ const Demo = () => {
                     }}
                     maxW="250px"
                   >
-                    <option value="Reschedule">Reschedule</option>
-                    <option value="Back to Lead">Back to Lead</option>
-                    <option value="Meeting done">Meeting done</option>
-                    <option value="quotation sent">quotation sent</option>
-                    <option value="quotation approved">quotation approved</option>
+                    <option value="Reschedule">Meeting Reschedule</option>
+                    
+                    <option value="Meeting done">Meeting Completed</option>
+                    
+                    <option value="Meeting done">In Negotitation</option>
+                    <option value="uotation sent">Quotation Sent</option>
+                    {/* <option value="quotation approved">quotation approved</option> */}
                     <option value="PO Received">PO Received</option>
-                    <option value="Invoice sent">Invoice sent</option>
+                    {/* <option value="Invoice sent">Invoice sent</option> */}
                     <option value="Payment Received">Payment Received</option>
+                    <option value="Back to Lead">Back to Lead</option>
+                     <option value="Not interested">Not Interested</option>
                   </Select>
 
                   {/* Payment Amount (Shown only when Payment Received) */}
