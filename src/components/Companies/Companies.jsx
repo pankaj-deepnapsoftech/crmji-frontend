@@ -223,7 +223,11 @@ const columns = [
 const Companies = () => {
   const [cookies] = useCookies();
   const [data, setData] = useState([]);
+  const [archivedData, setArchivedData] = useState([]);
+  const [interestedData, setInterestedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [filteredArchivedData, setFilteredArchivedData] = useState([]);
+  const [filteredInterestedData, setFilteredInterestedData] = useState([]);
   const [dataId, setDataId] = useState();
   const [loading, setLoading] = useState(true);
   const [searchKey, setSearchKey] = useState("");
@@ -355,8 +359,17 @@ const Companies = () => {
       if (!data.success) {
         throw new Error(data.message);
       }
-      setData(data.companies);
-      setFilteredData(data.companies);
+      const active = data.companies.filter(
+        (company) => company.status !== "Not Interested" && company.status !== "Interested"
+      );
+      const archived = data.companies.filter((company) => company.status === "Not Interested");
+      const interested = data.companies.filter((company) => company.status === "Interested");
+      setData(active);
+      setArchivedData(archived);
+      setInterestedData(interested);
+      setFilteredData(active);
+      setFilteredArchivedData(archived);
+      setFilteredInterestedData(interested);
       setLoading(false);
     } catch (err) {
       setLoading(false);
@@ -420,10 +433,11 @@ const Companies = () => {
   }, []);
 
   useEffect(() => {
-    if (searchKey.trim() !== "") {
-      const searchedData = data.filter(
+    const filterFn = (list = []) => {
+      if (searchKey.trim() === "") return list;
+      return list.filter(
         (d) =>
-          d?.creator?.name?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.creator?.toLowerCase().includes(searchKey.toLowerCase()) ||
           (d?.createdAt &&
             new Date(d?.createdAt)
               ?.toISOString()
@@ -433,15 +447,17 @@ const Companies = () => {
               .join("")
               ?.includes(searchKey.replaceAll("/", ""))) ||
           d?.companyname?.toLowerCase().includes(searchKey.toLowerCase()) ||
-          d?.contact?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.contactPersonName?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
-          d?.email?.toLowerCase().includes(searchKey.toLowerCase())
+          d?.email?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.uniqueId?.toLowerCase().includes(searchKey.toLowerCase())
       );
-      setFilteredData(searchedData);
-    } else {
-      setFilteredData(data);
-    }
-  }, [searchKey]);
+    };
+
+    setFilteredData(filterFn(data));
+    setFilteredArchivedData(filterFn(archivedData));
+    setFilteredInterestedData(filterFn(interestedData));
+  }, [searchKey, data, archivedData, interestedData]);
 
   return (
     <>
@@ -999,8 +1015,50 @@ const Companies = () => {
           </div>
         </div>
       )}
+      {!loading && (
+        <div className="mt-10">
+          <h3 className="text-xl font-semibold mb-4">Archived Corporates (Not Interested)</h3>
+          {filteredArchivedData.length === 0 && (
+            <div className="flex items-center justify-center flex-col text-gray-500">
+              <FcDatabase color="orange" size={60} />
+              <span className="mt-1 font-semibold">No archived corporates.</span>
+            </div>
+          )}
+          {filteredArchivedData.length > 0 && (
+            <TableContainer
+              maxHeight="400px"
+              overflowY="auto"
+              className="shadow-lg rounded-lg bg-white"
+            >
+              <Table variant="striped">
+                <Thead>
+                  <Tr>
+                    <Th>ID</Th>
+                    <Th>Company Name</Th>
+                    <Th>Contact Person</Th>
+                    <Th>Status</Th>
+                    <Th>Phone</Th>
+                    <Th>Email</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {filteredArchivedData.map((company) => (
+                    <Tr key={company._id}>
+                      <Td>{company.uniqueId}</Td>
+                      <Td>{company.companyname}</Td>
+                      <Td>{company.contactPersonName}</Td>
+                      <Td>{company.status}</Td>
+                      <Td>{company.phone}</Td>
+                      <Td>{company.email}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </TableContainer>
+          )}
+        </div>
+      )}
     </>
   );
 };
-
 export default Companies;

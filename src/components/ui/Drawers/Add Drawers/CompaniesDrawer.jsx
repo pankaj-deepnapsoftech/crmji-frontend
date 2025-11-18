@@ -11,16 +11,26 @@ import {
   Text,
   IconButton,
 } from "@chakra-ui/react";
+
 import { BiX } from "react-icons/bi";
 import { MdAdd, MdDelete } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { closeAddCompaniesDrawer } from "../../../../redux/reducers/misc";
 import { toast } from "react-toastify";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+// import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+
+const defaultStatusOptions = [
+  "Not Pick",
+  "Not Interested",
+  "Switch Off",
+  "Interested",
+];
 
 const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
   const [companyName, setCompanyName] = useState("");
+
   const [address, setAddress] = useState("");
   const [contactPersonName, setContactPersonName] = useState("");
   const [phone, setPhone] = useState("");
@@ -31,9 +41,15 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
   const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [additionalContacts, setAdditionalContacts] = useState([]); // Only 0 or 1 item
-  const [statusOptions, setStatusOptions] = useState([]);
+  const [statusOptions, setStatusOptions] = useState(
+    defaultStatusOptions.map((name) => ({ value: name, label: name }))
+  );
   const [customStatus, setCustomStatus] = useState("");
   const [cookies] = useCookies();
+  const [products, setProducts] = useState([]);
+  const [defaultProductId, setDefaultProductId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
@@ -63,6 +79,8 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
 
   const addCompanyHandler = async (e) => {
     e.preventDefault();
+
+    if (isSubmittingRef.current) return;
 
     // Validation
     if (phone.length !== 10) {
@@ -111,6 +129,9 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
       }
     }
 
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
       console.log("this isthe baseurl :: ", process.env.REACT_APP_BACKEND_URL)
@@ -147,11 +168,18 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
         throw new Error(data.message);
       }
 
+      if (status === "Interested") {
+        await autoCreateLead(data?.company?._id);
+      }
+
       closeDrawerHandler();
       fetchAllCompanies();
       toast.success(data.message);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -168,13 +196,17 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
       const data = await response.json();
       if (data.success && Array.isArray(data.data)) {
         const fetched = data.data.map((s) => s.name);
-        const unique = Array.from(new Set(fetched));
-        setStatusOptions(unique.map((name) => ({ value: name, label: name })));
+        const merged = Array.from(new Set([...defaultStatusOptions, ...fetched]));
+        setStatusOptions(merged.map((name) => ({ value: name, label: name })));
       } else {
-        setStatusOptions([]);
+        setStatusOptions(
+          defaultStatusOptions.map((name) => ({ value: name, label: name }))
+        );
       }
     } catch (err) {
-      setStatusOptions([]);
+      setStatusOptions(
+        defaultStatusOptions.map((name) => ({ value: name, label: name }))
+      );
     }
   };
 
@@ -198,8 +230,73 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
     return data;
   };
 
+  const getAllProducts = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "product/all-products", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setProducts(data.products || []);
+      if (!defaultProductId && data.products?.length) {
+        setDefaultProductId(data.products[0]?._id || "");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const autoCreateLead = async (companyId) => {
+    if (!companyId) return;
+
+    if (!defaultProductId) {
+      toast.error("Unable to create lead automatically. Please add a product first.");
+      return;
+    }
+
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "lead/create-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+        body: JSON.stringify({
+          leadtype: "Company",
+          status: "New",
+          source: "Sales",
+          companyId,
+          products: [defaultProductId],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      toast.success("Lead created automatically");
+    } catch (err) {
+      toast.error(`Lead creation failed: ${err.message}`);
+    }
+  };
+
   useEffect(() => {
     fetchStatusOptions();
+    getAllProducts();
   }, []);
 
   return (
@@ -497,6 +594,9 @@ const CompaniesDrawer = ({ fetchAllCompanies, closeDrawerHandler }) => {
             type="submit"
             className="mt-1 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
             colorScheme="blue"
+            isLoading={isSubmitting}
+            loadingText="Submitting..."
+            disabled={isSubmitting}
           >
             Submit
           </Button>

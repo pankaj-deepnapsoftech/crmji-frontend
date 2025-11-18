@@ -18,6 +18,13 @@ import { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import Loading from "../../Loading";
 
+const defaultStatusOptions = [
+  "Not Pick",
+  "Not Interested",
+  "Switch Off",
+  "Interested",
+];
+
 const CompaniesEditDrawer = ({
   dataId: id,
   closeDrawerHandler,
@@ -34,15 +41,20 @@ const CompaniesEditDrawer = ({
   const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [additionalContacts, setAdditionalContacts] = useState([]);
-  const [statusOptions, setStatusOptions] = useState([]);
+  const [statusOptions, setStatusOptions] = useState(
+    defaultStatusOptions.map((name) => ({ value: name, label: name }))
+  );
   const [cookies] = useCookies();
   const [isLoading, setIsLoading] = useState(false);
+  const [customStatus, setCustomStatus] = useState("");
+  const [products, setProducts] = useState([]);
+  const [defaultProductId, setDefaultProductId] = useState("");
 
   // Add only if none exists
   const addAdditionalContact = () => {
     if (additionalContacts.length === 0) {
       setAdditionalContacts([
-        { name: "", phone: "", designation: "", email: "" }
+        { name: "", phone: "", designation: "", email: "" },
       ]);
     }
   };
@@ -52,7 +64,7 @@ const CompaniesEditDrawer = ({
   };
 
   const updateAdditionalContact = (field, value) => {
-    setAdditionalContacts(prev => {
+    setAdditionalContacts((prev) => {
       const updated = [...prev];
       updated[0][field] = value;
       return updated;
@@ -98,7 +110,7 @@ const CompaniesEditDrawer = ({
           website: website.trim(),
           gst_no: gstNo,
           status,
-          additionalContacts: additionalContacts.map(c => ({
+          additionalContacts: additionalContacts.map((c) => ({
             name: c.name.trim(),
             phone: c.phone,
             designation: c.designation.trim(),
@@ -112,6 +124,10 @@ const CompaniesEditDrawer = ({
 
       if (!data.success) {
         throw new Error(data.message);
+      }
+
+      if (status === "Interested") {
+        await autoCreateLead(id);
       }
 
       closeDrawerHandler();
@@ -135,14 +151,82 @@ const CompaniesEditDrawer = ({
       const data = await response.json();
       if (data.success && Array.isArray(data.data)) {
         const fetched = data.data.map((s) => s.name);
-        const unique = Array.from(new Set(fetched));
-        setStatusOptions(unique.map((name) => ({ value: name, label: name })));
+        const merged = Array.from(new Set([...defaultStatusOptions, ...fetched]));
+        setStatusOptions(merged.map((name) => ({ value: name, label: name })));
       } else {
-        setStatusOptions([]);
+        setStatusOptions(
+          defaultStatusOptions.map((name) => ({ value: name, label: name }))
+        );
       }
     } catch (err) {
       console.error("Error fetching status options:", err);
-      setStatusOptions([]);
+      setStatusOptions(
+        defaultStatusOptions.map((name) => ({ value: name, label: name }))
+      );
+    }
+  };
+
+  const getAllProducts = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "product/all-products", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setProducts(data.products || []);
+      if (!defaultProductId && data.products?.length) {
+        setDefaultProductId(data.products[0]?._id || "");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const autoCreateLead = async (companyId) => {
+    if (!companyId) return;
+
+    if (!defaultProductId) {
+      toast.error("Unable to create lead automatically. Please add a product first.");
+      return;
+    }
+
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "lead/create-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+        body: JSON.stringify({
+          leadtype: "Company",
+          status: "New",
+          source: "Sales",
+          companyId,
+          products: [defaultProductId],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      toast.success("Lead created automatically");
+    } catch (err) {
+      toast.error(`Lead creation failed: ${err.message}`);
     }
   };
 
@@ -176,12 +260,14 @@ const CompaniesEditDrawer = ({
       // Additional Contact
       if (company.additionalContacts && company.additionalContacts.length > 0) {
         const contact = company.additionalContacts[0];
-        setAdditionalContacts([{
-          name: contact.name || "",
-          phone: contact.phone || "",
-          designation: contact.designation || "",
-          email: contact.email || "",
-        }]);
+        setAdditionalContacts([
+          {
+            name: contact.name || "",
+            phone: contact.phone || "",
+            designation: contact.designation || "",
+            email: contact.email || "",
+          },
+        ]);
       } else {
         setAdditionalContacts([]);
       }
@@ -196,6 +282,7 @@ const CompaniesEditDrawer = ({
   useEffect(() => {
     fetchCompanyDetails();
     fetchStatusOptions();
+    getAllProducts();
   }, [id]);
 
   return (
@@ -220,7 +307,6 @@ const CompaniesEditDrawer = ({
 
         {!isLoading && (
           <form onSubmit={editCompanyHandler} className="space-y-5">
-
             {/* Company Name */}
             <FormControl isRequired>
               <FormLabel fontWeight="bold" className="text-[#4B5563]">
@@ -269,7 +355,7 @@ const CompaniesEditDrawer = ({
               <Input
                 value={phone}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 10);
                   setPhone(value);
                 }}
                 placeholder="Enter 10-digit Phone Number"
@@ -343,7 +429,7 @@ const CompaniesEditDrawer = ({
                         <FormLabel fontSize="sm">Name</FormLabel>
                         <Input
                           value={additionalContacts[0].name}
-                          onChange={(e) => updateAdditionalContact('name', e.target.value)}
+                          onChange={(e) => updateAdditionalContact("name", e.target.value)}
                           placeholder="Enter Name"
                           size="sm"
                         />
@@ -353,8 +439,8 @@ const CompaniesEditDrawer = ({
                         <Input
                           value={additionalContacts[0].phone}
                           onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                            updateAdditionalContact('phone', value);
+                            const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            updateAdditionalContact("phone", value);
                           }}
                           placeholder="10-digit Phone"
                           size="sm"
@@ -368,7 +454,7 @@ const CompaniesEditDrawer = ({
                         <FormLabel fontSize="sm">Designation</FormLabel>
                         <Input
                           value={additionalContacts[0].designation}
-                          onChange={(e) => updateAdditionalContact('designation', e.target.value)}
+                          onChange={(e) => updateAdditionalContact("designation", e.target.value)}
                           placeholder="Enter Designation"
                           size="sm"
                         />
@@ -377,7 +463,7 @@ const CompaniesEditDrawer = ({
                         <FormLabel fontSize="sm">Email</FormLabel>
                         <Input
                           value={additionalContacts[0].email}
-                          onChange={(e) => updateAdditionalContact('email', e.target.value)}
+                          onChange={(e) => updateAdditionalContact("email", e.target.value)}
                           placeholder="Enter Email"
                           size="sm"
                           type="email"
@@ -397,7 +483,7 @@ const CompaniesEditDrawer = ({
               <Input
                 value={gstNo}
                 onChange={(e) => {
-                  const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15);
+                  const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15);
                   setGstNo(value);
                 }}
                 placeholder="Enter 15-character GST Number"
@@ -414,7 +500,7 @@ const CompaniesEditDrawer = ({
               <Select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                placeholder="Select Status"
+                placeholder="Select status"
                 className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
               >
                 {statusOptions.map((option) => (
@@ -423,6 +509,43 @@ const CompaniesEditDrawer = ({
                   </option>
                 ))}
               </Select>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  value={customStatus}
+                  onChange={(e) => setCustomStatus(e.target.value)}
+                  placeholder="Add more status"
+                  disabled={statusOptions.length >= 10}
+                />
+                <Button
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    const val = customStatus.trim();
+                    if (!val) return;
+
+                    if (statusOptions.length >= 10) {
+                      toast.error("Maximum 10 status options allowed");
+                      return;
+                    }
+
+                    if (!statusOptions.some((o) => o.value.toLowerCase() === val.toLowerCase())) {
+                      try {
+                        await addCompanyStatus(val);
+                        await fetchStatusOptions();
+                        setStatus(val);
+                        toast.success("Status added successfully");
+                      } catch (err) {
+                        toast.error(err.message);
+                      }
+                    } else {
+                      toast.error("Status already exists");
+                    }
+                    setCustomStatus("");
+                  }}
+                  disabled={statusOptions.length >= 10}
+                >
+                  Add
+                </Button>
+              </div>
             </FormControl>
 
             {/* Website */}

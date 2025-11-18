@@ -491,8 +491,9 @@ const Peoples = () => {
         throw new Error(data.message);
       }
 
-      setData(data.people);
-      setFilteredData(data.people);
+      const active = data.people.filter((person) => person.status !== "Interested");
+      setData(active);
+      setFilteredData(active);
 
       // Extract IDs and store them in state
       const ids = data.people.map((person) => person._id);
