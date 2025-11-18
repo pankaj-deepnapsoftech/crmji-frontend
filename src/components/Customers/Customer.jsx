@@ -127,11 +127,13 @@ const columns = [
   {
     Header: "Sale Date",
     accessor: "saleDate",
+    Cell: ({ value }) => (value ? moment(value).format("DD/MM/YYYY") : "N/A"),
     id: "sale_date",
   },
   {
     Header: "Delivery Date",
     accessor: "deliveryDate",
+    Cell: ({ value }) => (value ? moment(value).format("DD/MM/YYYY") : "N/A"),
     id: "delivery_date",
   },
   {

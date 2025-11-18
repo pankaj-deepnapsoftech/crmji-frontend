@@ -1650,6 +1650,10 @@ const Leads = () => {
                       fetchLeadSummary={fetchLeadSummary}
                       fetchAllLeads={fetchAllLeads}
                       closeDrawerHandler={() => dispatch(closeAddLeadsDrawer())}
+                      onOpenMoveToDemo={(id) => {
+                        setDataId(id);
+                        dispatch(openMoveToDemoDrawer());
+                      }}
                     />
                   </ClickMenu>
                 )}
@@ -1665,6 +1669,10 @@ const Leads = () => {
                     <LeadEditDrawer
                       dataId={dataId}
                       fetchAllLeads={fetchAllLeads}
+                      onOpenMoveToDemo={(id) => {
+                        setDataId(id);
+                        dispatch(openMoveToDemoDrawer());
+                      }}
                       closeDrawerHandler={() =>
                         dispatch(closeEditLeadsDrawer())
                       }
