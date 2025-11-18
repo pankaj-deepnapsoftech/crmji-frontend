@@ -11,6 +11,17 @@ import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import Loading from "../../Loading";
 
+const defaultStatusOptions = [
+  "Not Pick",
+  "Follow up",
+  "Call Occupied",
+  "Customer Occupied",
+  "Not Connected",
+  "Not Interested",
+  "Switch Off",
+  "Interested",
+];
+
 const PeoplesEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
   const [cookies] = useCookies();
   const [companies, setCompanies] = useState([]);
@@ -20,14 +31,12 @@ const PeoplesEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
-  const [statusOptions, setStatusOptions] = useState([
-    "Not Pick",
-    "Not Interested",
-    "Switch Off",
-  ]);
+  const [statusOptions, setStatusOptions] = useState([]);
   const [customStatus, setCustomStatus] = useState("");
   const [comment, setComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [defaultProductId, setDefaultProductId] = useState("");
 
   const editPeopleHandler = async (e) => {
     e.preventDefault();
@@ -62,6 +71,10 @@ const PeoplesEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
 
       if (!data.success) {
         throw new Error(data.message);
+      }
+
+      if (status === "Interested") {
+        await autoCreateLead(id);
       }
 
       closeDrawerHandler();
@@ -130,9 +143,100 @@ const PeoplesEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
     }
   };
 
+  const getAllStatuses = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "status/all-statuses", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      const fetched = data.statuses.map((status) => status.name);
+      const merged = Array.from(new Set([...defaultStatusOptions, ...fetched]));
+      setStatusOptions(merged);
+    } catch (err) {
+      setStatusOptions(defaultStatusOptions);
+    }
+  };
+
+  const getAllProducts = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "product/all-products", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setProducts(data.products || []);
+      if (!defaultProductId && data.products?.length) {
+        setDefaultProductId(data.products[0]?._id || "");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const autoCreateLead = async (peopleId) => {
+    if (!peopleId) return;
+
+    if (!defaultProductId) {
+      toast.error("Unable to create lead automatically. Please add a product first.");
+      return;
+    }
+
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "lead/create-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+        body: JSON.stringify({
+          leadtype: "People",
+          status: "New",
+          source: "Sales",
+          peopleId,
+          products: [defaultProductId],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      toast.success("Lead created automatically");
+    } catch (err) {
+      toast.error(`Lead creation failed: ${err.message}`);
+    }
+  };
+
   useEffect(() => {
     fetchPeopleDetails();
     getAllCompanies();
+    getAllStatuses();
+    getAllProducts();
   }, []);
 
   return (
@@ -186,18 +290,29 @@ const PeoplesEditDrawer = ({ dataId: id, closeDrawerHandler }) => {
                   value={customStatus}
                   onChange={(e) => setCustomStatus(e.target.value)}
                   placeholder="Add more status"
+                  disabled={statusOptions.length >= 10}
                 />
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
                     const val = customStatus.trim();
                     if (!val) return;
+
+                    if (statusOptions.length >= 10) {
+                      toast.error("Maximum 10 status options allowed");
+                      return;
+                    }
+
                     if (!statusOptions.includes(val)) {
                       setStatusOptions((prev) => [...prev, val]);
                       setStatus(val);
+                      toast.success("Status added successfully");
+                    } else {
+                      toast.error("Status already exists");
                     }
                     setCustomStatus("");
                   }}
+                  disabled={statusOptions.length >= 10}
                 >
                   Add
                 </Button>

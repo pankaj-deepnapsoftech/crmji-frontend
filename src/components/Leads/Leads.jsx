@@ -245,6 +245,7 @@ const Leads = () => {
       { Header: "Name", accessor: "name" },
       { Header: "Lead Category", accessor: "leadCategory" },
       { Header: "Status", accessor: "status" },
+      { Header: "Tag", accessor: "tag" },
       { Header: "Phone", accessor: "phone" },
       { Header: "Email", accessor: "email" },
       { Header: "Location", accessor: "location" },
@@ -904,6 +905,7 @@ const Leads = () => {
           d?.name?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.source?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.status?.toLowerCase().includes(searchKey.toLowerCase()) ||
+          d?.tag?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.assigned?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.leadCategory?.toLowerCase().includes(searchKey.toLowerCase()) ||
           d?.phone?.includes(searchKey) ||
@@ -1711,23 +1713,30 @@ const Leads = () => {
                       className="border rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
                     >
                       {/* Header Section */}
-                      <div className="flex justify-between items-center mb-3">
+                      <div className="flex justify-between items-start mb-3">
                         <div className="bg-yellow-500 text-yellow-800 text-center rounded-md px-3 py-1 text-sm font-semibold">
                           {item.leadtype || "N/A"}
                         </div>
 
-                        {item.status && (
-                          <div
-                            className="text-center rounded-md px-3 py-1 text-sm font-semibold"
-                            style={{
-                              backgroundColor:
-                                statusStyles[String(item.status || '').toLowerCase()]?.bg,
-                              color: statusStyles[String(item.status || '').toLowerCase()]?.text,
-                            }}
-                          >
-                            {item.status}
-                          </div>
-                        )}
+                        <div className="flex flex-col items-end gap-1">
+                          {item.status && (
+                            <div
+                              className="text-center rounded-md px-3 py-1 text-sm font-semibold"
+                              style={{
+                                backgroundColor:
+                                  statusStyles[String(item.status || '').toLowerCase()]?.bg,
+                                color: statusStyles[String(item.status || '').toLowerCase()]?.text,
+                              }}
+                            >
+                              {item.status}
+                            </div>
+                          )}
+                          {item.tag && (
+                            <Badge colorScheme="purple" className="text-xs px-2 py-1 rounded">
+                              Tag: {item.tag}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       {/* Body Section */}
@@ -1914,6 +1923,7 @@ const Leads = () => {
                                       cell.column.id !== "followup_reason" &&
                                       cell.column.id !== "created_on" &&
                                       cell.column.id !== "leadCategory" &&
+                                      cell.column.id !== "tag" &&
                                       cell.render("Cell")}
 
                                     {/* SELECT CHECKBOX */}
@@ -2035,6 +2045,16 @@ const Leads = () => {
                                         )}
                                       >
                                         {row.original?.leadCategory}
+                                      </Badge>
+                                    )}
+
+                                    {/* TAG */}
+                                    {cell.column.id === "tag" && (
+                                      <Badge
+                                        className="text-sm rounded-md px-3 py-1"
+                                        colorScheme="purple"
+                                      >
+                                        {row.original?.tag || "N/A"}
                                       </Badge>
                                     )}
                                   </Td>

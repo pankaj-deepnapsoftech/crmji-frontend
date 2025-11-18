@@ -8,11 +8,20 @@ import {
 import { BiX } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 import CustomSelect from "../../CustomSelect";
 
-const defaultStatusOptions = ["Not Pick", "Not Interested", "Switch Off"];
+const defaultStatusOptions = [
+  "Not Pick",
+  "Follow up",
+  "Call Occupied",
+  "Customer Occupied",
+  "Not Connected",
+  "Not Interested",
+  "Switch Off",
+  "Interested",
+];
 
 const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
   const [cookies] = useCookies();
@@ -26,12 +35,18 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
   const [statusOptions, setStatusOptions] = useState([]);
   const [customStatus, setCustomStatus] = useState("");
   const [comment, setComment] = useState("");
+  const [products, setProducts] = useState([]);
+  const [defaultProductId, setDefaultProductId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const dispatch = useDispatch();
   const auth = useSelector(state => state.auth);
 
   const addPeopleHandler = async (e) => {
     e.preventDefault();
+
+    if (isSubmittingRef.current) return;
 
     if (firstname.length > 25) {
       toast.error("Firstname field must be less than 25 characters long");
@@ -46,6 +61,8 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
       return;
     }
 
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
     try {
       const baseURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -72,11 +89,18 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
         throw new Error(data.message);
       }
 
+      if (status === "Interested") {
+        await autoCreateLead(data?.person?._id);
+      }
+
       fetchAllPeople();
       closeDrawerHandler();
       toast.success(data.message);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -156,9 +180,74 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
     }
   };
 
+  const getAllProducts = async () => {
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "product/all-products", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setProducts(data.products || []);
+      if (!defaultProductId && data.products?.length) {
+        setDefaultProductId(data.products[0]?._id || "");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const autoCreateLead = async (peopleId) => {
+    if (!peopleId) return;
+
+    if (!defaultProductId) {
+      toast.error("Unable to create lead automatically. Please add a product first.");
+      return;
+    }
+
+    try {
+      const baseURL = process.env.REACT_APP_BACKEND_URL;
+
+      const response = await fetch(baseURL + "lead/create-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${cookies?.access_token}`,
+        },
+        body: JSON.stringify({
+          leadtype: "People",
+          status: "New",
+          source: "Sales",
+          peopleId,
+          products: [defaultProductId],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      toast.success("Lead created automatically");
+    } catch (err) {
+      toast.error(`Lead creation failed: ${err.message}`);
+    }
+  };
+
   useEffect(() => {
     getAllCompanies();
     getAllStatuses();
+    getAllProducts();
   }, []);
 
   return (
@@ -336,6 +425,9 @@ const PeoplesDrawer = ({ closeDrawerHandler, fetchAllPeople }) => {
             type="submit"
             className="mt-1 w-full py-3 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
             colorScheme="blue"
+            isLoading={isSubmitting}
+            loadingText="Submitting..."
+            disabled={isSubmitting}
           >
             Submit
           </Button>

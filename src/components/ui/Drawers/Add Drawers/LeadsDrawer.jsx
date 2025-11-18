@@ -98,6 +98,7 @@ const LeadsDrawer = ({
   const [followupReason, setFollowupReason] = useState();
 
   const [category, setCategory] = useState("");
+  const [tag, setTag] = useState("");
 
   const navigate = useNavigate();
 
@@ -265,6 +266,7 @@ const LeadsDrawer = ({
         prc_qt: prcQt,
         location: location,
         leadCategory: category.value,
+        tag: tag?.trim() || undefined,
       });
     } else if (
       statusId?.value === "Follow Up" &&
@@ -285,6 +287,7 @@ const LeadsDrawer = ({
         prc_qt: prcQt,
         location: location,
         leadCategory: category.value,
+        tag: tag?.trim() || undefined,
       });
     } else {
       body = JSON.stringify({
@@ -298,6 +301,7 @@ const LeadsDrawer = ({
         prc_qt: prcQt,
         location: location,
         leadCategory: category.value,
+        tag: tag?.trim() || undefined,
       });
     }
 
@@ -551,6 +555,20 @@ const LeadsDrawer = ({
               isSearchable={true}
             />
           </div>
+
+          {/* Tag */}
+          <FormControl className="mt-2 mb-5">
+            <FormLabel fontWeight="bold" className="text-[#4B5563]">
+              Tag
+            </FormLabel>
+            <Input
+              type="text"
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              placeholder="Enter tag"
+              className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+            />
+          </FormControl>
 
           {/* Assigned Employee (Conditional Rendering based on Status) */}
           {statusId?.value === "Assigned" && (
