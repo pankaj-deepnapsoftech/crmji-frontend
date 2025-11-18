@@ -40,6 +40,7 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
   const [followupDate, setFollowupDate] = useState();
   const [followupReason, setFollowupReason] = useState();
   const [category, setCategory] = useState(null);
+  const [tag, setTag] = useState("");
   const auth = useSelector((state) => state.auth);
   const notificationCtx = useContext(notificationContext);
   const [statusOptionsList, setStatusOptionsList] = useState([]);
@@ -165,6 +166,7 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
         prc_qt: prcQt,
         location: location,
         leadCategory: category?.value,
+        tag: tag?.trim() || undefined,
       });
     } else if (
       statusId?.value === "Follow Up" &&
@@ -182,6 +184,7 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
         prc_qt: prcQt,
         location: location,
         leadCategory: category?.value,
+        tag: tag?.trim() || undefined,
       });
     } else {
       body = JSON.stringify({
@@ -193,6 +196,7 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
         prc_qt: prcQt,
         location: location,
         leadCategory: category?.value,
+        tag: tag?.trim() || undefined,
       });
     }
 
@@ -264,6 +268,7 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
         (option) => option.value === data.lead?.leadCategory
       );
       setCategory(selectedCategory || null); // If not found, set to null or default
+      setTag(data.lead?.tag || "");
       setIsLoading(false);
       toast.success(data.message);
     } catch (err) {
@@ -408,6 +413,20 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
               />
 
             </div>
+
+            {/* Tag */}
+            <FormControl className="mt-2 mb-5">
+              <FormLabel fontWeight="bold" className="text-[#4B5563]">
+                Tag
+              </FormLabel>
+              <Input
+                type="text"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                placeholder="Enter tag"
+                className="rounded mt-2 border p-3 focus:ring-2 focus:ring-blue-400"
+              />
+            </FormControl>
 
             {/* Assigned Employee Selection (conditionally shown) */}
 

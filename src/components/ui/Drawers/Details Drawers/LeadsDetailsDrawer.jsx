@@ -51,6 +51,7 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
           (data.lead?.people?.lastname || "")
           : "",
         status: data.lead?.status,
+        tag: data.lead?.tag,
         source: data.lead?.source,
         phone: data.lead?.company
           ? data.lead?.company?.phone
@@ -185,6 +186,18 @@ const LeadsDetailsDrawer = ({ dataId: id, closeDrawerHandler }) => {
                     }
                   >
                     {details?.leadCategory || "Not Available"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-700">Status</p>
+                  <Badge colorScheme="blue">
+                    {details?.status || "Not Available"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-700">Tag</p>
+                  <Badge colorScheme="purple">
+                    {details?.tag || "Not Available"}
                   </Badge>
                 </div>
               </div>
