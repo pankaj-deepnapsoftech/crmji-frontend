@@ -1465,7 +1465,7 @@ const Demo = () => {
                     {/* <option value="Invoice sent">Invoice sent</option> */}
                     <option value="Payment Received">Payment Received</option>
                     <option value="Back to Lead">Back to Lead</option>
-                     <option value="Not interested">Not Interested</option>
+                     <option value="Not Interested">Not Interested</option>
                   </Select>
 
                   {/* Payment Amount (Shown only when Payment Received) */}
