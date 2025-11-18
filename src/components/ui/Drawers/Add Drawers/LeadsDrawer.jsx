@@ -23,6 +23,7 @@ const LeadsDrawer = ({
   fetchAllLeads,
   closeDrawerHandler,
   fetchLeadSummary,
+  onOpenMoveToDemo,
 }) => {
   const [cookies] = useCookies();
   const [companies, setCompanies] = useState([]);
@@ -335,6 +336,13 @@ const LeadsDrawer = ({
       fetchAllLeads();
       fetchLeadSummary();
       closeDrawerHandler();
+
+      // If user selected Meeting Scheduled, open the Schedule Meeting drawer next
+      if (statusId?.value === "Meeting Scheduled" && typeof onOpenMoveToDemo === "function") {
+        const newlyCreatedId = data?.lead?._id;
+        if (newlyCreatedId) onOpenMoveToDemo(newlyCreatedId);
+      }
+
       toast.success(data.message);
     } catch (err) {
       toast.error(err.message);

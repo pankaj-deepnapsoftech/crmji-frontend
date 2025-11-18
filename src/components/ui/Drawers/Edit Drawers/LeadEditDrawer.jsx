@@ -16,7 +16,7 @@ import Select from "react-select";
 import Loading from "../../Loading";
 import { notificationContext } from "../../../ctx/notificationContext";
 
-const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
+const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads, onOpenMoveToDemo }) => {
   const [companies, setCompanies] = useState([]);
   const [peoples, setPeoples] = useState([]);
   const [prcQt, setPrcQt] = useState();
@@ -218,8 +218,16 @@ const LeadEditDrawer = ({ dataId: id, closeDrawerHandler, fetchAllLeads }) => {
         throw new Error(data.message);
       }
 
+      // Close edit drawer
       closeDrawerHandler();
+      // Refresh
       fetchAllLeads();
+
+      // If user set status to Meeting Scheduled, open the Schedule Meeting drawer next
+      if (statusId?.value === "Meeting Scheduled" && typeof onOpenMoveToDemo === "function") {
+        onOpenMoveToDemo(id);
+      }
+
       toast.success(data.message);
     } catch (err) {
       toast.error(err.message);
