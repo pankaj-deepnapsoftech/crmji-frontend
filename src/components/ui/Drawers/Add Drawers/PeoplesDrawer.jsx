@@ -14,6 +14,10 @@ import CustomSelect from "../../CustomSelect";
 
 const defaultStatusOptions = [
   "Not Pick",
+  "Follow up",
+  "Call Occupied",
+  "Customer Occupied",
+  "Not Connected",
   "Not Interested",
   "Switch Off",
   "Interested",
